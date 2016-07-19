@@ -4,7 +4,7 @@
 }
 body {
   background-color: #ffffff;
-  padding-top: 70px;
+  padding-top: 60px;
   min-height: 100%auto;
   font-family: sans-serif;
 }
@@ -15,18 +15,13 @@ body {
 html, body {
     height: 100%;
 }
-.wrapper {
-    min-height: 100%;
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto -50px; /* the bottom margin is the negative value of the footer's height */
-}
-.footer, .push {
-    height: 50px; /* .push must be the same height as .footer */
-}
 
 .navbar .nav {
     color: #1a1110;
+}
+
+.navbar .navbar-brand {
+  color: #7DC1BB;
 }
 
 .jumbotron {
@@ -37,19 +32,70 @@ html, body {
   color: #ffffff;
 }
 
+#wrapper {min-height: 100%;}
+
+#main {overflow:auto;
+	padding-bottom: 100px;}  /* must be same height as the footer */
+
+
+/*Opera Fix*/
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;
+}
+
+
 .footer {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 1rem;
-  background-color: #efefef;
+  position: relative;
+  margin-top: -50px;
+  height: 50px;
+  line-height: 45px;
+  background-color: #7DC1BB;
   text-align: center;
+  color: #000000;
+  clear: both;
 }
 
 .table thead {
-  background-color: #efefef;
+  background-color: #7DC1BB;
 }
+
+h1 {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+}
+
+h2, p {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+}
+
+.refract {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+}
+
+strong {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: #a9a9a9;
+}
+
+lead {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: #a9a9a9;
+}
+
+.tagline {
+  color: #7DC1BB;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+}
+
 
 
 @import url(http://fonts.googleapis.com/css?family=Roboto);

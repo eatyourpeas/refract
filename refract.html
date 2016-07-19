@@ -8,71 +8,83 @@
 -->
 <head>
   <link rel="icon" sizes="16x16 32x32" href="/img/favicon.ico">
+  <link href='https://fonts.googleapis.com/css?family=Oxygen:400,300,700|Roboto:400,100|Oxygen+Mono' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Monofett|Bungee+Shade' rel='stylesheet' type='text/css'>
 </head>
 
 <template name="leaderboard">
-
         <div class="container">
-        <h2>Leaderboard</h2>
-        <table class="table table-condensed">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Time (seconds)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each player}}
-            <tr>
-              <td>{{player_alias}}</td>
-              <td>{{score}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
+          <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 col-xs-12">
+              <h2>Leaderboard</h2>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+          </div>
+          <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 col-xs-12">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Time (seconds)</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each player}}
+                    <tr>
+                      <td>{{player_alias}}</td>
+                      <td>{{score}}</td>
+                      <td>{{dateformat date}}</td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+          </div> <!--row-->
+        </div>
 
       <div class="container">
-      <h2>My Times</h2>
-      <table class="table table-condensed">
-        <thead>
-          <tr>
-            <th>Time (seconds)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each measplayer}}
-          <tr>
-            <td>{{score}}</td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    </div>
-
+        <div class="row">
+          <div class="col-lg-3 col-md-2"></div>
+          <div class="col-lg-6 col-md-8 col-xs-12">
+            <h2>My Personal Best Times</h2>
+          </div>
+          <div class="col-lg-3 col-md-2"></div>
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-2"></div>
+          <div class="col-lg-6 col-md-8 col-xs-12">
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Time (seconds)</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each measplayer}}
+                  <tr>
+                    <td>{{score}}</td>
+                    <td>{{dateformat date}}</td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          <div class="col-lg-3 col-md-2"></div>
+        </div> <!--row-->
+      </div> <!-- container -->
 </template>
 
 
 <template name = "refract">
-              <div class="container" id="canvascontainer">
-
-                      <canvas id ="specsCanvas" align="center"> </canvas>
-              </div>
-              <div class="container">
-                  <div class="col-md-6">
-                      <div class="count-down"></div>
-                  </div>
-                  <div class="col-md-6">
-                      <button type = "button" class="go" id="gobutton" >GO!</button>
-                      <button type = "button" class="reset" id="restartbutton" >Restart</button>
-                      <label id="updateLabel" class="lead"></label>
-                  </div>
-              </div>
-
-
-
-
-
+  <div class="container" id="canvascontainer">
+    <canvas id ="specsCanvas" align="left"> </canvas>
+  </div>
 </template>
 
 <template name = 'contact'>
@@ -85,7 +97,7 @@
         <div class="row">
           <div class="col col-lg-12 col-sm-12">
             <div class="col col-lg-8 col-sm-6">
-              <h1>Welcome to Refr<span style="color: #000000"><strong>act</strong></span></h1>
+              <h1 class='refract'>Welcome to Refr<span style="color: #000000"><strong>act</strong></span></h1>
               <lead>optometry training under the lens</lead>
             </div>
             <div class="col col-lg-4 col-sm-6">
@@ -98,15 +110,18 @@
 </template>
 
 <template name="main">
-  <div id="wrapper">
-    {{>navigation}}
-    {{>yield}}
-    <div class="push"></div>
-  </div>
-  <div class="footer">
-    <p>Copyright &copy; Refract, 2015. Inspired by Andrew Gridley</p>
-</div>
 
+    {{>navigation}}
+    <div id="wrapper">
+      <div id='main'>
+        {{>yield}}
+      </div>
+    </div>
+    <div class="push"></div>
+
+  <div class="footer">
+    <p>Copyright &copy; Refract, 2015. Inspired by Andrew Gridley. Developed by <a href='eatyourpeas.co.uk'>@eatyourpeas</a></p>
+  </div>
 </template>
 
 <template name="navigation">
@@ -137,10 +152,8 @@
 </template>
 
 <template name = "navbrand">
-
   <img class = "navbar-brand" src="/img/favicon.png" height="50px">
   <a class="navbar-brand" href="{{pathFor route='home'}}">Refr<strong>act</strong></a>
-
 </template>
 
 <template name = 'navbaritemsleft'>
@@ -153,7 +166,6 @@
 
 <template name = 'navbaritemsright'>
     <li>{{> loginButtons }}</li>
-
 </template>
 
 <template name = "gamesdropdown">
@@ -174,13 +186,13 @@
     <div class="col-md-6 text-center">
       <img class="img-circle" src="/img/andy.png" width="180px" height="180px">
       <h2>Andy Gridley</h2>
-      <lead>The brains</lead>
+      <lead class='tagline'>The brains</lead>
       <p>Optometrist, teacher and academic.</p>
     </div>
     <div class="col-md-6 text-center">
       <img class="img-circle" src="/img/simon.png" width="180px" height="180px">
       <h2>Simon Chapman</h2>
-      <lead>The (coding) brawn</lead>
+      <lead class="tagline">The (coding) brawn</lead>
       <p>Geek, medic.</p>
     </div>
   </div>
@@ -188,10 +200,12 @@
 
 <template name="rules">
   <div class="row">
-    <div class="col-md-6 text-center">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 text-left">
       <h2>The Rules</h2>
-      <p> Drag the lenses onto the frames - they will slide in themselves into place. And the clock starts. Try to work out their prescription using the snellen chart.</p>
-      <p> If you change your mind, double click the lens you placed and it will remove automatically. Good luck! </p>
+      <p> Lenses of different strengths (Ds) are laid out on tray before you. Use the trainer frame below to place them. The patient's refractive error will be shown on the Snellen chart - use this to work out what their prescription is. Remember, you are against the clock.</p>
+      <p> Drag the lenses onto the frames one at a time: you can drop them when you see the frame dim - they will slide themselves into place. The clock will start as soon as you place your first lens.</p>
+      <p> You have space for five lenses - if you need more, replace a weaker lens with a stronger one. To remove lenses from the frame, drag them off to the side, or click the one you want to remove once and it will return automatically to its pile. Good luck! </p>
     </div>
   </div>
 </template>
