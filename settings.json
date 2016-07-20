@@ -1,5 +1,9 @@
 {
   "public": {
 
+  },
+  "facebook": {
+    "appId": "1242800165765366",
+    "secret": "220ed574751575ce08f47bcacd1309af"
   }
 }

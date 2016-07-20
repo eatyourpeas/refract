@@ -10,9 +10,7 @@ less
 iron:router
 jquery
 sorenpeterson:createjs
-modweb:flipclock
 ian:accounts-ui-bootstrap-3
-accounts-facebook
 service-configuration
 mizzao:bootboxjs
 meteor-base
@@ -29,3 +27,4 @@ spacebars
 check
 standard-minifier-css
 standard-minifier-js
+accounts-facebook
