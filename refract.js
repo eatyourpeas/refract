@@ -106,7 +106,7 @@ if(Meteor.isClient){
       }
     }],
     requestPermissions: {
-    facebook: [public_profile]
+    facebook: []
   }
   });
 
