@@ -35,7 +35,7 @@
                 <tbody>
                   {{#each player}}
                     <tr>
-                      <td>{{player_alias}}</td>
+                      <td>{{{trophycolor @index}}} {{player_alias}}</td>
                       <td>{{score}}</td>
                       <td>{{dateformat date}}</td>
                     </tr>
@@ -201,7 +201,7 @@
 <template name="rules">
   <div class="row">
     <div class="col-md-3"></div>
-    <div class="col-md-6 text-left">
+    <div class="col-md-6 text-left" id='rules'>
       <h2>The Rules</h2>
       <p> Lenses of different strengths (Ds) are laid out on tray before you. Use the trainer frame below to place them. The patient's refractive error will be shown on the Snellen chart - use this to work out what their prescription is. Remember, you are against the clock.</p>
       <p> Drag the lenses onto the frames one at a time: you can drop them when you see the frame dim - they will slide themselves into place. The clock will start as soon as you place your first lens.</p>

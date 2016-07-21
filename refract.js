@@ -42,8 +42,20 @@ if (Meteor.isServer) {
   });
 
   Meteor.publish('thePlayers', function(){
-    return PlayersList.find()
-});
+    return PlayersList.find({}, { //publish only the players with the top 5 scores
+      sort: { score: 1 },
+      limit: 5
+    });
+  });
+
+  Meteor.publish('meAsAPlayer', function(){
+    return PlayersList.find({createdBy: this.userId}, //publish only my top 5 scores
+      {
+        sort: {score: 1},
+        limit: 5
+      }
+    );
+  });
 
 }
 
@@ -59,6 +71,7 @@ if(Meteor.isClient){
   negativeSnellen3 = ["6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2"];
 
   Meteor.subscribe('thePlayers');
+  Meteor.subscribe('meAsAPlayer');
 
   accountsUIBootstrap3.logoutCallback = function(error) {
     if(error) console.log("Error:" + error);
@@ -112,17 +125,39 @@ if(Meteor.isClient){
 
   Template.leaderboard.helpers({
       'player' : function(){
-        return PlayersList.find({}, {sort:{score: 1}}, {limit: 5})
+      return PlayersList.find({}, { ///mirrored query from server
+        sort: { score: 1 },
+        limit: 5
+      });
       },
-      'measplayer' : function(){
+      'measplayer' : function(){ //mirrored query from server
         var currentUserId = Meteor.userId();
-        return PlayersList.find({createdBy: currentUserId}, {sort:{score: 1}}, {limit: 5})
+        return PlayersList.find({createdBy: currentUserId},
+          {
+            sort: {score: 1},
+            limit: 5
+          }
+        );
       },
       'dateformat': function(datetoformat){
           var newdate = new Date(datetoformat);
           var newDateString = newdate.toLocaleDateString();
           var newTimeString = newdate.toLocaleTimeString();
           return newDateString + ' ' + newTimeString;
+      },
+      'trophycolor': function(index){
+        if (index == 0) {
+          return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FFD700;' ></i>"; //gold
+        }
+        if (index == 1) {
+          return "<i class='fa fa-trophy' aria-hidden='true' style='color: #C0C0C0;' ></i>"; //silver
+        }
+        if (index == 2) {
+          return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FF7F00;' ></i>"; //bronze
+        } else {
+          return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FF7F00; opacity: 0;' ></i>"; //transparent
+        }
+
       }
   });
 
@@ -189,20 +224,21 @@ function loadDefinitions(){
                         */
 
     stage = new createjs.Stage(canvas);
+    stage.width =
 
     snellen_text = new createjs.Text("6/6", "64px Oxygen Mono", "#303030");
     lensContainer = new createjs.Container();
     positiveText = new createjs.Text("Positive Diopter lenses","18px Oxygen Mono", "#9999FF");
     negativeText = new createjs.Text("Negative Diopter lenses","18px Oxygen Mono", "#9999FF");
 
-    clockText = new createjs.Text(" ", "48px Oxygen Mono", "#303030");
+    clockText = new createjs.Text(" ", "28px Oxygen Mono", "#303030");
     clockText.addEventListener('tick', updateClock);
 
     lensesLeftContainer = new createjs.Container();
-    diopterTotalText = "0 Ds"
-    diopterTotalLabel = new createjs.Text(diopterTotalText, "12px Oxygen Mono", "#303030");
-    diopterTotalLabel.textAlign = "center";
-    diopterTotalLabel.textBaseline = "middle";
+    diopterTotalText = "0 Ds total"
+    diopterTotalLabel = new createjs.Text(diopterTotalText, "48px Oxygen Mono", "#303030");
+  //  diopterTotalLabel.textAlign = "center";
+  //  diopterTotalLabel.textBaseline = "middle";
 
     directionsLabel = new createjs.Text("The clock will start when you place your first lens...", "28px Bungee Shade", "#303030");
 
@@ -218,28 +254,36 @@ function loadDefinitions(){
     update = true;
     fadeFlag = false;
     lensInPlace = false;
+    updateScreenSize = true;
 }
 
 function resize(){
-  stage.canvas.width = window.innerWidth;
-   stage.canvas.height = window.innerHeight;
-  window.addEventListener('resize',
-          function(evt) {
-            // calculate a scale factor to keep a correct aspect ratio.
 
-            scaleFactor= Math.min(window.innerWidth, window.innerHeight);
-            // make the canvas conform to the new scaled size.
-            canvas.width = canvas.width * scaleFactor;
-            canvas.height = canvas.height * scaleFactor;
-            // get the scaled canvas context.
-            context = canvas.getContext( '2d' );
+  updateScreenSize = true;
 
-            stage.scaleX=scaleFactor; // scaling the stage  X
-            stage.scaleY=scaleFactor; // scaling the stage Y
-            console.log('called');
-            stage.update();
-          },
-          false);}
+   var gameArea = document.getElementById('canvascontainer');
+    var widthToHeight = 1.7;
+    var newWidth = window.innerWidth;
+    var newHeight = window.innerHeight;
+    var newWidthToHeight = newWidth / newHeight;
+
+    if (newWidthToHeight > widthToHeight) {
+        newWidth = newHeight * widthToHeight;
+        gameArea.style.height = newHeight + 'px';
+        gameArea.style.width = newWidth + 'px';
+    } else {
+        newHeight = newWidth / widthToHeight;
+        gameArea.style.width = newWidth + 'px';
+        gameArea.style.height = newHeight + 'px';
+    }
+
+    var gameCanvas = document.getElementById('specsCanvas');
+    gameCanvas.width = newWidth;
+    gameCanvas.height = newHeight;
+
+  //  resizeAllTheElements();
+
+ }
 
 function init(){
   //check and see if the canvas element is supported in
@@ -253,13 +297,32 @@ function init(){
                 return;
             }
   loadDefinitions();
-  resize();
+  window.addEventListener('resize', resize, false);
   setTheStage();
+  resize();
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
   updateTheScores(0);
-
+  //resizeAllTheElements();
 }
+
+function resizeToFit(element) {
+
+  var h = element.height;
+  var w = element.width;
+
+    var ow = this.canvas.width;
+    var oh = this.canvas.height;
+
+    // keep aspect ratio
+    var scale = Math.min(w / ow, h / oh);
+    this.scaleX = scale;
+    this.scaleY = scale;
+
+    // adjust canvas size
+    this.canvas.width = ow * scale;
+    this.canvas.height = oh * scale;
+};
 
 function setTheStage(){
 
@@ -318,9 +381,15 @@ function setTheStage(){
 
   stage.addChild(snellen_text);
 
+  // add the diopterTotalLabel
+
+  diopterTotalLabel.x = animationspecsSize.width + 20;
+  diopterTotalLabel.y = snellen_chart_size.height + 120;
+  stage.addChild(diopterTotalLabel);
+
   // add the clock
 
-  clockText.x = animationspecsSize.width + 20; //snellenTextSize.width / 2;
+  clockText.x = animationspecsSize.width + 500; //snellenTextSize.width / 2;
   clockText.y = snellen_chart_size.height + 120;
   stage.addChild(clockText);
 
@@ -338,6 +407,41 @@ function setTheStage(){
   myMinusLens.onload = handleLensImageLoad;
 
   stage.update();
+}
+
+function resizeAllTheElements(){
+
+  var animationspecsSize = animationspecs.getBounds();
+  //  var clockTextSize = clockText.getBounds();
+  //  var snellenTextSize = snellen_text.getBounds();
+  var snellen_chart_size = snellen_chart.getBounds();
+  var baizeTrayDimensions = baizeTray.getBounds();
+  var lensContainerSize = lensContainer.getBounds();
+  //  var positiveTextSize = positiveText.getBounds();
+  //  var negativeTextSize = negativeText.getBounds();
+
+  //  var clockTextSize = clockText.getBounds();
+
+  var lensesLeftContainerSize = lensesLeftContainer.getBounds();
+  //  var diopterTotalTextSize = diopterTotalText.getBounds();
+  var diopterTotalLabelSize = diopterTotalLabel.getBounds();
+
+  //  console.log(animationspecsSize + ' '+snellen_chart_size+ ' '+baizeTrayDimensions+ ' '+lensContainerSize+ ' '+lensesLeftContainerSize+ ' '+diopterTotalLabelSize);
+
+  resizeToFit(animationspecsSize);
+  //  resizeToFit(clockTextSize);
+  //  resizeToFit(snellenTextSize);
+  resizeToFit(snellen_chart_size);
+  resizeToFit(baizeTrayDimensions);
+  //  resizeToFit(lensContainerSize);
+  //  resizeToFit(positiveTextSize);
+  //  resizeToFit(negativeTextSize);
+  //  resizeToFit(clockTextSize);
+  //  resizeToFit(lensesLeftContainerSize);
+  //  resizeToFit(diopterTotalTextSize);
+  //  resizeToFit(diopterTotalLabelSize);
+  //  resizeToFit(hitAreaSize);
+
 }
 
 function updateClock(tick){
@@ -383,18 +487,21 @@ function handleLensImageLoad(event){
             lensLeftContainer.addChild(whiteCircle);
             lensLeftContainer.addChild(lensLeftNumber);
           } else {
+            /*
             //this lens has the diopter totals
 
             lensLeft.y = lensLeft.y + 70 +(l*30);
             whiteCircle.x = lensLeft.x + (lensLeftSize.width/2) + 5;
             whiteCircle.y = lensLeft.y + (lensLeftSize.height/2);
+            whiteCircleSize = whiteCircle.getBounds();
             lensLeftContainer.name = "diopterTotalLabel"; //this becomes the identifier for the diopter total lens in the lensesLeftContainer
-            diopterTotalLabel.x = lensLeft.x + ((lensLeftSize.width)/ 2);
-            diopterTotalLabel.y = lensLeft.y + ((lensLeftSize.height)/2);
+            diopterTotalLabel.x = lensLeft.x + ((lensLeftSize.width/2));
+            diopterTotalLabel.y = lensLeft.y + ((lensLeftSize.height/2));
 
             lensLeftContainer.addChild(lensLeft);
             lensLeftContainer.addChild(whiteCircle);
             lensLeftContainer.addChild(diopterTotalLabel);
+            */
 
           }
 
@@ -408,8 +515,8 @@ function handleLensImageLoad(event){
 
         // add the restart button
         restartbutton.name = 'restartbutton';
-        restartbutton.x = baizeTray.x + baizeTrayDimensions.width + 450;
-        restartbutton.y = lensLeft.y + 250;
+        restartbutton.x = lensesLeftContainer.x + 50;
+        restartbutton.y = lensLeft.y + 500;
         stage.addChild(restartbutton); //needs listeners
 
         //label for when no lenses left in lensesLeftContainer
@@ -597,7 +704,6 @@ function handleLensImageLoad(event){
                 });
         }
     }
-
 }
 
 function nudgeLensIntoPlace(event){
@@ -715,6 +821,10 @@ function moveComplete(){
 }
 
 function tick(event) {
+    if (updateScreenSize) {
+      updateScreenSize = false;
+      stage.update(event);
+    }
 
     if (fadeFlag) {
       fadeFlag = false;
@@ -779,7 +889,15 @@ function updateTheLensTotals(lensValue, runningTotal, Add){
             totalLensValue = runningTotal - lensValue;
     }
 
-    diopterTotalText = totalLensValue + "Ds"
+    diopterTotalText = totalLensValue + " Ds total"
+
+    if (totalLensValue % 1 === 0) {
+      diopterTotalText = totalLensValue + ".00 Ds total"
+    }
+    if (totalLensValue % 1 === -0.5 || totalLensValue % 1 === 0.5) {
+      diopterTotalText = parseInt(totalLensValue) + ".50 Ds total"
+    }
+
     diopterTotalLabel.text = diopterTotalText;
 
     return totalLensValue;
@@ -937,8 +1055,8 @@ function restart(){
 function showTheDialog(finalscore){
 
     bootbox.dialog({
-        message:  'You managed to refract in '+ finalscore.toString()+ ' seconds. Click to save result',
-        title: "Well done, " + Meteor.user().profile.name,
+        message:  'You managed to refract in '+ finalscore.toString()+ '. Click to save result',
+        title: "Well done " + Meteor.user().profile.name,
         buttons:{
             success: {
                 label: "Save Score",
@@ -947,7 +1065,7 @@ function showTheDialog(finalscore){
                   PlayersList.insert({
                     createdBy: Meteor.userId(),
                     player_alias: Meteor.user().profile.name,
-                    score: finalscore.toString(),
+                    score: parseFloat(finalscore),
                     date: new Date().getTime()
                   });
                 }
