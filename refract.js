@@ -61,6 +61,7 @@ if (Meteor.isServer) {
 
 if(Meteor.isClient){
 
+  plano = ["6/5+3", "6/4-3","6/4-3"];
   negativeNetDiopterArray = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.25, -3.5, -3.75, -4.0, -4.25, -4.5, -4.75, -5.0, -5.25, -5.5, -5.75, -6.0, -6.25, -6.5, -6.75, -7.0, -7.25, -7.5, -7.75, -8.0];
   positiveNetDiopterArray = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0];
   positiveSnellen1 = ["6/5+3", "6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60"];
@@ -224,7 +225,7 @@ function loadDefinitions(){
                         */
 
     stage = new createjs.Stage(canvas);
-    stage.width =
+    subStage = new createjs.Container();
 
     snellen_text = new createjs.Text("6/6", "64px Oxygen Mono", "#303030");
     lensContainer = new createjs.Container();
@@ -236,7 +237,7 @@ function loadDefinitions(){
 
     lensesLeftContainer = new createjs.Container();
     diopterTotalText = "0 Ds total"
-    diopterTotalLabel = new createjs.Text(diopterTotalText, "48px Oxygen Mono", "#303030");
+    diopterTotalLabel = new createjs.Text(diopterTotalText, "28px Oxygen Mono", "#303030");
   //  diopterTotalLabel.textAlign = "center";
   //  diopterTotalLabel.textBaseline = "middle";
 
@@ -262,7 +263,7 @@ function resize(){
   updateScreenSize = true;
 
    var gameArea = document.getElementById('canvascontainer');
-    var widthToHeight = 1.7;
+    var widthToHeight = 1.6;
     var newWidth = window.innerWidth;
     var newHeight = window.innerHeight;
     var newWidthToHeight = newWidth / newHeight;
@@ -271,17 +272,23 @@ function resize(){
         newWidth = newHeight * widthToHeight;
         gameArea.style.height = newHeight + 'px';
         gameArea.style.width = newWidth + 'px';
+
+        var scaleChange = newWidth / subStage.getBounds().width
+        subStage.scaleX = subStage.scaleY = scaleChange;
+        stage.update();
     } else {
         newHeight = newWidth / widthToHeight;
         gameArea.style.width = newWidth + 'px';
         gameArea.style.height = newHeight + 'px';
+
+        var scaleChange = newHeight / subStage.getBounds().height
+        subStage.scaleX = subStage.scaleY = scaleChange;
+        stage.update();
     }
 
     var gameCanvas = document.getElementById('specsCanvas');
     gameCanvas.width = newWidth;
-    gameCanvas.height = newHeight;
-
-  //  resizeAllTheElements();
+    gameCanvas.height = newHeight
 
  }
 
@@ -299,17 +306,57 @@ function init(){
   loadDefinitions();
   window.addEventListener('resize', resize, false);
   setTheStage();
+  addTheLenses();
   resize();
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
   updateTheScores(0);
-  //resizeAllTheElements();
 }
 
-function resizeToFit(element) {
+function returnScaleOfCanvas(){
 
-  var h = element.height;
-  var w = element.width;
+  // stage dimensions
+  var ow = this.canvas.width;
+  var oh = this.canvas.height;
+
+  // keep aspect ratio
+  var scale = ow/oh;
+
+  return scale;
+}
+
+function resizeCanvasToScreen() {
+  //// this function is never called
+
+  updateScreenSize = true;
+    // browser viewport size
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+
+  // stage dimensions
+  var ow = this.canvas.width;
+  var oh = this.canvas.height;
+
+  // keep aspect ratio
+  var scale = Math.min(w / ow, h / oh);
+  stage.scaleX = scale;
+  stage.scaleY = scale;
+
+  // adjust canvas size
+  stage.canvas.width = w;
+  stage.canvas.height = h; //oh * scale;
+  stage.update();
+
+  resizeAllTheElements();
+  setTheStage();
+  addTheLenses();
+
+};
+
+function resizeToFit(element){
+  var elementBounds = element.getBounds();
+  var h = elementBounds.height;
+  var w = elementBounds.width;
 
     var ow = this.canvas.width;
     var oh = this.canvas.height;
@@ -319,10 +366,9 @@ function resizeToFit(element) {
     this.scaleX = scale;
     this.scaleY = scale;
 
-    // adjust canvas size
-    this.canvas.width = ow * scale;
-    this.canvas.height = oh * scale;
-};
+    // adjust element size
+    element.setBounds(element.x, element.y, ow * scale, oh * scale);
+}
 
 function setTheStage(){
 
@@ -342,27 +388,27 @@ function setTheStage(){
 
   //add the directionsLabel
   directionsLabel.x = 0; directionsLabel.y = 0;
-  stage.addChild(directionsLabel);
+  subStage.addChild(directionsLabel); ////NEW
 
   //add the baize
 
   baizeTray.x = 0;
-  baizeTray.y = 65;
+  baizeTray.y = snellenTextSize.height;
 
-  stage.addChild(baizeTray);
+  subStage.addChild(baizeTray); ///NEW
 
   //add the snellen chart
 
-  snellen_chart.x = baizeTrayDimensions.x + baizeTrayDimensions.width + 100;
-  snellen_chart.y = 65;
+  snellen_chart.x = baizeTrayDimensions.x + baizeTrayDimensions.width + 80;//80px padding for blur outline
+  snellen_chart.y = snellenTextSize.height + 80; //80px padding for blur outline
 
-  stage.addChild(snellen_chart);
+  subStage.addChild(snellen_chart); //NEW
 
   //add the specs
 
-  animationspecs.x = 0;
-  animationspecs.y = baizeTrayDimensions.height + 90;
-  stage.addChild(animationspecs);
+  animationspecs.x = baizeTrayDimensions.width - animationspecsSize.width;
+  animationspecs.y = baizeTrayDimensions.height + baizeTray.y;
+  subStage.addChild(animationspecs); //NEW
 
 
   //add the hit area
@@ -371,28 +417,34 @@ function setTheStage(){
   hitArea.x = animationspecs.x + 30;
   hitArea.y = animationspecs.y + 60;
   animationspecs.hitArea = hitArea;
-  stage.addChild(hitArea);
+  subStage.addChild(hitArea); //NEW
   hitArea.alpha = 0;
 
   //add the snellen text
 
-  snellen_text.y = animationspecs.y + ((animationspecsSize.height - snellenTextSize.height)/2);
-  snellen_text.x = animationspecsSize.width + 20; //snellenTextSize.width / 2;
+  snellen_text.y = baizeTray.y + baizeTrayDimensions.height;
+  snellen_text.x = snellen_chart.x + snellen_chart_size.width + 80; //padding for blur
 
-  stage.addChild(snellen_text);
+  subStage.addChild(snellen_text); //NEW
 
   // add the diopterTotalLabel
 
-  diopterTotalLabel.x = animationspecsSize.width + 20;
-  diopterTotalLabel.y = snellen_chart_size.height + 120;
-  stage.addChild(diopterTotalLabel);
+  diopterTotalLabel.x = animationspecs.x + ((animationspecsSize.width - diopterTotalLabel.getBounds().width)/2);
+  diopterTotalLabel.y = snellen_chart.y + snellen_chart_size.height;
+  subStage.addChild(diopterTotalLabel); //NEW
 
   // add the clock
 
-  clockText.x = animationspecsSize.width + 500; //snellenTextSize.width / 2;
-  clockText.y = snellen_chart_size.height + 120;
-  stage.addChild(clockText);
+  clockText.x = snellen_chart.x + snellen_chart_size.width + 60; //padding for blur
+  clockText.y = snellen_chart. y + snellen_chart_size.height;
+  subStage.addChild(clockText); //new
 
+  stage.addChild(subStage); //NEW
+
+  stage.update();
+}
+
+function addTheLenses(){
   //add the lenses
 
   var myMinusLens = new Image();
@@ -409,45 +461,12 @@ function setTheStage(){
   stage.update();
 }
 
-function resizeAllTheElements(){
-
-  var animationspecsSize = animationspecs.getBounds();
-  //  var clockTextSize = clockText.getBounds();
-  //  var snellenTextSize = snellen_text.getBounds();
-  var snellen_chart_size = snellen_chart.getBounds();
-  var baizeTrayDimensions = baizeTray.getBounds();
-  var lensContainerSize = lensContainer.getBounds();
-  //  var positiveTextSize = positiveText.getBounds();
-  //  var negativeTextSize = negativeText.getBounds();
-
-  //  var clockTextSize = clockText.getBounds();
-
-  var lensesLeftContainerSize = lensesLeftContainer.getBounds();
-  //  var diopterTotalTextSize = diopterTotalText.getBounds();
-  var diopterTotalLabelSize = diopterTotalLabel.getBounds();
-
-  //  console.log(animationspecsSize + ' '+snellen_chart_size+ ' '+baizeTrayDimensions+ ' '+lensContainerSize+ ' '+lensesLeftContainerSize+ ' '+diopterTotalLabelSize);
-
-  resizeToFit(animationspecsSize);
-  //  resizeToFit(clockTextSize);
-  //  resizeToFit(snellenTextSize);
-  resizeToFit(snellen_chart_size);
-  resizeToFit(baizeTrayDimensions);
-  //  resizeToFit(lensContainerSize);
-  //  resizeToFit(positiveTextSize);
-  //  resizeToFit(negativeTextSize);
-  //  resizeToFit(clockTextSize);
-  //  resizeToFit(lensesLeftContainerSize);
-  //  resizeToFit(diopterTotalTextSize);
-  //  resizeToFit(diopterTotalLabelSize);
-  //  resizeToFit(hitAreaSize);
-
-}
-
 function updateClock(tick){
   if (started) {
     var now = new Date().getTime();
-    clockText.text = (now - startTime)/1000 + " seconds";
+    var newTime = ((now - startTime)/1000).toFixed(3);
+    var newTimeString = newTime.toString();
+    clockText.text =  newTimeString + " seconds";
   }
 }
 
@@ -509,15 +528,15 @@ function handleLensImageLoad(event){
 
         }
         var baizeTrayDimensions = baizeTray.getBounds();
-        lensesLeftContainer.x = baizeTray.x + baizeTrayDimensions.width + 400;
-        lensesLeftContainer.y = baizeTray.y;
-        stage.addChild(lensesLeftContainer);
+        lensesLeftContainer.x = baizeTray.x;
+        lensesLeftContainer.y = baizeTray.y + baizeTrayDimensions.height;
+        subStage.addChild(lensesLeftContainer); //NEW
 
         // add the restart button
         restartbutton.name = 'restartbutton';
-        restartbutton.x = lensesLeftContainer.x + 50;
-        restartbutton.y = lensLeft.y + 500;
-        stage.addChild(restartbutton); //needs listeners
+        restartbutton.x = snellen_chart.x +  snellen_chart.getBounds().width + 80;
+        restartbutton.y = baizeTray.y + (restartbutton.getBounds().height/2);
+        subStage.addChild(restartbutton); //needs listeners /// NEW
 
         //label for when no lenses left in lensesLeftContainer
         noLenses = new createjs.Text("Remove a Lens!", "18px Bungee Shade", "red");
@@ -526,7 +545,7 @@ function handleLensImageLoad(event){
         lensesLeftContainerSize = lensesLeftContainer.getBounds();
         noLenses.x = lensesLeftContainer.x;
         noLenses.y = lensesLeftContainer.y;
-        stage.addChild(noLenses);
+        subStage.addChild(noLenses); //NEW
 
     }
 
@@ -554,7 +573,7 @@ function handleLensImageLoad(event){
         for (var i = startOfArray; i < startOfArray+5; i++) {
                 bitmap = new createjs.Bitmap(image);
                 lensContainer = new createjs.Container();
-                stage.addChild(lensContainer);
+                subStage.addChild(lensContainer); //NEW
                 lensContainer.addChild(bitmap);
 
                 myText=diopters[i]; //retrieve the lens strengths
@@ -898,6 +917,7 @@ function updateTheLensTotals(lensValue, runningTotal, Add){
     }
 
     diopterTotalLabel.text = diopterTotalText;
+    diopterTotalLabel.x = animationspecs.x + ((animationspecs.getBounds().width - diopterTotalLabel.getBounds().width)/2);
 
     return totalLensValue;
 }
@@ -911,10 +931,6 @@ function updateTheScores(lensesTotals){
     var myPrescription = parseFloat(patient)*-1;
 
     var snellenString = snellenFromDiopters(netDiopters); //this is the snellen value if not overplussed/minussed
-
-    //update the results (this will go in future)
-    //updateLabel.innerHTML= "{{ currentUser }}" + " has lenses which combine to "+ lensesTotals +" diopters." + " The patient's prescription is " + myPrescription + " ds.";
-                //update the snellen chart
 
     blurSnellenChart(netDiopters);
     snellen_text.text = snellenString;
@@ -938,8 +954,6 @@ function snellenFromDiopters(diopterValue){
     */
     var indexOfRefractiveError = 0;
 
-
-
   var snellenArray = [];
 
   var random3 = Math.random()*(3-1)+1;
@@ -947,7 +961,6 @@ function snellenFromDiopters(diopterValue){
   if (diopterValue > 0) {
     // this is a positive refractive error (overplussed)
     indexOfRefractiveError = positiveNetDiopterArray.indexOf(diopterValue); // this is the index of the current refractive error with lenses
-
 
     //select at random one of 3 matching VAs for this refractive error
     switch (parseInt(random3)) {
@@ -986,7 +999,8 @@ function snellenFromDiopters(diopterValue){
     return snellenArray[indexOfRefractiveError];
   } else {
     //must be 0 refractive error
-    return "6/6";
+    var indexOfPlano = parseInt(random3);
+    return plano[indexOfPlano];
   }
 
 }
