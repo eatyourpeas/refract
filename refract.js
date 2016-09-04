@@ -263,32 +263,39 @@ function resize(){
   updateScreenSize = true;
 
    var gameArea = document.getElementById('canvascontainer');
-    var widthToHeight = 1.6;
+    var widthToHeight = 1.7;
     var newWidth = window.innerWidth;
     var newHeight = window.innerHeight;
     var newWidthToHeight = newWidth / newHeight;
+    var contentSize = subStage.getBounds();
+
+    if (newWidth < contentSize.width) {
+      var scale = newWidth/contentSize.width;
+      subStage.scaleX = subStage.scaleY = scale;
+      stage.update();
+    }
+
+    if (newHeight < contentSize.height) {
+      var scale = newHeight/contentSize.height;
+      subStage.scaleX = subStage.scaleY = scale;
+      stage.update();
+    }
+
 
     if (newWidthToHeight > widthToHeight) {
         newWidth = newHeight * widthToHeight;
         gameArea.style.height = newHeight + 'px';
         gameArea.style.width = newWidth + 'px';
-
-        var scaleChange = newWidth / subStage.getBounds().width
-        subStage.scaleX = subStage.scaleY = scaleChange;
-        stage.update();
     } else {
         newHeight = newWidth / widthToHeight;
         gameArea.style.width = newWidth + 'px';
         gameArea.style.height = newHeight + 'px';
-
-        var scaleChange = newHeight / subStage.getBounds().height
-        subStage.scaleX = subStage.scaleY = scaleChange;
-        stage.update();
     }
 
     var gameCanvas = document.getElementById('specsCanvas');
     gameCanvas.width = newWidth;
-    gameCanvas.height = newHeight
+    gameCanvas.height = newHeight;
+
 
  }
 
@@ -311,63 +318,6 @@ function init(){
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
   updateTheScores(0);
-}
-
-function returnScaleOfCanvas(){
-
-  // stage dimensions
-  var ow = this.canvas.width;
-  var oh = this.canvas.height;
-
-  // keep aspect ratio
-  var scale = ow/oh;
-
-  return scale;
-}
-
-function resizeCanvasToScreen() {
-  //// this function is never called
-
-  updateScreenSize = true;
-    // browser viewport size
-  var w = window.innerWidth;
-  var h = window.innerHeight;
-
-  // stage dimensions
-  var ow = this.canvas.width;
-  var oh = this.canvas.height;
-
-  // keep aspect ratio
-  var scale = Math.min(w / ow, h / oh);
-  stage.scaleX = scale;
-  stage.scaleY = scale;
-
-  // adjust canvas size
-  stage.canvas.width = w;
-  stage.canvas.height = h; //oh * scale;
-  stage.update();
-
-  resizeAllTheElements();
-  setTheStage();
-  addTheLenses();
-
-};
-
-function resizeToFit(element){
-  var elementBounds = element.getBounds();
-  var h = elementBounds.height;
-  var w = elementBounds.width;
-
-    var ow = this.canvas.width;
-    var oh = this.canvas.height;
-
-    // keep aspect ratio
-    var scale = Math.min(w / ow, h / oh);
-    this.scaleX = scale;
-    this.scaleY = scale;
-
-    // adjust element size
-    element.setBounds(element.x, element.y, ow * scale, oh * scale);
 }
 
 function setTheStage(){
