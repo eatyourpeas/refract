@@ -652,6 +652,7 @@ function handleLensImageLoad(event){
 
                 lensContainer.on("pressup", function(evt){
                     var numberOfLensesLeft = Session.get('numberOfLensesLeft');
+                    evt.target.mouseEnabled = false;
 
                     if (lensInPlace) {
                         //start the clock if this is the first time
@@ -742,14 +743,17 @@ function nudgeLensIntoPlace(event){
       //    console.log('this is your last lens');
       //  }
 
-
     }
 
 
-    createjs.Tween.get(event.target).to({x:finalPositionX, y:finalPositionY},500,createjs.Ease.linear).to({rotation: lensRotation }, 1000, createjs.Ease.linear).call(moveComplete);
+    createjs.Tween.get(event.target).to({x:finalPositionX, y:finalPositionY},500,createjs.Ease.linear).to({rotation: lensRotation }, 1000, createjs.Ease.linear).call(nudgeComplete);
     update = true;
 
     createjs.Ticker.addEventListener("tick", stage);
+}
+
+function nudgeComplete(event){
+  event.target.mouseEnabled=true;
 }
 
 function returnLensToOrigin(event){
@@ -813,11 +817,6 @@ function lensAddedBackToLensesContainer(lensAdded){
     fadeFlag = true;
     createjs.Ticker.addEventListener("tick", tick);
   }
-}
-
-function moveComplete(){
-  //
-
 }
 
 function tick(event) {
