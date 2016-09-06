@@ -752,6 +752,8 @@ function returnLensToOrigin(event){
     update = true;
 
     createjs.Ticker.addEventListener("tick", stage);
+console.log(event.target.id);
+    event.target.mouseEnabled = true;
 }
 
 function removeLensFromLensesLeftContainer(lensToRemove){
