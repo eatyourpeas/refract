@@ -236,7 +236,7 @@ function loadDefinitions(){
     clockText.addEventListener('tick', updateClock);
 
     lensesLeftContainer = new createjs.Container();
-    diopterTotalText = "0 Ds total"
+    diopterTotalText = "0.00 DS total"
     diopterTotalLabel = new createjs.Text(diopterTotalText, "28px Oxygen Mono", "#303030");
   //  diopterTotalLabel.textAlign = "center";
   //  diopterTotalLabel.textBaseline = "middle";
@@ -484,6 +484,10 @@ function handleLensImageLoad(event){
 
         // add the restart button
         restartbutton.name = 'restartbutton';
+          //set hit area for restartbutton
+          var hit = new createjs.Shape();
+			     hit.graphics.beginFill("#000").drawRect(0, 0, restartbutton.getBounds().width, restartbutton.getBounds().height);
+        restartbutton.hitArea = hit;
         restartbutton.x = snellen_chart.x +  snellen_chart.getBounds().width + 80;
         restartbutton.y = baizeTray.y + (restartbutton.getBounds().height/2);
         subStage.addChild(restartbutton); //needs listeners /// NEW
@@ -752,7 +756,6 @@ function returnLensToOrigin(event){
     update = true;
 
     createjs.Ticker.addEventListener("tick", stage);
-console.log(event.target.id);
     event.target.mouseEnabled = true;
 }
 
@@ -859,13 +862,16 @@ function updateTheLensTotals(lensValue, runningTotal, Add){
             totalLensValue = runningTotal - lensValue;
     }
 
-    diopterTotalText = totalLensValue + " Ds total"
+    diopterTotalText = totalLensValue + " DS total"
 
     if (totalLensValue % 1 === 0) {
-      diopterTotalText = totalLensValue + ".00 Ds total"
+      diopterTotalText = totalLensValue + ".00 DS total"
     }
     if (totalLensValue % 1 === -0.5 || totalLensValue % 1 === 0.5) {
-      diopterTotalText = parseInt(totalLensValue) + ".50 Ds total"
+      diopterTotalText = parseInt(totalLensValue) + ".50 DS total"
+    }
+    if (totalLensValue > 0) {
+      diopterTotalText = "+"+diopterTotalText;
     }
 
     diopterTotalLabel.text = diopterTotalText;
