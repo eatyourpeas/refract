@@ -889,7 +889,10 @@ function updateTheLensTotals(lensValue, runningTotal, Add){
       diopterTotalText = totalLensValue + ".00 DS total"
     }
     if (totalLensValue % 1 === -0.5) {
-      diopterTotalText = "-"+parseInt(totalLensValue) + ".50 DS total"
+      diopterTotalText = parseInt(totalLensValue) + ".50 DS total"
+      if (totalLensValue === -0.5) {
+        diopterTotalText = "-"+parseInt(totalLensValue) + ".50 DS total"
+      }
     }
     if (totalLensValue % 1 === 0.5) {
       diopterTotalText = parseInt(totalLensValue) + ".50 DS total"
