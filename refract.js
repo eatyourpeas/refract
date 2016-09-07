@@ -215,14 +215,10 @@ function allImagesNowLoaded(event){
 
 function loadDefinitions(){
 
-    slideSound = createjs.Sound.registerSound({id:"soundId", src:"/sounds/slidesound.mp3"});
 
-    /*
-    clock = $('.count-down').FlipClock({
-                            clockFace: 'MinuteCounter',
-                            autoStart: false
-                        });
-                        */
+
+    slideSound = createjs.Sound.registerSound({id:"soundId", src:"/sounds/slidesound.mp3"});
+    createjs.MotionGuidePlugin.install();
 
     stage = new createjs.Stage(canvas);
     subStage = new createjs.Container();
@@ -238,11 +234,7 @@ function loadDefinitions(){
     lensesLeftContainer = new createjs.Container();
     diopterTotalText = "0.00 DS total"
     diopterTotalLabel = new createjs.Text(diopterTotalText, "28px Oxygen Mono", "#303030");
-  //  diopterTotalLabel.textAlign = "center";
-  //  diopterTotalLabel.textBaseline = "middle";
-
     directionsLabel = new createjs.Text("The clock will start when you place your first lens...", "28px Bungee Shade", "#303030");
-
 
     started = false;
     startTime = new Date();
@@ -256,6 +248,7 @@ function loadDefinitions(){
     fadeFlag = false;
     lensInPlace = false;
     updateScreenSize = true;
+
 }
 
 function resize(){
@@ -578,6 +571,7 @@ function handleLensImageLoad(event){
                 lensContainer.originalY = lensContainer.y;
                 lensContainer.diopter = myText;
                 lensContainer.lensInPlace = false;
+                lensContainer.thisLensHasBeenPlacedAlready = false;
 
 
                 // using "on" binds the listener to the scope of the currentTarget by default
@@ -603,10 +597,12 @@ function handleLensImageLoad(event){
 
                     if (hitArea.hitTest(pt.x, pt.y)) {
                         animationspecs.alpha = 0.2;
+                        evt.target.lensInPlace = true;
                         lensInPlace = true;
                     } else {
                       animationspecs.alpha = 1.0;
                       lensInPlace = false;
+                      evt.target.lensInPlace = false;
                     }
 
                     update = true;
@@ -624,6 +620,7 @@ function handleLensImageLoad(event){
                 });
 
                 lensContainer.on("pressup", function(evt){
+
                     var numberOfLensesLeft = Session.get('numberOfLensesLeft');
                     evt.target.mouseEnabled = false;
 
@@ -644,21 +641,33 @@ function handleLensImageLoad(event){
                           return;
                         }
                         //this lens has been added
+
                         lensInPlace = false;
                         animationspecs.alpha = 1.0;
                         update = true;
+                        //reset flag
                         evt.target.lensInPlace = true;
-                        //update the lens totals
-                        var lensValue = parseFloat(evt.target.diopter);
-                        //update the scores
-                        myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true)
-                        updateTheScores(myTotalDiopters);
+
+                        //update the lens totals only if this lens has been placed and is yet to be returned to the stack
+                        if (!evt.target.thisLensHasBeenPlacedAlready) {
+                          var lensValue = parseFloat(evt.target.diopter);
+                          //update the scores
+                          myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true)
+                          updateTheScores(myTotalDiopters);
+                        }
+                        //set the flag
+                        evt.target.thisLensHasBeenPlacedAlready = true;
+
                         //animate the lens into final position
                         nudgeLensIntoPlace(evt);
+
                     } else {
                       //lens is not in place
+
+                      //animate the lens back
                       returnLensToOrigin(evt);
-                      if (evt.target.lensInPlace == true) {
+
+                      if (evt.target.lensInPlace == true ) {
                         // this lens has been removed from the frame
                         evt.target.lensInPlace = false; //this lens is no longer in place
                         // add the lensesLeftContainer lens back
@@ -669,10 +678,13 @@ function handleLensImageLoad(event){
                         // animate lens back to lensesLeftContainer
                         addLensBackToLensesLeftContainer(numberOfLensesLeft-1);
 
-                        var lensValue = parseFloat(evt.target.diopter);
-                        myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false)
-                        updateTheScores(myTotalDiopters);
-                        //animate the lens back
+                          var lensValue = parseFloat(evt.target.diopter);
+                          myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false)
+                          updateTheScores(myTotalDiopters);
+                          //reset the flag
+                          evt.target.thisLensHasBeenPlacedAlready = false;
+
+
                       }
                     }
                 });
@@ -681,13 +693,12 @@ function handleLensImageLoad(event){
 }
 
 function nudgeLensIntoPlace(event){
-    createjs.MotionGuidePlugin.install();
 
     var dioptersOfThisLens = event.target.diopter;
     //lens must rotate and final position moves depending on if positive or negative
     var finalPositionX = hitArea.x+95;
     var finalPositionY = hitArea.y+100;
-    var lensRotation=   0; //45 + (dioptersOfThisLens * 100);
+    var lensRotation = 0;
     var numberOfNegativeLenses = Session.get('negativeLensNumber');
     var numberOfPositiveLenses = Session.get('positiveLensNumber');
     var numberOfLensesLeft = Session.get('numberOfLensesLeft');
@@ -718,7 +729,6 @@ function nudgeLensIntoPlace(event){
 
     }
 
-
     createjs.Tween.get(event.target).to({x:finalPositionX, y:finalPositionY},500,createjs.Ease.linear).to({rotation: lensRotation }, 1000, createjs.Ease.linear).call(nudgeComplete);
     update = true;
 
@@ -727,6 +737,9 @@ function nudgeLensIntoPlace(event){
 
 function nudgeComplete(event){
   event.target.mouseEnabled=true;
+  console.log('positive lenses: '+ Session.get('positiveLensNumber'));
+  console.log('negative lenses: '+ Session.get('negativeLensNumber'));
+  console.log('total lenses: '+ Session.get('numberOfLensesLeft'));
 }
 
 function returnLensToOrigin(event){
@@ -736,27 +749,35 @@ function returnLensToOrigin(event){
   var numberOfNegativeLenses = Session.get('negativeLensNumber');
   var numberOfPositiveLenses = Session.get('positiveLensNumber');
 
-    createjs.MotionGuidePlugin.install();
+    //only update numbers of lenses if this lens has been placed and not yet returned to stack
 
-    if (event.target.diopter > 0) {
-      // positive lens
-      numberOfPositiveLenses = numberOfPositiveLenses -1;
-      Session.set('positiveLensNumber', numberOfPositiveLenses);
+    if (event.target.lensInPlace ) {
+      if (event.target.diopter > 0) {
+        // positive lens
+        numberOfPositiveLenses = numberOfPositiveLenses -1;
+        Session.set('positiveLensNumber', numberOfPositiveLenses);
+      }
+      if (event.target.diopter < 0) {
+        //negative lens
+        numberOfNegativeLenses = numberOfNegativeLenses - 1;
+        Session.set('negativeLensNumber', numberOfNegativeLenses);
+      }
     }
-    if (event.target.diopter < 0) {
-      //negative lens
-      numberOfNegativeLenses = numberOfNegativeLenses - 1;
-      Session.set('negativeLensNumber', numberOfNegativeLenses);
-    }
+
+
 
     //lens must rotate depending on if positive or negative
-    var lensRotation=0;
+    var lensRotation = 0;
 
-    createjs.Tween.get(event.target).to({ guide:{path:[event.target.x, event.target.y, event.target.x+200, event.target.y+200, event.target.originalX, event.target.originalY] }},500).to({rotation: lensRotation }, 1000, createjs.Ease.linear);
+    createjs.Tween.get(event.target).to({ guide:{path:[event.target.x, event.target.y, event.target.x+200, event.target.y+200, event.target.originalX, event.target.originalY] }},500).to({rotation: lensRotation }, 1000, createjs.Ease.linear).call(returnComplete);
     update = true;
 
     createjs.Ticker.addEventListener("tick", stage);
     event.target.mouseEnabled = true;
+}
+
+function returnComplete(){
+  //not implemented in the end
 }
 
 function removeLensFromLensesLeftContainer(lensToRemove){
@@ -867,7 +888,10 @@ function updateTheLensTotals(lensValue, runningTotal, Add){
     if (totalLensValue % 1 === 0) {
       diopterTotalText = totalLensValue + ".00 DS total"
     }
-    if (totalLensValue % 1 === -0.5 || totalLensValue % 1 === 0.5) {
+    if (totalLensValue % 1 === -0.5) {
+      diopterTotalText = "-"+parseInt(totalLensValue) + ".50 DS total"
+    }
+    if (totalLensValue % 1 === 0.5) {
       diopterTotalText = parseInt(totalLensValue) + ".50 DS total"
     }
     if (totalLensValue > 0) {
@@ -1020,6 +1044,9 @@ function blurSnellenChart(diopterValue){
 }
 
 function restart(){
+    Session.set('negativeLensNumber', 0);
+    Session.set('numberOfLensesLeft', 5);
+    Session.get('positiveLensNumber', 0);
     location.reload();
 }
 
