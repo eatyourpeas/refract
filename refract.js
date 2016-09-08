@@ -588,11 +588,16 @@ function handleLensImageLoad(event){
                 // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
                 lensContainer.on("pressmove", function (evt) {
 
+                  evt.currentTarget.set({
+                    x: evt.stageX,
+                    y: evt.stageY
+                  });
+
+                  this.x = evt.currentTarget.x;
+                  this.y = evt.currentTarget.y;
+
                     //the frame dims when lens is over it
-                   this.x = evt.stageX + this.offset.x;
-                  this.y = evt.stageY + this.offset.y;
-                // indicate that the stage should be updated on the next tick:
-                  //  animationspecs.alpha = 1.0;
+
                     var pt = hitArea.globalToLocal(evt.stageX, evt.stageY);
 
                     if (hitArea.hitTest(pt.x, pt.y)) {
@@ -605,6 +610,7 @@ function handleLensImageLoad(event){
                       evt.target.lensInPlace = false;
                     }
 
+                    // indicate that the stage should be updated on the next tick:
                     update = true;
 
                 });
