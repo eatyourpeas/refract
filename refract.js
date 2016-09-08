@@ -236,6 +236,7 @@ function loadDefinitions(){
     diopterTotalLabel = new createjs.Text(diopterTotalText, "28px Oxygen Mono", "#303030");
     directionsLabel = new createjs.Text("The clock will start when you place your first lens...", "28px Bungee Shade", "#303030");
 
+    lensesUsed = new createjs.Text("", "18px Oxygen Mono", "#9999FF#");
     started = false;
     startTime = new Date();
     addition = true;
@@ -602,12 +603,10 @@ function handleLensImageLoad(event){
 
                     if (hitArea.hitTest(pt.x, pt.y)) {
                         animationspecs.alpha = 0.2;
-                        evt.target.lensInPlace = true;
                         lensInPlace = true;
                     } else {
                       animationspecs.alpha = 1.0;
                       lensInPlace = false;
-                      evt.target.lensInPlace = false;
                     }
 
                     // indicate that the stage should be updated on the next tick:
