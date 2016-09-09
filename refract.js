@@ -270,7 +270,7 @@ function loadDefinitions(){
     fadeFlag = false;
     lensInPlace = false;
     updateScreenSize = true;
-
+    blurTick = false;
 }
 
 function resize(){
@@ -333,6 +333,7 @@ function init(){
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
   updateTheScores(0);
+  stage.update();
 }
 
 function setTheStage(){
@@ -353,14 +354,14 @@ function setTheStage(){
 
   //add the directionsLabel
   directionsLabel.x = 0; directionsLabel.y = 0;
-  subStage.addChild(directionsLabel); ////NEW
+  subStage.addChild(directionsLabel);
 
   //add the baize
 
   baizeTray.x = 0;
   baizeTray.y = snellenTextSize.height;
 
-  subStage.addChild(baizeTray); ///NEW
+  subStage.addChild(baizeTray);
 
   //add the snellen chart
 
@@ -374,7 +375,6 @@ function setTheStage(){
   animationspecs.x = baizeTrayDimensions.width - animationspecsSize.width;
   animationspecs.y = baizeTrayDimensions.height + baizeTray.y;
   subStage.addChild(animationspecs);
-
 
   //add the hit area
   hitArea = new createjs.Shape();
@@ -428,14 +428,15 @@ function setTheStage(){
   clockText.y = snellen_chart.y + snellen_chart_size.height;
   subStage.addChild(clockText);
 
+  //add the restart button
+
   restartbutton.x = 0;
   restartbutton.y = lensesRemainingContainer.y + (lensesRemainingContainer.getBounds().height * 0.8);
+
   subStage.addChild(restartbutton);
   addEventsToRestartButton();
 
   stage.addChild(subStage);
-
-  stage.update();
 }
 
 function addTheLenses(){
@@ -451,7 +452,6 @@ function addTheLenses(){
 
   myPlusLens.onload = handleLensImageLoad;
   myMinusLens.onload = handleLensImageLoad;
-
   stage.update();
 }
 
@@ -482,8 +482,6 @@ function addEventsToRestartButton(){
    restartbutton.on("click", function(evt){
      restart();
    });
-
-   subStage.addChild(restartbutton);
 }
 
 function updateClock(tick){
@@ -870,7 +868,12 @@ function tick(event) {
         stage.update(event);
     }
 
-
+    if (blurTick) {
+      if (lensContainer.isVisible()) {
+        blurTick = false;
+      }
+      stage.update();
+    }
 
 }
 
@@ -881,10 +884,9 @@ function handleComplete(evt){
 function selectPatient(){
   var longrefraction = 0;
   do {
-    longrefraction=Math.random()*(8+8+1)-8;
-  } while (longrefraction == 0.00);
+    longrefraction = Math.random()*(8+8+1)-8;
+  } while (longrefraction == 0);
     var inquarters =  Math.round(longrefraction * 4) / 4;
-    console.log(inquarters.toFixed(2));
     return inquarters.toFixed(2);
 }
 
@@ -972,7 +974,7 @@ function updateTheScores(lensesTotals){
 
     blurSnellenChart(netDiopters);
     snellen_text.text = snellenString;
-    stage.update();
+
 
     if(netDiopters==0.0){
       // you have won!
@@ -1096,13 +1098,17 @@ function blurSnellenChart(diopterValue){
   snellen_chart.filters = [blurFilter];
   var bounds = blurFilter.getBounds();
   snellen_chart.cache(-50, -50, snellenImage.width + 50, snellenImage.height + 50);
+  blurTick = true;
+
   stage.update();
+
 }
 
 function restart(){
     Session.set('negativeLensNumber', 0);
     Session.set('numberOfLensesLeft', 5);
     Session.get('positiveLensNumber', 0);
+    update = true;
     location.reload();
 }
 
