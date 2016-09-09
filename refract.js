@@ -175,7 +175,7 @@ if(Meteor.isClient){
       snellenImage.src = "/img/snellen.png";
       queue.on('fileload', thisImageHasLoaded);
       queue.on('complete', allImagesNowLoaded, this);
-      queue.loadManifest([{id:'snellen_chart', src:"/img/snellen.png"}, {id:'animationspecs', src:"/img/optometry_specs_blocked.png"}, {id:'baizeTray', src:"/img/woodframe.png"}, {id: 'plusLens', src:"/img/plus-lens.png"}, {id:'restartbutton', src:"/img/restartbutton.png" }], true);
+      queue.loadManifest([{id:'snellen_chart', src:"/img/snellen.png"}, {id:'animationspecs', src:"/img/optometry_specs_blocked.png"}, {id:'baizeTray', src:"/img/woodframe.png"}, {id: 'plusLens', src:"/img/plus-lens.png"}, {id:'restartbutton', src:"/img/restartbutton.png" }, {id:"lensesused", src:"/img/lensesused.png"}, {id:"lensesremaining", src:"/img/lensesremaining.png"}, {id:"lensesremaining_black", src: "/img/lenses_remaining_black.png"}, {id:"lensesused_black", src:"/img/lenses_used_black.png"}, {id:"restart_black", src:"/img/restart_black.png"}], true);
     }
   }
 
@@ -206,6 +206,21 @@ function thisImageHasLoaded(event){
   if (event.item.id == 'restartbutton') {
     restartbutton = new createjs.Bitmap(event.result);
   }
+  if (event.item.id == 'lensesremaining') {
+    lensesremaining = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'lensesused') {
+    lensesused = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'lensesused_black') {
+    lensesused_black = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'lensesremaining_black') {
+    lensesremaining_black = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'restart_black') {
+    restartbutton_black = new createjs.Bitmap(event.result);
+  }
 }
 
 function allImagesNowLoaded(event){
@@ -214,8 +229,6 @@ function allImagesNowLoaded(event){
 }
 
 function loadDefinitions(){
-
-
 
     slideSound = createjs.Sound.registerSound({id:"soundId", src:"/sounds/slidesound.mp3"});
     createjs.MotionGuidePlugin.install();
@@ -236,7 +249,15 @@ function loadDefinitions(){
     diopterTotalLabel = new createjs.Text(diopterTotalText, "28px Oxygen Mono", "#303030");
     directionsLabel = new createjs.Text("The clock will start when you place your first lens...", "28px Bungee Shade", "#303030");
 
-    lensesUsed = new createjs.Text("", "18px Oxygen Mono", "#9999FF#");
+    //    snellenVAContainer = new createjs.Container();
+    //    snellenTextBox = new createjs.Graphics(); //.Rect(0, 0, snellen_text.getMeasuredWidth()*1.5, snellen_text.getMeasuredHeight()*1.5);
+    //    snellenTextBox.beginStroke("red").beginFill("blue").drawRect(20, 20, 100, 50);
+
+    lensesUsedText = new createjs.Text("0", "24px Oxygen Mono", "#303030");
+    lensesRemainingText = new createjs.Text("5", "24px Oxygen Mono", "#303030");
+    lensesRemainingContainer = new createjs.Container();
+    lensesUsedContainer = new createjs.Container();
+
     started = false;
     startTime = new Date();
     addition = true;
@@ -346,44 +367,73 @@ function setTheStage(){
   snellen_chart.x = baizeTrayDimensions.x + baizeTrayDimensions.width + 80;//80px padding for blur outline
   snellen_chart.y = snellenTextSize.height + 80; //80px padding for blur outline
 
-  subStage.addChild(snellen_chart); //NEW
+  subStage.addChild(snellen_chart);
 
   //add the specs
 
   animationspecs.x = baizeTrayDimensions.width - animationspecsSize.width;
   animationspecs.y = baizeTrayDimensions.height + baizeTray.y;
-  subStage.addChild(animationspecs); //NEW
+  subStage.addChild(animationspecs);
 
 
   //add the hit area
   hitArea = new createjs.Shape();
-  hitArea.graphics.beginFill("FFF").drawCircle(100,100,50);
+  hitArea.graphics.beginFill("FFF").drawCircle(125,125,50);
   hitArea.x = animationspecs.x + 30;
   hitArea.y = animationspecs.y + 60;
   animationspecs.hitArea = hitArea;
-  subStage.addChild(hitArea); //NEW
+  subStage.addChild(hitArea);
   hitArea.alpha = 0;
 
   //add the snellen text
 
+  //snellenVAContainer.addChild(snellenTextBox);
+ //  snellenVAContainer.addChild(snellen_text);
   snellen_text.y = baizeTray.y + baizeTrayDimensions.height;
   snellen_text.x = snellen_chart.x + snellen_chart_size.width + 80; //padding for blur
 
-  subStage.addChild(snellen_text); //NEW
+  subStage.addChild(snellen_text);
 
   // add the diopterTotalLabel
 
   diopterTotalLabel.x = animationspecs.x + ((animationspecsSize.width - diopterTotalLabel.getBounds().width)/2);
   diopterTotalLabel.y = snellen_chart.y + snellen_chart_size.height;
-  subStage.addChild(diopterTotalLabel); //NEW
+  subStage.addChild(diopterTotalLabel);
+
+  //lensesused image
+
+  lensesUsedContainer.x = 0;
+  lensesUsedContainer.y = baizeTray.y + baizeTrayDimensions.height;
+  lensesUsedContainer.addChild(lensesused_black);
+  lensesUsedContainer.addChild(lensesUsedText);
+  lensesUsedText.x = (lensesUsedContainer.getBounds().width/2 - (lensesUsedText.getMeasuredWidth()/2)) + 5;
+  lensesUsedText.y = (lensesUsedContainer.getBounds().height/2 - (lensesUsedText.getMeasuredHeight()/2)) - 5;
+  subStage.addChild(lensesUsedContainer);
+
+  //lensesremaining image
+
+  lensesRemainingContainer.x = 0;
+  lensesRemainingContainer.y = lensesUsedContainer.y + (lensesUsedContainer.getBounds().height * 0.8);
+  lensesRemainingContainer.addChild(lensesremaining_black);
+  lensesRemainingContainer.addChild(lensesremaining);
+  lensesremaining.alpha = 0;
+  lensesRemainingText.x = (lensesRemainingContainer.getBounds().width/2 - (lensesRemainingText.getMeasuredWidth()/2))+5;
+  lensesRemainingText.y = (lensesRemainingContainer.getBounds().height/2 - (lensesRemainingText.getMeasuredHeight()/2)) - 5;
+  lensesRemainingContainer.addChild(lensesRemainingText);
+  subStage.addChild(lensesRemainingContainer);
 
   // add the clock
 
   clockText.x = snellen_chart.x + snellen_chart_size.width + 60; //padding for blur
-  clockText.y = snellen_chart. y + snellen_chart_size.height;
-  subStage.addChild(clockText); //new
+  clockText.y = snellen_chart.y + snellen_chart_size.height;
+  subStage.addChild(clockText);
 
-  stage.addChild(subStage); //NEW
+  restartbutton.x = 0;
+  restartbutton.y = lensesRemainingContainer.y + (lensesRemainingContainer.getBounds().height * 0.8);
+  subStage.addChild(restartbutton);
+  addEventsToRestartButton();
+
+  stage.addChild(subStage);
 
   stage.update();
 }
@@ -405,102 +455,18 @@ function addTheLenses(){
   stage.update();
 }
 
-function updateClock(tick){
-  if (started) {
-    var now = new Date().getTime();
-    var newTime = ((now - startTime)/1000).toFixed(3);
-    var newTimeString = newTime.toString();
-    clockText.text =  newTimeString + " seconds";
-  }
-}
-
-function handleLensImageLoad(event){
-    var image = event.target;
-    var startOfArray = 0;
-    var isPlusLens = false;
-
-    if (image.tag == 'minus') {
-
-    }
-
-    if (image.tag == "plus") {
-        isPlusLens = true;
-        startOfArray = 5; //relates to diopter array to label the positive lenses with positive diopter values
-        var numberOfLensesLeft = Session.get('numberOfLensesLeft');
-        // these will be the number of lenses lensesLeftContainer
-        for (var l = 0; l < numberOfLensesLeft + 1; l++) {
-          lensLeftContainer = new createjs.Container();
-          var lensLeft = new createjs.Bitmap(image);
-          var lensLeftNumber = new createjs.Text(l+1, "48px Bungee Shade", "#303030");
-          var lensLeftSize = lensLeft.getBounds();
-          var lensLeftNumberSize = lensLeftNumber.getBounds();
-          var diopterTotalLabelSize = diopterTotalLabel.getBounds();
-          var whiteCircle = new createjs.Shape();
-          whiteCircle.graphics.beginFill("white").drawCircle(0, 0, lensLeftNumberSize.height/2) + 5;
-
-          if (l < numberOfLensesLeft) {
-            lensLeftNumber.x = lensLeft.x + ((lensLeftSize.width - lensLeftNumberSize.width)/ 2)+2.5;
-            lensLeftNumber.y = lensLeft.y + 35 +(l*30);
-            lensLeft.y = lensLeft.y + (l*30);
-            whiteCircle.x = lensLeft.x + (lensLeftSize.width/2) + 5;
-            whiteCircle.y = lensLeft.y + (lensLeftSize.height/2);
-            lensLeftContainer.name = "lensLeftContainer"+l; //this becomes the identifier for each lens in the lensesLeftContainer
-
-            lensLeftContainer.addChild(lensLeft);
-            lensLeftContainer.addChild(whiteCircle);
-            lensLeftContainer.addChild(lensLeftNumber);
-          } else {
-            /*
-            //this lens has the diopter totals
-
-            lensLeft.y = lensLeft.y + 70 +(l*30);
-            whiteCircle.x = lensLeft.x + (lensLeftSize.width/2) + 5;
-            whiteCircle.y = lensLeft.y + (lensLeftSize.height/2);
-            whiteCircleSize = whiteCircle.getBounds();
-            lensLeftContainer.name = "diopterTotalLabel"; //this becomes the identifier for the diopter total lens in the lensesLeftContainer
-            diopterTotalLabel.x = lensLeft.x + ((lensLeftSize.width/2));
-            diopterTotalLabel.y = lensLeft.y + ((lensLeftSize.height/2));
-
-            lensLeftContainer.addChild(lensLeft);
-            lensLeftContainer.addChild(whiteCircle);
-            lensLeftContainer.addChild(diopterTotalLabel);
-            */
-
-          }
-
-          lensesLeftContainer.addChild(lensLeftContainer);
-
-        }
-        var baizeTrayDimensions = baizeTray.getBounds();
-        lensesLeftContainer.x = baizeTray.x;
-        lensesLeftContainer.y = baizeTray.y + baizeTrayDimensions.height;
-        subStage.addChild(lensesLeftContainer); //NEW
-
-        // add the restart button
-        restartbutton.name = 'restartbutton';
-          //set hit area for restartbutton
-          var hit = new createjs.Shape();
-			     hit.graphics.beginFill("#000").drawRect(0, 0, restartbutton.getBounds().width, restartbutton.getBounds().height);
-        restartbutton.hitArea = hit;
-        restartbutton.x = snellen_chart.x +  snellen_chart.getBounds().width + 80;
-        restartbutton.y = baizeTray.y + (restartbutton.getBounds().height/2);
-        subStage.addChild(restartbutton); //needs listeners /// NEW
-
-        //label for when no lenses left in lensesLeftContainer
-        noLenses = new createjs.Text("Remove a Lens!", "18px Bungee Shade", "red");
-        noLenses.alpha = 0;
-        noLensesLength = 200;
-        lensesLeftContainerSize = lensesLeftContainer.getBounds();
-        noLenses.x = lensesLeftContainer.x;
-        noLenses.y = lensesLeftContainer.y;
-        subStage.addChild(noLenses); //NEW
-
-    }
+function addEventsToRestartButton(){
+  // add the restart button
+  restartbutton.name = 'restartbutton';
+      //set hit area for restartbutton
+      var hit = new createjs.Shape();
+       hit.graphics.beginFill("#000").drawRect(0, 0, restartbutton.getBounds().width, restartbutton.getBounds().height);
+    restartbutton.hitArea = hit;
 
    createjs.Ticker.addEventListener("tick", tick);
 
-   restartbutton.regX = restartbutton.getBounds().width / 2 | 0;
-   restartbutton.regY = restartbutton.getBounds().height / 2 | 0;
+  // restartbutton_black.regX = restartbutton_black.getBounds().width / 2 | 0;
+   //restartbutton_black.regY = restartbutton_black.getBounds().height / 2 | 0;
    restartbutton.scaleX = restartbutton.scaleY = restartbutton.scale = 1;
    restartbutton.cursor = "pointer";
 
@@ -517,184 +483,250 @@ function handleLensImageLoad(event){
      restart();
    });
 
-    for (var k=0; k<5; k++){ //the number of each lens
-        for (var i = startOfArray; i < startOfArray+5; i++) {
-                bitmap = new createjs.Bitmap(image);
-                lensContainer = new createjs.Container();
-                subStage.addChild(lensContainer); //NEW
-                lensContainer.addChild(bitmap);
+   subStage.addChild(restartbutton);
+}
 
-                myText=diopters[i]; //retrieve the lens strengths
+function updateClock(tick){
+  if (started) {
+    var now = new Date().getTime();
+    var newTime = ((now - startTime)/1000).toFixed(3);
+    var newTimeString = newTime.toString();
+    clockText.text =  newTimeString + " seconds";
+  }
+}
 
-                var nextLabelText = new createjs.Text(myText,"12px Courier","#FFFFFF");
-                nextLabelText.rotation = 40;
+function createLensesLeft(){
+  //now largely defunct
+  var numberOfLensesLeft = Session.get('numberOfLensesLeft');
+  // these will be the number of lenses lensesLeftContainer
+  for (var l = 0; l < numberOfLensesLeft + 1; l++) {
+    lensLeftContainer = new createjs.Container();
+    var lensLeft = new createjs.Bitmap(image);
+    var lensLeftNumber = new createjs.Text(l+1, "48px Bungee Shade", "#303030");
+    var lensLeftSize = lensLeft.getBounds();
+    var lensLeftNumberSize = lensLeftNumber.getBounds();
+    var diopterTotalLabelSize = diopterTotalLabel.getBounds();
+    var whiteCircle = new createjs.Shape();
+    whiteCircle.graphics.beginFill("white").drawCircle(0, 0, lensLeftNumberSize.height/2) + 5;
 
-                    var lensWidth = bitmap.image.width;
-                    var lensHeight = bitmap.image.height;
+    if (l < numberOfLensesLeft) {
+      lensLeftNumber.x = lensLeft.x + ((lensLeftSize.width - lensLeftNumberSize.width)/ 2)+2.5;
+      lensLeftNumber.y = lensLeft.y + 35 +(l*30);
+      lensLeft.y = lensLeft.y + (l*30);
+      whiteCircle.x = lensLeft.x + (lensLeftSize.width/2) + 5;
+      whiteCircle.y = lensLeft.y + (lensLeftSize.height/2);
+      lensLeftContainer.name = "lensLeftContainer"+l; //this becomes the identifier for each lens in the lensesLeftContainer
 
-                     //add text labels to the lenses
-
-                    if (!isPlusLens) {
-
-                        nextLabelText.x = 25;
-                        nextLabelText.y = 15;
-                    }
-                    else{
-
-                        nextLabelText.rotation = 140;
-                        nextLabelText.x = 55;
-                        nextLabelText.y = 85;
-
-                    }
-
-                lensContainer.addChild(nextLabelText);
-
-                //container.addChild(lensContainer);
-                lensContainer.mouseChildren=false;
-
-                //rotate then place the lens container
-                var baizeTrayDimensions = baizeTray.getBounds();
-
-                lensContainer.x = baizeTray.x + (image.width * (i + 1)/1.3) + 40;
-                lensContainer.y = baizeTray.y + 125;
-
-                if (isPlusLens) {
-                    lensContainer.x = baizeTray.x + image.width * (i-4)/1.3 + 40;
-                    lensContainer.y = baizeTray.y + (baizeTrayDimensions.height - 125);
-                };
-
-
-                lensContainer.regX = lensContainer.getBounds().width / 2 | 0;
-                lensContainer.regY = lensContainer.getBounds().height / 2 | 0;
-                lensContainer.scaleX = lensContainer.scaleY = lensContainer.scale = 1;
-                lensContainer.cursor = "pointer";
-                lensContainer.originalX = lensContainer.x;
-                lensContainer.originalY = lensContainer.y;
-                lensContainer.diopter = myText;
-                lensContainer.lensInPlace = false;
-                lensContainer.thisLensHasBeenPlacedAlready = false;
-
-
-                // using "on" binds the listener to the scope of the currentTarget by default
-                // in this case that means it executes in the scope of the button.
-
-                lensContainer.on("mousedown", function (evt) {
-
-                    this.parent.addChild(this);
-                    this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
-
-                });
-
-
-                // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
-                lensContainer.on("pressmove", function (evt) {
-
-                  evt.currentTarget.set({
-                    x: evt.stageX,
-                    y: evt.stageY
-                  });
-
-                  this.x = evt.currentTarget.x;
-                  this.y = evt.currentTarget.y;
-
-                    //the frame dims when lens is over it
-
-                    var pt = hitArea.globalToLocal(evt.stageX, evt.stageY);
-
-                    if (hitArea.hitTest(pt.x, pt.y)) {
-                        animationspecs.alpha = 0.2;
-                        lensInPlace = true;
-                    } else {
-                      animationspecs.alpha = 1.0;
-                      lensInPlace = false;
-                    }
-
-                    // indicate that the stage should be updated on the next tick:
-                    update = true;
-
-                });
-
-                lensContainer.on("rollover", function (evt) {
-                    this.scaleX = this.scaleY = this.scale * 1.2;
-                    update = true;
-                });
-
-                lensContainer.on("rollout", function (evt) {
-                    this.scaleX = this.scaleY = this.scale;
-                    update = true;
-                });
-
-                lensContainer.on("pressup", function(evt){
-
-                    var numberOfLensesLeft = Session.get('numberOfLensesLeft');
-                    evt.target.mouseEnabled = false;
-
-                    if (lensInPlace) {
-                        //start the clock if this is the first time
-                        if (firstTime) {
-                            started = true;
-                            startTime = new Date().getTime();
-                            firstTime = false;
-                            fadeDirections(true);
-                        };
-                        if (numberOfLensesLeft < 1) {
-                          update = true;
-                          returnLensToOrigin(evt);
-                          lensInPlace = false;
-                          evt.target.lensInPlace = false;
-                          animationspecs.alpha = 1.0;
-                          return;
-                        }
-                        //this lens has been added
-
-                        lensInPlace = false;
-                        animationspecs.alpha = 1.0;
-                        update = true;
-                        //reset flag
-                        evt.target.lensInPlace = true;
-
-                        //update the lens totals only if this lens has been placed and is yet to be returned to the stack
-                        if (!evt.target.thisLensHasBeenPlacedAlready) {
-                          var lensValue = parseFloat(evt.target.diopter);
-                          //update the scores
-                          myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true)
-                          updateTheScores(myTotalDiopters);
-                        }
-                        //set the flag
-                        evt.target.thisLensHasBeenPlacedAlready = true;
-
-                        //animate the lens into final position
-                        nudgeLensIntoPlace(evt);
-
-                    } else {
-                      //lens is not in place
-
-                      //animate the lens back
-                      returnLensToOrigin(evt);
-
-                      if (evt.target.lensInPlace == true ) {
-                        // this lens has been removed from the frame
-                        evt.target.lensInPlace = false; //this lens is no longer in place
-                        // add the lensesLeftContainer lens back
-
-                        numberOfLensesLeft = parseInt(numberOfLensesLeft) + 1;
-                        Session.set('numberOfLensesLeft', numberOfLensesLeft);
-
-                        // animate lens back to lensesLeftContainer
-                        addLensBackToLensesLeftContainer(numberOfLensesLeft-1);
-
-                          var lensValue = parseFloat(evt.target.diopter);
-                          myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false)
-                          updateTheScores(myTotalDiopters);
-                          //reset the flag
-                          evt.target.thisLensHasBeenPlacedAlready = false;
-
-
-                      }
-                    }
-                });
-        }
+      lensLeftContainer.addChild(lensLeft);
+      lensLeftContainer.addChild(whiteCircle);
+      lensLeftContainer.addChild(lensLeftNumber);
     }
+
+    lensesLeftContainer.addChild(lensLeftContainer);
+    var baizeTrayDimensions = baizeTray.getBounds();
+    lensesLeftContainer.x = baizeTray.x;
+    lensesLeftContainer.y = baizeTray.y + baizeTrayDimensions.height;
+    subStage.addChild(lensesLeftContainer); //NEW
+
+    //label for when no lenses left in lensesLeftContainer
+    noLenses = new createjs.Text("Remove a Lens!", "18px Bungee Shade", "red");
+    noLenses.alpha = 0;
+    noLensesLength = 200;
+    lensesLeftContainerSize = lensesLeftContainer.getBounds();
+    noLenses.x = lensesLeftContainer.x;
+    noLenses.y = lensesLeftContainer.y;
+    subStage.addChild(noLenses); //NEW
+  }
+}
+
+function handleLensImageLoad(event){
+    var image = event.target;
+    var startOfArray = 0;
+    var isPlusLens = false;
+
+    if (image.tag == 'minus') {
+
+    }
+
+    if (image.tag == "plus") {
+        isPlusLens = true;
+        startOfArray = 5; //relates to diopter array to label the positive lenses with positive diopter values
+    }
+
+  for (var k=0; k<5; k++){ //the number of each lens
+      for (var i = startOfArray; i < startOfArray+5; i++) {
+
+              bitmap = new createjs.Bitmap(image);
+              lensContainer = new createjs.Container();
+              subStage.addChild(lensContainer);
+              lensContainer.addChild(bitmap);
+
+              myText=diopters[i]; //retrieve the lens strengths
+
+              var nextLabelText = new createjs.Text(myText,"12px Courier","#FFFFFF");
+              nextLabelText.rotation = 40;
+
+                  var lensWidth = bitmap.image.width;
+                  var lensHeight = bitmap.image.height;
+
+                   //add text labels to the lenses
+
+                  if (!isPlusLens) {
+
+                      nextLabelText.x = 25;
+                      nextLabelText.y = 15;
+                  }
+                  else{
+
+                      nextLabelText.rotation = 140;
+                      nextLabelText.x = 55;
+                      nextLabelText.y = 85;
+
+                  }
+
+              lensContainer.addChild(nextLabelText);
+              lensContainer.mouseChildren=false;
+
+              //rotate then place the lens container
+              var baizeTrayDimensions = baizeTray.getBounds();
+
+              lensContainer.x = baizeTray.x + (image.width * (i + 1)/1.3) + 40;
+              lensContainer.y = baizeTray.y + 125;
+
+              if (isPlusLens) {
+                  lensContainer.x = baizeTray.x + image.width * (i-4)/1.3 + 40;
+                  lensContainer.y = baizeTray.y + (baizeTrayDimensions.height - 125);
+              };
+
+
+              lensContainer.regX = lensContainer.getBounds().width / 2 | 0;
+              lensContainer.regY = lensContainer.getBounds().height / 2 | 0;
+              lensContainer.scaleX = lensContainer.scaleY = lensContainer.scale = 1;
+              lensContainer.cursor = "pointer";
+              lensContainer.originalX = lensContainer.x;
+              lensContainer.originalY = lensContainer.y;
+              lensContainer.diopter = myText;
+              lensContainer.lensInPlace = false;
+              lensContainer.thisLensHasBeenPlacedAlready = false;
+
+
+              // using "on" binds the listener to the scope of the currentTarget by default
+              // in this case that means it executes in the scope of the button.
+
+              lensContainer.on("mousedown", function (evt) {
+
+                  this.parent.addChild(this);
+                  this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
+
+              });
+
+              // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
+              lensContainer.on("pressmove", function (evt) {
+
+                evt.currentTarget.set({
+                  x: evt.stageX,
+                  y: evt.stageY
+                });
+
+                this.x = evt.currentTarget.x;
+                this.y = evt.currentTarget.y;
+
+                  //the frame dims when lens is over it
+
+                  var pt = hitArea.globalToLocal(evt.stageX, evt.stageY);
+
+                  if (hitArea.hitTest(pt.x, pt.y)) {
+                      animationspecs.alpha = 0.2;
+                      lensInPlace = true;
+                  } else {
+                    animationspecs.alpha = 1.0;
+                    lensInPlace = false;
+                  }
+
+                  // indicate that the stage should be updated on the next tick:
+                  update = true;
+
+              });
+
+              lensContainer.on("rollover", function (evt) {
+                  this.scaleX = this.scaleY = this.scale * 1.2;
+                  update = true;
+              });
+
+              lensContainer.on("rollout", function (evt) {
+                  this.scaleX = this.scaleY = this.scale;
+                  update = true;
+              });
+
+              lensContainer.on("pressup", function(evt){
+
+                  var numberOfLensesLeft = Session.get('numberOfLensesLeft');
+                  evt.target.mouseEnabled = false;
+
+                  if (lensInPlace) {
+                      //start the clock if this is the first time
+                      if (firstTime) {
+                          started = true;
+                          startTime = new Date().getTime();
+                          firstTime = false;
+                          fadeDirections(true);
+                      };
+                      if (numberOfLensesLeft < 1) {
+                        update = true;
+                        returnLensToOrigin(evt);
+                        lensInPlace = false;
+                        evt.target.lensInPlace = false;
+                        animationspecs.alpha = 1.0;
+                        return;
+                      }
+                      //this lens has been added
+
+                      lensInPlace = false;
+                      animationspecs.alpha = 1.0;
+                      update = true;
+                      //reset flag
+                      evt.target.lensInPlace = true;
+
+                      //update the lens totals only if this lens has been placed and is yet to be returned to the stack
+                      if (!evt.target.thisLensHasBeenPlacedAlready) {
+                        var lensValue = parseFloat(evt.target.diopter);
+                        //update the scores
+                        myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true)
+                        updateTheScores(myTotalDiopters);
+                      }
+                      //set the flag
+                      evt.target.thisLensHasBeenPlacedAlready = true;
+
+                      //animate the lens into final position
+                      nudgeLensIntoPlace(evt);
+
+                  } else {
+                    //lens is not in place
+
+                    //animate the lens back
+                    returnLensToOrigin(evt);
+
+                    if (evt.target.lensInPlace == true ) {
+                      // this lens has been removed from the frame
+                      evt.target.lensInPlace = false; //this lens is no longer in place
+                      // add the lensesLeftContainer lens back
+
+                      numberOfLensesLeft = parseInt(numberOfLensesLeft) + 1;
+                      Session.set('numberOfLensesLeft', numberOfLensesLeft);
+
+                      // animate lens back to lensesLeftContainer
+            //          addLensBackToLensesLeftContainer(numberOfLensesLeft-1); WILL NEED TO THINK ABOUT THIS
+
+                        var lensValue = parseFloat(evt.target.diopter);
+                        myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false)
+                        updateTheScores(myTotalDiopters);
+                        //reset the flag
+                        evt.target.thisLensHasBeenPlacedAlready = false;
+                    }
+                  }
+              });
+      }
+  }
 }
 
 function nudgeLensIntoPlace(event){
@@ -711,7 +743,7 @@ function nudgeLensIntoPlace(event){
     numberOfLensesLeft = numberOfLensesLeft - 1;
     Session.set('numberOfLensesLeft', numberOfLensesLeft);
     // animate disappearance of lens from lensesLeftContainer
-    removeLensFromLensesLeftContainer(numberOfLensesLeft);
+    //    removeLensFromLensesLeftContainer(numberOfLensesLeft); THIS BIT NEEDS THINKING ABOUT
 
     if (event.target.diopter>0) {
 
@@ -742,9 +774,11 @@ function nudgeLensIntoPlace(event){
 
 function nudgeComplete(event){
   event.target.mouseEnabled=true;
-  console.log('positive lenses: '+ Session.get('positiveLensNumber'));
-  console.log('negative lenses: '+ Session.get('negativeLensNumber'));
-  console.log('total lenses: '+ Session.get('numberOfLensesLeft'));
+  //  console.log('positive lenses: '+ Session.get('positiveLensNumber'));
+  //  console.log('negative lenses: '+ Session.get('negativeLensNumber'));
+  //  console.log('total lenses: '+ Session.get('numberOfLensesLeft'));
+  updateLensesUsed();
+  updateLensesRemaining();
 }
 
 function returnLensToOrigin(event){
@@ -782,7 +816,8 @@ function returnLensToOrigin(event){
 }
 
 function returnComplete(){
-  //not implemented in the end
+  updateLensesUsed();
+  updateLensesRemaining();
 }
 
 function removeLensFromLensesLeftContainer(lensToRemove){
@@ -876,6 +911,21 @@ function fadeDirections(fade){
         box.modal('hide');
     }, 2000);
     */
+}
+
+function updateLensesUsed(){
+  var lensesUsedNumber = (5 - Session.get('numberOfLensesLeft'));
+  lensesUsedText.text =  lensesUsedNumber;
+}
+
+function updateLensesRemaining(){
+  var lensesRemaining = Session.get('numberOfLensesLeft');
+  lensesRemainingText.text = lensesRemaining;
+  if (lensesRemaining == 0) {
+    lensesremaining.alpha = 1;
+  } else {
+    lensesremaining.alpha = 0;
+  }
 }
 
 function updateTheLensTotals(lensValue, runningTotal, Add){
@@ -1094,6 +1144,4 @@ function showTheDialog(finalscore){
 
 function dismiss(){
     lensContainer.mouseEnabled = false;
-
-
 }
