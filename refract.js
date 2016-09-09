@@ -489,7 +489,7 @@ function addEventsToRestartButton(){
 function updateClock(tick){
   if (started) {
     var now = new Date().getTime();
-    var newTime = ((now - startTime)/1000).toFixed(3);
+    var newTime = ((now - startTime)/1000).toFixed(2);
     var newTimeString = newTime.toString();
     clockText.text =  newTimeString + " seconds";
   }
@@ -581,7 +581,6 @@ function handleLensImageLoad(event){
                       nextLabelText.rotation = 140;
                       nextLabelText.x = 55;
                       nextLabelText.y = 85;
-
                   }
 
               lensContainer.addChild(nextLabelText);
@@ -608,7 +607,6 @@ function handleLensImageLoad(event){
               lensContainer.diopter = myText;
               lensContainer.lensInPlace = false;
               lensContainer.thisLensHasBeenPlacedAlready = false;
-
 
               // using "on" binds the listener to the scope of the currentTarget by default
               // in this case that means it executes in the scope of the button.
@@ -715,7 +713,7 @@ function handleLensImageLoad(event){
                       Session.set('numberOfLensesLeft', numberOfLensesLeft);
 
                       // animate lens back to lensesLeftContainer
-            //          addLensBackToLensesLeftContainer(numberOfLensesLeft-1); WILL NEED TO THINK ABOUT THIS
+                  //    addLensBackToLensesLeftContainer(numberOfLensesLeft-1); WILL NEED TO THINK ABOUT THIS
 
                         var lensValue = parseFloat(evt.target.diopter);
                         myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false)
@@ -884,9 +882,9 @@ function selectPatient(){
   var longrefraction = 0;
   do {
     longrefraction=Math.random()*(8+8+1)-8;
-  } while (longrefraction == 0);
-
+  } while (longrefraction == 0.00);
     var inquarters =  Math.round(longrefraction * 4) / 4;
+    console.log(inquarters.toFixed(2));
     return inquarters.toFixed(2);
 }
 
