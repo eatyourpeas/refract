@@ -76,9 +76,9 @@ if(Meteor.isClient){
   plano = ["6/5+3", "6/4-3","6/4-3"];
     negativeNetDiopterArray = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.25, -3.5, -3.75, -4.0, -4.25, -4.5, -4.75, -5.0, -5.25, -5.5, -5.75, -6.0, -6.25, -6.5, -6.75, -7.0, -7.25, -7.5, -7.75, -8.0, -8.25, -8.5, -8.75, -9.0];
     positiveNetDiopterArray = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0];
-    positiveSnellen1 = ["6/5+1", "6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", ">2/60", ">2/60", ">2/60", ">2/60", ">2/60", ">2/60", ">2/60"];
-    positiveSnellen2 = ["6/5", "6/5-2", "6/6+1", "6/9", "6/12", "6/18", "6/24", "6/24-3", "6/36+1", "6/36-2", "6/48+1", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", ">2/60", ">2/60", ">2/60", ">2/60", ">2/60", ">2/60", ">2/60"];
-    positiveSnellen3 = ["6/5-1","6/6+3","6/6-3","6/9-3","6/12-3","6/18-2","6/24-1","6/36+2","6/36","6/48+2","6/48", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", ">2/60", "2/60", "2/60", "2/60", "2/60", "2/60", "2/60"];
+    positiveSnellen1 = ["6/5+1", "6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
+    positiveSnellen2 = ["6/5", "6/5-2", "6/6+1", "6/9", "6/12", "6/18", "6/24", "6/24-3", "6/36+1", "6/36-2", "6/48+1", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
+    positiveSnellen3 = ["6/5-1","6/6+3","6/6-3","6/9-3","6/12-3","6/18-2","6/24-1","6/36+2","6/36","6/48+2","6/48", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
     negativeSnellen1 = ["6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3"];
     negativeSnellen2 = ["6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3"];
     negativeSnellen3 = ["6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2"];
@@ -303,11 +303,12 @@ function loadDefinitions(){
     lensesRemainingContainer = new createjs.Container();
     lensesUsedContainer = new createjs.Container();
 
-    completedText = new createjs.Text("Well Done!", "48px Oxygen Mono", "#303030");
-    completedSubText = new createjs.Text("Best of Three.", "24px Oxygen Mono", "#303030");
+    completedText = new createjs.Text("Well Done!", "48px Oxygen Mono", "white");
+    completedSubText = new createjs.Text("Best of Three.", "24px Oxygen Mono", "white");
     completedTextContainer = new createjs.Container();
 
     eyeCandyText = new createjs.Text("Eye Candy", "24px Oxygen Mono", "#303030");
+    allCandyContainers = new createjs.Container();
 
 }
 
@@ -405,6 +406,7 @@ function init(){
   window.addEventListener('resize', resize, false);
   setTheStage();
   addTheLenses();
+  addTheCompletedTextContainer();
   resize();
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
@@ -515,36 +517,43 @@ function setTheStage(){
   subStage.addChild(restartbutton);
   addEventsToRestartButton();
 
-  loadTheCandy();
-
-  //complete text
-  completedText.x = 0;
-  completedText.y = 0;
-  completedSubText.x = 0;
-  completedSubText.y = completedText.y + 50;//+ completedText.getMeasuredHeight();
-  completedText.alpha = 0;
-  completedSubText.alpha = 0;
-  completedTextContainer.addChild(completedText);
-  completedTextContainer.addChild(completedSubText);
-  completedTextContainer.x = snellen_chart.x + snellen_chart_size.width;
-  completedTextContainer.y = baizeTray.y + baizeTrayDimensions.height;
-  subStage.addChild(completedTextContainer);
-
   //eyeCandyText
 
   eyeCandyText.y = 0
-  eyeCandyText.x = snellen_chart.x + snellen_chart.getBounds().width;
-  subStage.addChild(eyeCandyText);
+  //eyeCandyText.x = snellen_chart.x + snellen_chart.getBounds().width;
+  allCandyContainers.addChild(eyeCandyText);
+  loadTheCandy();
+  allCandyContainers.x = snellen_chart.x + snellen_chart_size.width;
 
   stage.addChild(subStage);
 }
 
+function addTheCompletedTextContainer(){
+  //complete text
+  var rect = new createjs.Shape();
+  rect.graphics.beginFill("#7DC1BB").drawRect(0, 0, 500, 150);
+  rect.alpha = 1;
+  completedTextContainer.addChild(rect);
+  completedText.x = 20;
+  completedText.y = 20;
+  completedSubText.x = 20;
+  completedSubText.y = completedText.y + 50; //+ completedText.getMeasuredHeight();
+  completedText.alpha = 1;
+  completedSubText.alpha = 1;
+  completedTextContainer.addChild(completedText);
+  completedTextContainer.addChild(completedSubText);
+  completedTextContainer.x = (subStage.getBounds().width - 250)/2;
+  completedTextContainer.y = (subStage.getBounds().height - 150)/2;
+  completedTextContainer.alpha = 0;
+  subStage.addChild(completedTextContainer);
+}
+
 function loadTheCandy(){
   var emptyCandy = new Image();
-  emptyCandy.src = "/img/sweet_sprites/sugar-cane.png";
+  emptyCandy.src = "/img/sweet_sprites/icandy_grey.png";
   emptyCandy.tag = 'empty';
   var candy = new Image();
-  candy.src = "/img/sweet_sprites/sugar-cane_filled.png";
+  candy.src = "/img/sweet_sprites/icandy.png";
   candy.tag = 'full';
   emptyCandy.onload = candyLoaded;
   candy.onload = candyLoaded;
@@ -556,6 +565,7 @@ function candyLoaded(){
 
   var candyImage = event.target;
 
+
   if (candyImage.tag == 'empty') { //this loads first so initialize
     for (var i = 0; i < levels; i++) {
       candyContainers[i] = new createjs.Container();
@@ -563,8 +573,17 @@ function candyLoaded(){
       candyBitmap.tag = candyImage.tag;
       candyContainers[i].addChild(candyBitmap);
       candyBitmap.name = i;
-      candyContainers[i].y = (eyeCandyText.y + eyeCandyText.getMeasuredHeight() + 40) + (100 * i);
-      candyContainers[i].x = snellen_chart.x + snellen_chart.getBounds().width + 40;
+
+        //candy text
+      var candyText = new createjs.Text("Time in secs","18px Oxygen Mono", "#303030");
+      candyText.x = (candyBitmap.getBounds().width - candyText.getMeasuredWidth())/2;
+      candyText.y = candyBitmap.getBounds().height;
+      candyText.alpha = 0;
+      candyText.name = 'candyText';
+      candyContainers[i].addChild(candyText);
+
+      candyContainers[i].y = candyContainers[i].y + eyeCandyText.getMeasuredHeight() + 40 + ((candyBitmap.getBounds().height + candyText.getMeasuredHeight()) * i);
+    //  candyContainers[i].x = snellen_chart.x + snellen_chart.getBounds().width + 40;
       candyContainers[i].name = 'CandyContainerForLevel'+i;
         candyBitmap.alpha = 1;
         candyBitmap.name = 'empty';
@@ -577,22 +596,15 @@ function candyLoaded(){
       var candyBitmap = new createjs.Bitmap(candyImage);
       candyBitmap.tag = candyImage.tag;
       candyContainers[j].addChild(candyBitmap);
-      subStage.addChild(candyContainers[j]);
-      candyBitmap.name = i;
-      candyContainers[j].y = (eyeCandyText.y + eyeCandyText.getMeasuredHeight() + 40) + (100 * j);
-      candyContainers[j].x = snellen_chart.x + snellen_chart.getBounds().width + 40;
+      allCandyContainers.addChild(candyContainers[j]);
+
       candyContainers[j].name = 'CandyContainerForLevel'+j;
         candyBitmap.alpha = 0;
         candyBitmap.name = 'full';
         candyBitmap.level = levels;
-        //candy text
-      var candyText = new createjs.Text("Time in secs","18px Oxygen Mono", "#303030");
-      candyText.x = candyContainers[j].getBounds().width - candyText.getMeasuredWidth();
-      candyText.y = (candyContainers[j].getBounds().height - candyText.getMeasuredHeight())/2;
-      candyText.alpha = 0;
-      candyText.name = 'candyText';
 
-      candyContainers[j].addChild(candyText);
+      subStage.addChild(allCandyContainers);
+
     }
   }
 }
@@ -752,7 +764,7 @@ function handleLensImageLoad(event){
                   lensContainer.y = baizeTray.y + (baizeTrayDimensions.height - 125);
               };
 
-              var lensHitArea =
+        //      var lensHitArea =
               lensContainer.regX = lensContainer.getBounds().width / 2 | 0;
               lensContainer.regY = lensContainer.getBounds().height / 2 | 0;
               lensContainer.scaleX = lensContainer.scaleY = lensContainer.scale = 1;
@@ -835,11 +847,11 @@ function handleLensImageLoad(event){
                       }
                       //this lens has been added
 
-                      lensInPlace = false;
+                      lensInPlace = false; //reset the global lensInPlace flag
                       animationspecs.alpha = 1.0;
                       update = true;
                       //reset flag
-                      evt.target.lensInPlace = true;
+                      evt.target.lensInPlace = true; //this lens has now been placed
 
                       //update the lens totals only if this lens has been placed and is yet to be returned to the stack
                       if (!evt.target.thisLensHasBeenPlacedAlready) {
@@ -848,11 +860,14 @@ function handleLensImageLoad(event){
                         myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true)
                         updateTheScores(myTotalDiopters);
                       }
-                      //set the flag
-                      evt.target.thisLensHasBeenPlacedAlready = true;
 
                       //animate the lens into final position
                       nudgeLensIntoPlace(evt);
+
+                      //set the flag
+                      evt.target.thisLensHasBeenPlacedAlready = true;
+
+
 
                   } else {
                     //lens is not in place
@@ -894,26 +909,32 @@ function nudgeLensIntoPlace(event){
     var numberOfPositiveLenses = Session.get('positiveLensNumber');
     var numberOfLensesLeft = Session.get('numberOfLensesLeft');
 
-    numberOfLensesLeft = numberOfLensesLeft - 1;
-    Session.set('numberOfLensesLeft', numberOfLensesLeft);
+    if (!event.target.thisLensHasBeenPlacedAlready) {
+      numberOfLensesLeft = numberOfLensesLeft - 1;
+      Session.set('numberOfLensesLeft', numberOfLensesLeft);
 
-    lensesInPlace.push(event);
+      lensesInPlace.push(event);
 
-    if (event.target.diopter>0) {
+      if (event.target.diopter>0) {
 
-        numberOfPositiveLenses = numberOfPositiveLenses + 1;
-        Session.set('positiveLensNumber', numberOfPositiveLenses);
-        lensRotation = numberOfPositiveLenses * 20;
-    //    if (numberOfPositiveLenses == 5) {
-    //      console.log('this is your last lens');
-    //    }
+          numberOfPositiveLenses = numberOfPositiveLenses + 1;
+          Session.set('positiveLensNumber', numberOfPositiveLenses);
+          lensRotation = numberOfPositiveLenses * 20;
 
-        var finalPositionX = hitArea.x+95;
-        var finalPositionY = hitArea.y+100;
+          var finalPositionX = hitArea.x+95;
+          var finalPositionY = hitArea.y+100;
+      } else {
+        numberOfNegativeLenses = numberOfNegativeLenses + 1;
+        Session.set('negativeLensNumber', numberOfNegativeLenses);
+        lensRotation = numberOfNegativeLenses * -20;
+      }
     } else {
-      numberOfNegativeLenses = numberOfNegativeLenses + 1;
-      Session.set('negativeLensNumber', numberOfNegativeLenses);
-      lensRotation = numberOfNegativeLenses * -20;
+      // this lens has previously been placed and not yet returned to stack
+      if (event.target.diopter>0) {
+        lensRotation = numberOfPositiveLenses * 20;
+      } else {
+        lensRotation = numberOfNegativeLenses * -20;
+      }
     }
 
     createjs.Tween.get(event.target).to({x:finalPositionX, y:finalPositionY},500,createjs.Ease.linear).to({rotation: lensRotation }, 1000, createjs.Ease.linear).call(nudgeComplete);
@@ -924,11 +945,11 @@ function nudgeLensIntoPlace(event){
 
 function nudgeComplete(event){
   event.target.mouseEnabled=true;
-  //  console.log('positive lenses: '+ Session.get('positiveLensNumber'));
-  //  console.log('negative lenses: '+ Session.get('negativeLensNumber'));
-  //  console.log('total lenses: '+ Session.get('numberOfLensesLeft'));
-  updateLensesUsed();
-  updateLensesRemaining();
+  if (!event.target.thisLensHasBeenPlacedAlready) {
+    updateLensesUsed();
+    updateLensesRemaining();
+  }
+
 }
 
 function returnLensToOrigin(event){
@@ -1136,7 +1157,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-console.log('i have been called. patient error: '+ netDiopters);
+    // console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
@@ -1171,10 +1192,11 @@ function moveUpALevel(){
     var candyTextToAlpha = candyContainers[level-1].getChildByName('candyText');
     candyTextToAlpha.text =  time ;
     fadeLabel(false, candyTextToAlpha);
-    fadeLabel(false, completedText);
+
     completedSubText.text = level + ' down. ' + (totalLevels - level) + ' more to go.\nPress restart to have another go.';
     completedSubText.lineHeight = 40;
-    fadeLabel(false, completedSubText);
+    fadeLabel(false, completedTextContainer);
+    //fadeLabel(false, completedSubText);
   //gain a level
   if (level < 3) {
     level ++ ;
@@ -1201,7 +1223,7 @@ function snellenFromDiopters(diopterValue){
   if (diopterValue > 0) {
     // this is a positive refractive error (overplussed)
     indexOfRefractiveError = positiveNetDiopterArray.indexOf(diopterValue); // this is the index of the current refractive error with lenses
-console.log('index if DS > 0 :' + indexOfRefractiveError + ' index');
+
     //select at random one of 3 matching VAs for this refractive error
     switch (parseInt(random3)) {
       case 3:
@@ -1216,15 +1238,13 @@ console.log('index if DS > 0 :' + indexOfRefractiveError + ' index');
       default: console.log('i am default');
         break;
     }
-console.log('leaves: '+snellenArray[indexOfRefractiveError]);
+
     return snellenArray[indexOfRefractiveError];
   }
   if (diopterValue < 0) {
 
     // this is a negative refractive error - overminused
     indexOfRefractiveError = negativeNetDiopterArray.indexOf(diopterValue); // this is the index of the current refractive error with lenses
-
-console.log('index if DS < 0 :' + indexOfRefractiveError + ' index');
 
     switch (parseInt(random3)) {
       case 3:
@@ -1239,7 +1259,6 @@ console.log('index if DS < 0 :' + indexOfRefractiveError + ' index');
       default: console.log('i am default');
         break;
     }
-console.log('leaves: '+snellenArray[indexOfRefractiveError]);
     return snellenArray[indexOfRefractiveError];
   } else {
     //must be 0 refractive error
@@ -1330,8 +1349,7 @@ function restart(levelComplete){
   updateTheLensTotals(0, 0, true);
   clockText.text = '0.00 seconds';
   fadeLabel(true, clockText);
-  fadeLabel(true, completedText);
-  fadeLabel(true, completedSubText);
+  fadeLabel(true, completedTextContainer);
   fadeLabel(false, directionsLabel);
   stage.update();
 
