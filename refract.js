@@ -928,6 +928,8 @@ function nudgeLensIntoPlace(event){
         Session.set('negativeLensNumber', numberOfNegativeLenses);
         lensRotation = numberOfNegativeLenses * -20;
       }
+      updateLensesUsed();
+      updateLensesRemaining();
     } else {
       // this lens has previously been placed and not yet returned to stack
       if (event.target.diopter>0) {
@@ -945,11 +947,6 @@ function nudgeLensIntoPlace(event){
 
 function nudgeComplete(event){
   event.target.mouseEnabled=true;
-  if (!event.target.thisLensHasBeenPlacedAlready) {
-    updateLensesUsed();
-    updateLensesRemaining();
-  }
-
 }
 
 function returnLensToOrigin(event){
@@ -1157,7 +1154,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    // console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
