@@ -310,6 +310,8 @@ function loadDefinitions(){
     eyeCandyText = new createjs.Text("Eye Candy", "24px Oxygen Mono", "#303030");
     allCandyContainers = new createjs.Container();
 
+    allLensesContainer = new createjs.Container();
+
 }
 
 function setVariables(){
@@ -406,7 +408,7 @@ function init(){
   window.addEventListener('resize', resize, false);
   setTheStage();
   addTheLenses();
-  addTheCompletedTextContainer();
+
   resize();
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
@@ -546,6 +548,10 @@ function addTheCompletedTextContainer(){
   completedTextContainer.y = (subStage.getBounds().height - 150)/2;
   completedTextContainer.alpha = 0;
   subStage.addChild(completedTextContainer);
+//  subStage.setChildIndex(completedTextContainer, 12);
+//  console.log('text container ' + subStage.getChildIndex(completedTextContainer));
+//  console.log('stage numchildren '+ subStage.numChildren);
+
 }
 
 function loadTheCandy(){
@@ -725,7 +731,7 @@ function handleLensImageLoad(event){
 
               bitmap = new createjs.Bitmap(image);
               lensContainer = new createjs.Container();
-              subStage.addChild(lensContainer);
+              allLensesContainer.addChild(lensContainer);
               lensContainer.addChild(bitmap);
 
               myText=diopters[i]; //retrieve the lens strengths
@@ -775,9 +781,6 @@ function handleLensImageLoad(event){
               lensContainer.lensInPlace = false;
               lensContainer.thisLensHasBeenPlacedAlready = false;
 
-              // using "on" binds the listener to the scope of the currentTarget by default
-              // in this case that means it executes in the scope of the button.
-
               lensContainer.on("mousedown", function (evt) {
 
                   this.parent.addChild(this);
@@ -785,7 +788,6 @@ function handleLensImageLoad(event){
 
               });
 
-              // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
               lensContainer.on("pressmove", function (evt) {
 
                 evt.currentTarget.set({
@@ -896,6 +898,8 @@ function handleLensImageLoad(event){
               });
       }
   }
+  subStage.addChild(allLensesContainer);
+  addTheCompletedTextContainer();
 }
 
 function nudgeLensIntoPlace(event){
