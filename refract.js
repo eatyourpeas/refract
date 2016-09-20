@@ -353,7 +353,7 @@ function resize(){
   updateScreenSize = true;
 
    var gameArea = document.getElementById('canvascontainer');
-    var widthToHeight = 1.7;
+    var widthToHeight = 1.5;
     var newWidth = window.innerWidth;
     var newHeight = window.innerHeight;
     var newWidthToHeight = newWidth / newHeight;
