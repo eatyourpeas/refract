@@ -61,19 +61,7 @@ if (Meteor.isServer) {
 
 if(Meteor.isClient){
 
-/*
-  plano = ["6/5+3", "6/4-3","6/4-3"];
-  negativeNetDiopterArray = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.25, -3.5, -3.75, -4.0, -4.25, -4.5, -4.75, -5.0, -5.25, -5.5, -5.75, -6.0, -6.25, -6.5, -6.75, -7.0, -7.25, -7.5, -7.75, -8.0];
-  positiveNetDiopterArray = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0];
-  positiveSnellen1 = ["6/5+3", "6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60"];
-  positiveSnellen2 = ["6/4-3", "6/5-1","6/6+1","6/9","6/12","6/18","6/24","6/24-3","6/36+1","6/36-2","6/48+1","6/48","6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60"];
-  positiveSnellen3 = ["6/5+2","6/6+3","6/6-3","6/9-3","6/12-3","6/18-2","6/24-1","6/36+2","6/36","6/48+2","6/48", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60"];
-  negativeSnellen1 = ["6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3"];
-  negativeSnellen2 = ["6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3"];
-  negativeSnellen3 = ["6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2"];
-*/
-
-  plano = ["6/5+3", "6/4-3","6/4-3"];
+    plano = ["6/5+3", "6/4-3","6/4-3"];
     negativeNetDiopterArray = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.25, -3.5, -3.75, -4.0, -4.25, -4.5, -4.75, -5.0, -5.25, -5.5, -5.75, -6.0, -6.25, -6.5, -6.75, -7.0, -7.25, -7.5, -7.75, -8.0, -8.25, -8.5, -8.75, -9.0];
     positiveNetDiopterArray = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0];
     positiveSnellen1 = ["6/5+1", "6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
@@ -82,8 +70,6 @@ if(Meteor.isClient){
     negativeSnellen1 = ["6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3"];
     negativeSnellen2 = ["6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3"];
     negativeSnellen3 = ["6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2"];
-
-
 
   Meteor.subscribe('thePlayers');
   Meteor.subscribe('meAsAPlayer');
@@ -198,6 +184,9 @@ if(Meteor.isClient){
           {id:'animationspecs', src:"/img/optometry_specs_blocked.png"},
           {id:'baizeTray', src:"/img/woodframe.png"},
           {id: 'plusLens', src:"/img/plus-lens.png"},
+          {id: 'plusLensHitArea', src:"/img/plus-lens-hitarea.png"},
+          {id: 'minusLens', src:"/img/minus-lens.png"},
+          {id: 'minusLensHitArea', src:"/img/minus-lens-hitarea.png"},
           {id:'restartbutton', src:"/img/restartbutton.png" },
           {id:"lensesused", src:"/img/lensesused.png"},
           {id:"lensesremaining", src:"/img/lensesremaining.png"},
@@ -236,6 +225,15 @@ function thisImageHasLoaded(event){
   }
   if (event.item.id == 'plusLens') {
     plusLensLife = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'plusLensHitArea') {
+    plusLensHitArea = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'minusLens') {
+    minusLens = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'minusLensHitArea') {
+    minusLensHitArea = new createjs.Bitmap(event.result);
   }
   if (event.item.id == 'restartbutton') {
     restartbutton = new createjs.Bitmap(event.result);
@@ -548,10 +546,6 @@ function addTheCompletedTextContainer(){
   completedTextContainer.y = (subStage.getBounds().height - 150)/2;
   completedTextContainer.alpha = 0;
   subStage.addChild(completedTextContainer);
-//  subStage.setChildIndex(completedTextContainer, 12);
-//  console.log('text container ' + subStage.getChildIndex(completedTextContainer));
-//  console.log('stage numchildren '+ subStage.numChildren);
-
 }
 
 function loadTheCandy(){
@@ -748,9 +742,11 @@ function handleLensImageLoad(event){
 
                       nextLabelText.x = 25;
                       nextLabelText.y = 15;
+                      lensContainer.hitArea = minusLensHitArea;
+
                   }
                   else{
-
+                      lensContainer.hitArea = plusLensHitArea;
                       nextLabelText.rotation = 140;
                       nextLabelText.x = 55;
                       nextLabelText.y = 85;
@@ -770,7 +766,6 @@ function handleLensImageLoad(event){
                   lensContainer.y = baizeTray.y + (baizeTrayDimensions.height - 125);
               };
 
-        //      var lensHitArea =
               lensContainer.regX = lensContainer.getBounds().width / 2 | 0;
               lensContainer.regY = lensContainer.getBounds().height / 2 | 0;
               lensContainer.scaleX = lensContainer.scaleY = lensContainer.scale = 1;
