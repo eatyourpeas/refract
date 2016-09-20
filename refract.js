@@ -170,6 +170,7 @@ if(Meteor.isClient){
       Session.set('numberOfLensesLeft', 5);
       Session.set('numberOfLevels', 3);
       Session.set('currentLevel', 1);
+      Session.set('currentStage', 1);
       var timesArray = [];
       Session.set('timesArray', timesArray);
       updateLabel = this.find('#updateLabel');
@@ -1153,7 +1154,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    ///console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
@@ -1189,16 +1190,32 @@ function moveUpALevel(){
     candyTextToAlpha.text =  time ;
     fadeLabel(false, candyTextToAlpha);
 
+  //gain a level
+  if (level < 3) {
+    //show the success text box
+
     completedSubText.text = level + ' down. ' + (totalLevels - level) + ' more to go.\nPress restart to have another go.';
     completedSubText.lineHeight = 40;
     fadeLabel(false, completedTextContainer);
-    //fadeLabel(false, completedSubText);
-  //gain a level
-  if (level < 3) {
+
     level ++ ;
     Session.set('currentLevel', level);
   } else {
+    //level 3 is complete, now go up a stage and start again
     Session.set('currentLevel', 0);
+    var achievementStage = Session.get('currentStage');
+    achievementStage ++;
+    Session.set('currentStage', achievementStage);
+    // need some way of celebrating level up and reporting back
+
+    //remove the eyeCandy
+    for (var i = 0; i < candyContainers.length; i++) {
+      var candyImage = candyContainers[i].getChildByName('full');
+      candyImage.alpha = 0;
+      var candyText = candyContainers[i].getChildByName('candyText');
+      fadeLabel(true, candyText);
+    }
+
   }
 
 }
@@ -1328,7 +1345,7 @@ function restart(levelComplete){
     Session.set('negativeLensNumber', 0);
     Session.set('numberOfLensesLeft', 5);
     Session.get('positiveLensNumber', 0);
-    Session.set('numberOfLevels', 3);
+
 
   for (var i = 0; i < lensesInPlace.length; i++) {
     var lensEvent = lensesInPlace[i];
@@ -1357,7 +1374,6 @@ function restart(levelComplete){
       var candyText = candyContainers[i].getChildByName('candyText');
       fadeLabel(true, candyText);
     }
-    //need to implement go up a level
   }
 
 }
