@@ -194,11 +194,10 @@ if(Meteor.isClient){
           {id:"lensesremaining_black", src: "/img/lenses_remaining_black.png"},
           {id:"lensesused_black", src:"/img/lenses_used_black.png"},
           {id:"restart_black", src:"/img/restart_black.png"},
-          {id:"orange_yellow_candy", src:"/img/sweet_sprites/orange_yellow_candy.png"},
-          {id:"yellow_orange_candy", src:"/img/sweet_sprites/yellow_orange_candy.png"},
-          {id:"candy_spritesheet", src:"/img/sweet_sprites/spritesheet.png"},
           {id:"sugar_cane", src:"/img/sweet_sprites/sugar-cane.png"},
-          {id:"sugar_cane_filled", src:"/img/sweet_sprites/sugar-cane_filled.png"}
+          {id:"sugar_cane_filled", src:"/img/sweet_sprites/sugar-cane_filled.png"},
+          {id:"eye_candy_grey", src:"/img/sweet_sprites/icandy_grey.png"},
+          {id:"eye_candy", src:"/img/sweet_sprites/icandy.png"},
       ], true);
     }
   }
@@ -225,7 +224,7 @@ function thisImageHasLoaded(event){
     baizeTray = new createjs.Bitmap(event.result);
   }
   if (event.item.id == 'plusLens') {
-    plusLensLife = new createjs.Bitmap(event.result);
+    plusLens = new createjs.Bitmap(event.result);
   }
   if (event.item.id == 'plusLensHitArea') {
     plusLensHitArea = new createjs.Bitmap(event.result);
@@ -534,6 +533,7 @@ function addTheCompletedTextContainer(){
   var rect = new createjs.Shape();
   rect.graphics.beginFill("#7DC1BB").drawRect(0, 0, 500, 150);
   rect.alpha = 1;
+  rect.shadow = new createjs.Shadow("#000000", 5, 5, 10);
   completedTextContainer.addChild(rect);
   completedText.x = 20;
   completedText.y = 20;
@@ -546,32 +546,26 @@ function addTheCompletedTextContainer(){
   completedTextContainer.x = (subStage.getBounds().width - 250)/2;
   completedTextContainer.y = (subStage.getBounds().height - 150)/2;
   completedTextContainer.alpha = 0;
+
   subStage.addChild(completedTextContainer);
 }
 
 function loadTheCandy(){
-  var emptyCandy = new Image();
-  emptyCandy.src = "/img/sweet_sprites/icandy_grey.png";
-  emptyCandy.tag = 'empty';
-  var candy = new Image();
-  candy.src = "/img/sweet_sprites/icandy.png";
-  candy.tag = 'full';
-  emptyCandy.onload = candyLoaded;
-  candy.onload = candyLoaded;
+
+  candyLoaded('grey');
+  candyLoaded('full');
+
 }
 
-function candyLoaded(){
+function candyLoaded(candyType){
 
   var levels = Session.get('numberOfLevels');
 
-  var candyImage = event.target;
-
-
-  if (candyImage.tag == 'empty') { //this loads first so initialize
+  if (candyType == 'grey') { //this loads first so initialize
     for (var i = 0; i < levels; i++) {
       candyContainers[i] = new createjs.Container();
-      var candyBitmap = new createjs.Bitmap(candyImage);
-      candyBitmap.tag = candyImage.tag;
+      var candyBitmap = new createjs.Bitmap(queue.getResult('eye_candy_grey'));
+      candyBitmap.tag = 'empty';
       candyContainers[i].addChild(candyBitmap);
       candyBitmap.name = i;
 
@@ -584,18 +578,17 @@ function candyLoaded(){
       candyContainers[i].addChild(candyText);
 
       candyContainers[i].y = candyContainers[i].y + eyeCandyText.getMeasuredHeight() + 40 + ((candyBitmap.getBounds().height + candyText.getMeasuredHeight()) * i);
-    //  candyContainers[i].x = snellen_chart.x + snellen_chart.getBounds().width + 40;
       candyContainers[i].name = 'CandyContainerForLevel'+i;
         candyBitmap.alpha = 1;
         candyBitmap.name = 'empty';
         candyBitmap.level = levels;
     }
   }
-  if (candyImage.tag == 'full') {
+  if (candyType == 'full') {
 
     for (var j = 0; j < levels; j++) {
-      var candyBitmap = new createjs.Bitmap(candyImage);
-      candyBitmap.tag = candyImage.tag;
+      var candyBitmap = new createjs.Bitmap(queue.getResult('eye_candy'));
+      candyBitmap.tag = 'full';
       candyContainers[j].addChild(candyBitmap);
       allCandyContainers.addChild(candyContainers[j]);
 
@@ -613,16 +606,9 @@ function candyLoaded(){
 function addTheLenses(){
   //add the lenses
 
-  var myMinusLens = new Image();
-  myMinusLens.src = "/img/minus-lens.png";
-  var myPlusLens = new Image();
-  myPlusLens.src = "/img/plus-lens.png";
+  handleLensImageLoad("minus");
+  handleLensImageLoad("plus");
 
-  myMinusLens.tag = "minus";
-  myPlusLens.tag = "plus";
-
-  myPlusLens.onload = handleLensImageLoad;
-  myMinusLens.onload = handleLensImageLoad;
 }
 
 function addEventsToRestartButton(){
@@ -707,24 +693,27 @@ function createLensesLeft(){
   }
 }
 
-function handleLensImageLoad(event){
-    var image = event.target;
+function handleLensImageLoad(lensType){
     var startOfArray = 0;
     var isPlusLens = false;
 
-    if (image.tag == 'minus') {
+    if (lensType == 'minus') {
 
     }
 
-    if (image.tag == "plus") {
+    if (lensType == "plus") {
         isPlusLens = true;
         startOfArray = 5; //relates to diopter array to label the positive lenses with positive diopter values
     }
 
   for (var k=0; k<5; k++){ //the number of each lens
       for (var i = startOfArray; i < startOfArray+5; i++) {
-
-              bitmap = new createjs.Bitmap(image);
+        var bitmap;
+        if (lensType == 'minus') {
+          bitmap = new createjs.Bitmap(queue.getResult('minusLens'));
+        } else if(lensType == 'plus'){
+          bitmap = new createjs.Bitmap(queue.getResult('plusLens'));
+        }
               lensContainer = new createjs.Container();
               allLensesContainer.addChild(lensContainer);
               lensContainer.addChild(bitmap);
@@ -734,8 +723,8 @@ function handleLensImageLoad(event){
               var nextLabelText = new createjs.Text(myText,"12px Courier","#FFFFFF");
               nextLabelText.rotation = 40;
 
-                  var lensWidth = bitmap.image.width;
-                  var lensHeight = bitmap.image.height;
+                  var lensWidth = bitmap.getBounds().width;
+                  var lensHeight = bitmap.getBounds().height;
 
                    //add text labels to the lenses
 
@@ -759,11 +748,11 @@ function handleLensImageLoad(event){
               //rotate then place the lens container
               var baizeTrayDimensions = baizeTray.getBounds();
 
-              lensContainer.x = baizeTray.x + (image.width * (i + 1)/1.3) + 40;
+              lensContainer.x = baizeTray.x + (lensWidth * (i + 1)/1.3) + 40;
               lensContainer.y = baizeTray.y + 125;
 
               if (isPlusLens) {
-                  lensContainer.x = baizeTray.x + image.width * (i-4)/1.3 + 40;
+                  lensContainer.x = baizeTray.x + lensWidth * (i-4)/1.3 + 40;
                   lensContainer.y = baizeTray.y + (baizeTrayDimensions.height - 125);
               };
 
@@ -857,6 +846,7 @@ function handleLensImageLoad(event){
                         //update the scores
                         myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true)
                         updateTheScores(myTotalDiopters);
+
                       }
 
                       //animate the lens into final position
@@ -881,9 +871,6 @@ function handleLensImageLoad(event){
                       numberOfLensesLeft = parseInt(numberOfLensesLeft) + 1;
                       Session.set('numberOfLensesLeft', numberOfLensesLeft);
 
-                      // animate lens back to lensesLeftContainer
-                  //    addLensBackToLensesLeftContainer(numberOfLensesLeft-1); WILL NEED TO THINK ABOUT THIS
-
                         var lensValue = parseFloat(evt.target.diopter);
                         myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false)
                         updateTheScores(myTotalDiopters);
@@ -891,6 +878,8 @@ function handleLensImageLoad(event){
                         evt.target.thisLensHasBeenPlacedAlready = false;
                     }
                   }
+                  updateLensesUsed();
+                  updateLensesRemaining();
               });
       }
   }
@@ -912,7 +901,6 @@ function nudgeLensIntoPlace(event){
     if (!event.target.thisLensHasBeenPlacedAlready) {
       numberOfLensesLeft = numberOfLensesLeft - 1;
       Session.set('numberOfLensesLeft', numberOfLensesLeft);
-
       lensesInPlace.push(event);
 
       if (event.target.diopter>0) {
@@ -973,9 +961,8 @@ function returnLensToOrigin(event){
         numberOfNegativeLenses = numberOfNegativeLenses - 1;
         Session.set('negativeLensNumber', numberOfNegativeLenses);
       }
+
     }
-
-
 
     //lens must rotate depending on if positive or negative
     var lensRotation = 0;
@@ -988,42 +975,7 @@ function returnLensToOrigin(event){
 }
 
 function returnComplete(){
-  updateLensesUsed();
-  updateLensesRemaining();
-}
 
-function removeLensFromLensesLeftContainer(lensToRemove){
-  var lensContainerName = "lensLeftContainer"+lensToRemove;
-  var lensToRemoveFromContainer = lensesLeftContainer.getChildByName(lensContainerName);
-  createjs.Tween.get(lensToRemoveFromContainer, {loop: false}).to({alpha: 0}, 500, createjs.Ease.getPowInOut(2)).call(lensRemovedFromLensLeftContainer(lensToRemove));
-  fadeFlag = true;
-  createjs.Ticker.addEventListener("tick", tick);
-}
-
-function addLensBackToLensesLeftContainer(lensToAdd){
-  var lensContainerName = "lensLeftContainer"+lensToAdd;
-  var lensToAddBackToContainer = lensesLeftContainer.getChildByName(lensContainerName);
-  createjs.Tween.get(lensToAddBackToContainer, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2)).call(lensAddedBackToLensesContainer(lensToAdd));
-  fadeFlag = true;
-  createjs.Ticker.addEventListener("tick", tick);
-}
-
-function lensRemovedFromLensLeftContainer(lensToRemove){
-  if (parseInt(lensToRemove) == 0) {
-
-    createjs.Tween.get(noLenses, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2)); //fade in no lenses warning
-    fadeFlag = true;
-    createjs.Ticker.addEventListener("tick", tick);
-  }
-}
-
-function lensAddedBackToLensesContainer(lensAdded){
-  if (lensAdded  == 0) {
-
-    createjs.Tween.get(noLenses, {loop: false}).to({alpha: 0}, 500, createjs.Ease.getPowInOut(2)); // fade out no lenses warning
-    fadeFlag = true;
-    createjs.Ticker.addEventListener("tick", tick);
-  }
 }
 
 function tick(event) {
@@ -1154,7 +1106,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    ///console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    //console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
@@ -1180,6 +1132,7 @@ function updateTheScores(lensesTotals){
 function moveUpALevel(){
   var level = Session.get('currentLevel');
   var totalLevels = Session.get('numberOfLevels');
+
     //add a candy for current level
     var candyToAlpha = candyContainers[level-1].getChildByName('full');
     candyToAlpha.alpha = 1;
@@ -1188,11 +1141,12 @@ function moveUpALevel(){
     var time = clockText.text;
     var candyTextToAlpha = candyContainers[level-1].getChildByName('candyText');
     candyTextToAlpha.text =  time ;
-    fadeLabel(false, candyTextToAlpha);
+
 
   //gain a level
   if (level < 3) {
     //show the success text box
+    fadeLabel(false, candyTextToAlpha);
 
     completedSubText.text = level + ' down. ' + (totalLevels - level) + ' more to go.\nPress restart to have another go.';
     completedSubText.lineHeight = 40;
@@ -1202,7 +1156,7 @@ function moveUpALevel(){
     Session.set('currentLevel', level);
   } else {
     //level 3 is complete, now go up a stage and start again
-    Session.set('currentLevel', 0);
+    Session.set('currentLevel', 1);
     var achievementStage = Session.get('currentStage');
     achievementStage ++;
     Session.set('currentStage', achievementStage);
@@ -1340,12 +1294,13 @@ function blurSnellenChart(diopterValue){
 
 }
 
-function restart(levelComplete){
+function restart(){
 
     Session.set('negativeLensNumber', 0);
     Session.set('numberOfLensesLeft', 5);
-    Session.get('positiveLensNumber', 0);
-
+    Session.set('positiveLensNumber', 0);
+    updateLensesUsed();
+    updateLensesRemaining();
 
   for (var i = 0; i < lensesInPlace.length; i++) {
     var lensEvent = lensesInPlace[i];
@@ -1354,6 +1309,7 @@ function restart(levelComplete){
     lens.lensInPlace = false;
     returnLensToOrigin(lensesInPlace[i]);
   }
+
   resetVariables();
 
   var myPatient = selectPatient();
@@ -1366,22 +1322,12 @@ function restart(levelComplete){
   fadeLabel(false, directionsLabel);
   stage.update();
 
-  if (levelComplete) {
-    lensesInPlace = [];
-    for (var i = 0; i < candyContainers.length; i++) {
-      var candyImage = candyContainers[i].getChildByName('full');
-      candyImage.alpha = 0;
-      var candyText = candyContainers[i].getChildByName('candyText');
-      fadeLabel(true, candyText);
-    }
-  }
-
 }
 
 function showTheDialog(finalscore){
 
     bootbox.dialog({
-        message:  'Your average time to refract over 3 attempts '+ finalscore.toFixed(2).toString()+ ' seconds. Click to save result',
+        message:  'Your average time to refract over 3 attempts was '+ finalscore.toFixed(2).toString()+ ' seconds. Save your score (if you want to), and then click restart to begin the next level!',
         title: "Well done " + Meteor.user().profile.name + '!',
         buttons:{
             success: {
@@ -1425,5 +1371,10 @@ function averageTime(){
   for (var i = 0; i < times.length; i++) {
     totalTime += times[i];
   }
-  return totalTime/times.length;
+  var numberOfTimes = times.length;
+  //reset the times
+  times = [];
+  Session.set('timesArray', times);
+
+  return totalTime/numberOfTimes;
 }
