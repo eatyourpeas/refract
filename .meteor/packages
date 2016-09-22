@@ -9,7 +9,6 @@ twbs:bootstrap
 less
 iron:router
 jquery
-sorenpeterson:createjs
 ian:accounts-ui-bootstrap-3
 service-configuration
 mizzao:bootboxjs

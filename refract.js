@@ -198,6 +198,13 @@ if(Meteor.isClient){
           {id:"sugar_cane_filled", src:"/img/sweet_sprites/sugar-cane_filled.png"},
           {id:"eye_candy_grey", src:"/img/sweet_sprites/icandy_grey.png"},
           {id:"eye_candy", src:"/img/sweet_sprites/icandy.png"},
+          {id:"eye_candy_spritesheet", src:"/img/sweet_sprites/eye_candy_spritesheet.png"},
+          {id:"blink001", src:"/img/sweet_sprites/Blink 00.png"},
+          {id:"blink002", src:"/img/sweet_sprites/Blink 01.png"},
+          {id:"blink003", src:"/img/sweet_sprites/Blink 02.png"},
+          {id:"blink004", src:"/img/sweet_sprites/Blink 03.png"},
+          {id:"blink005", src:"/img/sweet_sprites/Blink 04.png"},
+          {id:"blink006", src:"/img/sweet_sprites/Blink 05.png"}
       ], true);
     }
   }
@@ -267,6 +274,24 @@ function thisImageHasLoaded(event){
   }
   if (event.item.id == 'sugar_cane_filled') {
     sugar_cane_filled = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'blink001') {
+    blink001 = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'blink001') {
+    blink002 = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'blink001') {
+    blink003 = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'blink001') {
+    blink004 = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'blink001') {
+    blink005 = new createjs.Bitmap(event.result);
+  }
+  if (event.item.id == 'eye_candy_spritesheet') {
+    eye_candy_spritesheet = new createjs.Bitmap(event.result);
   }
 }
 
@@ -577,7 +602,7 @@ function candyLoaded(candyType){
       candyText.name = 'candyText';
       candyContainers[i].addChild(candyText);
 
-      candyContainers[i].y = candyContainers[i].y + eyeCandyText.getMeasuredHeight() + 40 + ((candyBitmap.getBounds().height + candyText.getMeasuredHeight()) * i);
+      candyContainers[i].y = candyContainers[i].y + eyeCandyText.getMeasuredHeight() + 50 + ((candyBitmap.getBounds().height + candyText.getMeasuredHeight()) * i);
       candyContainers[i].name = 'CandyContainerForLevel'+i;
         candyBitmap.alpha = 1;
         candyBitmap.name = 'empty';
@@ -586,8 +611,19 @@ function candyLoaded(candyType){
   }
   if (candyType == 'full') {
 
-    for (var j = 0; j < levels; j++) {
-      var candyBitmap = new createjs.Bitmap(queue.getResult('eye_candy'));
+      for (var j = 0; j < levels; j++) {
+        var data = {
+          images: [ queue.getResult("eye_candy_spritesheet") ],
+          frames: { width: 100, height: 55 },
+          animations: {
+            "default": { frames: [ 0, 1, 2, 3, 4, 5 ], frequency: 3 }
+          }
+        };
+
+      var spriteSheet = new createjs.SpriteSheet(data);
+      var candyBitmap = new createjs.Sprite(spriteSheet);
+      candyBitmap.play();
+
       candyBitmap.tag = 'full';
       candyContainers[j].addChild(candyBitmap);
       allCandyContainers.addChild(candyContainers[j]);
@@ -1106,7 +1142,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    //console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
