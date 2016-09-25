@@ -64,9 +64,9 @@ if(Meteor.isClient){
     plano = ["6/5+3", "6/4-3","6/4-3"];
     negativeNetDiopterArray = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.25, -3.5, -3.75, -4.0, -4.25, -4.5, -4.75, -5.0, -5.25, -5.5, -5.75, -6.0, -6.25, -6.5, -6.75, -7.0, -7.25, -7.5, -7.75, -8.0, -8.25, -8.5, -8.75, -9.0];
     positiveNetDiopterArray = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0];
-    positiveSnellen1 = ["6/5+1", "6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
-    positiveSnellen2 = ["6/5", "6/5-2", "6/6+1", "6/9", "6/12", "6/18", "6/24", "6/24-3", "6/36+1", "6/36-2", "6/48+1", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
-    positiveSnellen3 = ["6/5-1","6/6+3","6/6-3","6/9-3","6/12-3","6/18-2","6/24-1","6/36+2","6/36","6/48+2","6/48", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
+    positiveSnellen1 = ["6/5-2", "6/6-2","6/9+2", "6/12+1", "6/18+2", "6/24+2", "6/24+2", "6/36+2", "6/36-1", "6/48+2", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
+    positiveSnellen2 = ["6/5-1", "6/6+1", "6/9", "6/12", "6/18", "6/24", "6/24-3", "6/36+1", "6/36-2", "6/48+1", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
+    positiveSnellen3 = ["6/6+3","6/6-3","6/9-3","6/12-3","6/18-2","6/24-1","6/36+2","6/36","6/48+2","6/48", "6/48", "6/60", "6/60", "6/60", "6/60", "3/36", "3/36", "3/36", "3/36", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "3/60", "2/60", "2/60", "2/60", "2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60", "<2/60"];
     negativeSnellen1 = ["6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3", "6/5+3"];
     negativeSnellen2 = ["6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3"];
     negativeSnellen3 = ["6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2"];
@@ -171,6 +171,7 @@ if(Meteor.isClient){
       Session.set('numberOfLevels', 3);
       Session.set('currentLevel', 1);
       Session.set('currentStage', 1);
+      Session.set('levelErrorForIndex', 0);
       var timesArray = [];
       Session.set('timesArray', timesArray);
       updateLabel = this.find('#updateLabel');
@@ -1011,7 +1012,7 @@ function returnLensToOrigin(event){
 }
 
 function returnComplete(){
-
+  //
 }
 
 function tick(event) {
@@ -1142,7 +1143,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+  //  console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
@@ -1176,7 +1177,7 @@ function moveUpALevel(){
     started = false;
     var time = clockText.text;
     var candyTextToAlpha = candyContainers[level-1].getChildByName('candyText');
-    candyTextToAlpha.text =  time ;
+    candyTextToAlpha.text = time ;
 
 
   //gain a level
@@ -1197,7 +1198,11 @@ function moveUpALevel(){
     achievementStage ++;
     Session.set('currentStage', achievementStage);
     // need some way of celebrating level up and reporting back
-
+    if (achievementStage > 1) {
+      var levelErrorForIndex = Session.get('levelErrorForIndex');
+      levelErrorForIndex = 2;
+      Session.set('levelErrorForIndex', levelErrorForIndex);
+    }
     //remove the eyeCandy
     for (var i = 0; i < candyContainers.length; i++) {
       var candyImage = candyContainers[i].getChildByName('full');
@@ -1217,13 +1222,20 @@ function snellenFromDiopters(diopterValue){
     var sm = s * 0.3048; //convert feet to metres
     return Math.round(sm);
     */
+    var indexAlteration = Session.get('levelErrorForIndex');
     var indexOfRefractiveError = 0;
+    var patient = Session.get("myPatient");
+    var planoIsNormal = true;
+    if (patient > 0 && indexAlteration > 0 || patient < 0 && indexAlteration > 0) {
+      // plano <> 6/6
+      planoIsNormal = false;
+    }
 
   var snellenArray = [];
 
   var random3 = Math.random()*(3-1)+1;
 
-  if (diopterValue > 0) {
+  if (diopterValue > 0 || (diopterValue == 0 && patient > 0 && indexAlteration > 0)) {
     // this is a positive refractive error (overplussed)
     indexOfRefractiveError = positiveNetDiopterArray.indexOf(diopterValue); // this is the index of the current refractive error with lenses
 
@@ -1242,9 +1254,9 @@ function snellenFromDiopters(diopterValue){
         break;
     }
 
-    return snellenArray[indexOfRefractiveError];
+    return snellenArray[indexOfRefractiveError + indexAlteration];
   }
-  if (diopterValue < 0) {
+  if (diopterValue < 0 || (diopterValue == 0 && patient < 0 && indexAlteration > 0)) {
 
     // this is a negative refractive error - overminused
     indexOfRefractiveError = negativeNetDiopterArray.indexOf(diopterValue); // this is the index of the current refractive error with lenses
@@ -1262,7 +1274,7 @@ function snellenFromDiopters(diopterValue){
       default: console.log('i am default');
         break;
     }
-    return snellenArray[indexOfRefractiveError];
+    return snellenArray[indexOfRefractiveError + indexAlteration];
   } else {
     //must be 0 refractive error
     var indexOfPlano = parseInt(random3);
