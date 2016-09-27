@@ -1143,7 +1143,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-  //  console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
@@ -1178,6 +1178,10 @@ function moveUpALevel(){
     var time = clockText.text;
     var candyTextToAlpha = candyContainers[level-1].getChildByName('candyText');
     candyTextToAlpha.text = time ;
+
+    //disable the stage
+    allLensesContainer.mouseEnabled = false;
+
 
 
   //gain a level
@@ -1359,6 +1363,9 @@ function restart(){
   }
 
   resetVariables();
+
+  //re-enable lenses
+  allLensesContainer.mouseEnabled = true;
 
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
