@@ -38,7 +38,7 @@
                   {{#each player}}
                     <tr>
                       <td>{{{trophycolor @index}}} {{player_alias}}</td>
-                      <td>{{score}}</td>
+                      <td>{{oneDP score}}</td>
                       <td>{{dateformat date}}</td>
                     </tr>
                   {{/each}}
@@ -70,7 +70,7 @@
               <tbody>
                 {{#each measplayer}}
                   <tr>
-                    <td>{{score}}</td>
+                    <td>{{oneDP score}}</td>
                     <td>{{dateformat date}}</td>
                   </tr>
                 {{/each}}

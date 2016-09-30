@@ -42,10 +42,18 @@ if (Meteor.isServer) {
   });
 
   Meteor.publish('thePlayers', function(){
+    /*
     return PlayersList.find({}, { //publish only the players with the top 5 scores
       sort: { score: 1 },
       limit: 5
     });
+    */
+    return PlayersList.find({}, {
+      sort:{ score: 1 },
+      select:{ _id: 1},
+      limit: 1
+    });
+
   });
 
   Meteor.publish('meAsAPlayer', function(){
@@ -126,8 +134,15 @@ if(Meteor.isClient){
 
   Template.leaderboard.helpers({
       'player' : function(){
+        /*
       return PlayersList.find({}, { ///mirrored query from server
         sort: { score: 1 },
+        limit: 5
+      });
+      */
+      return PlayersList.find({}, {
+        sort:{ score: 1},
+        select: {createdBy: 1},
         limit: 5
       });
       },
@@ -159,6 +174,10 @@ if(Meteor.isClient){
           return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FF7F00; opacity: 0;' ></i>"; //transparent
         }
 
+      },
+      'oneDP': function(score){
+        var onedp = score.toFixed(2);
+        return onedp;
       }
   });
 
@@ -617,13 +636,16 @@ function candyLoaded(candyType){
           images: [ queue.getResult("eye_candy_spritesheet") ],
           frames: { width: 100, height: 55 },
           animations: {
-            "default": { frames: [ 0, 1, 2, 3, 4, 5 ], frequency: 3 }
+            blink: [0, 5, 'blink', 0.25]
           }
         };
 
+        createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
+        createjs.Ticker.setFPS(30);
+
       var spriteSheet = new createjs.SpriteSheet(data);
-      var candyBitmap = new createjs.Sprite(spriteSheet);
-      candyBitmap.play();
+      var candyBitmap = new createjs.Sprite(spriteSheet, 'blink');
+      candyBitmap.gotoAndPlay('blink');
 
       candyBitmap.tag = 'full';
       candyContainers[j].addChild(candyBitmap);
