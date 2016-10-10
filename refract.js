@@ -25,8 +25,6 @@ Router.route('/rules',{
 
 if (Meteor.isServer) {
 
-  MONGO_URL = process.env.SCALINGO_MONGO_URL;
-
   PlayersList = new Mongo.Collection('players');
 
   Accounts.onCreateUser(function(options, user) {
