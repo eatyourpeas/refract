@@ -1,6 +1,6 @@
 {
   "public": {
-    "MONGO_URL": "process.env.SCALINGO_MONGO_URL"
+    
   },
   "facebook": {
     "appId": "1242800165765366",
