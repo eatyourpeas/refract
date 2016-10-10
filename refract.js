@@ -1,4 +1,4 @@
-PlayersList = new Mongo.Collection('players');
+
 
 Router.configure({
   layoutTemplate : 'main'
@@ -25,6 +25,8 @@ Router.route('/rules',{
 
 if (Meteor.isServer) {
 
+  PlayersList = new Mongo.Collection('players');
+
   Accounts.onCreateUser(function(options, user) {
       if (options.profile) {
           user.profile = options.profile;
@@ -42,17 +44,28 @@ if (Meteor.isServer) {
   });
 
   Meteor.publish('thePlayers', function(){
-    /*
-    return PlayersList.find({}, { //publish only the players with the top 5 scores
-      sort: { score: 1 },
-      limit: 5
-    });
+/*
+    return ReactiveAggregate(this, PlayersList,[
+      {
+        $sort:{"player_alias": -1},
+       $group:
+          { _id: "$_id",
+          scores: { "$push": {score: "$score"} }
+          }
+
+      },
+      {
+        $project: {
+          score: "$scores"
+        }
+      }
+    ], {clientCollection: 'scoreReport'});
     */
-    return PlayersList.find({}, {
-      sort:{ score: 1 },
-      select:{ _id: 1},
-      limit: 1
-    });
+      return PlayersList.find({}, { //publish only the players with the top 15 scores
+        sort: { score: 1 },
+        limit: 15
+      });
+
 
   });
 
@@ -60,7 +73,7 @@ if (Meteor.isServer) {
     return PlayersList.find({createdBy: this.userId}, //publish only my top 5 scores
       {
         sort: {score: 1},
-        limit: 5
+        limit: 15
       }
     );
   });
@@ -79,8 +92,7 @@ if(Meteor.isClient){
     negativeSnellen2 = ["6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3", "6/4-3"];
     negativeSnellen3 = ["6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2", "6/5+2"];
 
-  Meteor.subscribe('thePlayers');
-  Meteor.subscribe('meAsAPlayer');
+    PlayersList = new Mongo.Collection('players');
 
   accountsUIBootstrap3.logoutCallback = function(error) {
     if(error) console.log("Error:" + error);
@@ -134,19 +146,14 @@ if(Meteor.isClient){
 
   Template.leaderboard.helpers({
       'player' : function(){
-        /*
-      return PlayersList.find({}, { ///mirrored query from server
-        sort: { score: 1 },
-        limit: 5
-      });
-      */
-      return PlayersList.find({}, {
-        sort:{ score: 1},
-        select: {createdBy: 1},
-        limit: 5
-      });
+        Meteor.subscribe('thePlayers');
+        return PlayersList.find({}, { ///mirrored query from server
+          sort: { score: 1 },
+          limit: 15
+        });
       },
       'measplayer' : function(){ //mirrored query from server
+        Meteor.subscribe('meAsAPlayer');
         var currentUserId = Meteor.userId();
         return PlayersList.find({createdBy: currentUserId},
           {
@@ -617,7 +624,7 @@ function candyLoaded(candyType){
         //candy text
       var candyText = new createjs.Text("Time in secs","18px Oxygen Mono", "#303030");
       candyText.x = (candyBitmap.getBounds().width - candyText.getMeasuredWidth())/2;
-      candyText.y = candyBitmap.getBounds().height;
+      candyText.y = candyBitmap.getBounds().height - 5;
       candyText.alpha = 0;
       candyText.name = 'candyText';
       candyContainers[i].addChild(candyText);
@@ -632,11 +639,15 @@ function candyLoaded(candyType){
   if (candyType == 'full') {
 
       for (var j = 0; j < levels; j++) {
+
+
         var data = {
           images: [ queue.getResult("eye_candy_spritesheet") ],
           frames: { width: 100, height: 55 },
           animations: {
-            blink: [0, 5, 'blink', 0.25]
+            blink: [0, 5, 'open', 0.5],
+            open: [5, 0, 'pause', 0.5],
+            pause: [0, 0, false, 4]
           }
         };
 
@@ -647,6 +658,7 @@ function candyLoaded(candyType){
       var candyBitmap = new createjs.Sprite(spriteSheet, 'blink');
       candyBitmap.gotoAndPlay('blink');
 
+      //var candyBitmap = new createjs.Bitmap(queue.getResult('eye_candy'));
       candyBitmap.tag = 'full';
       candyContainers[j].addChild(candyBitmap);
       allCandyContainers.addChild(candyContainers[j]);
@@ -1165,7 +1177,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    // console.log('i have been called. patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
