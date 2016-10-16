@@ -27,6 +27,35 @@ if (Meteor.isServer) {
 
   PlayersList = new Mongo.Collection('players');
 
+  Meteor.methods({
+    addNewScore: function(finalscore){
+      var newScore = PlayersList.insert({
+        createdBy: Meteor.userId(),
+        player_alias: Meteor.user().profile.name,
+        score: parseFloat(finalscore),
+        date: new Date().getTime(),
+        topScore: false
+      });
+
+      return newScore;
+    },
+
+    updateTopScore: function(thisScoreId){
+      var thisScore = PlayersList.findOne({_id:thisScoreId});
+      var topScore = PlayersList.find({createdBy: Meteor.userId()},{sort: {score: 1}, limit: 1}).fetch();
+      console.log(topScore[0].score + ' currentscore: '+ thisScore.score);
+      if (parseFloat(thisScore.score) <= parseFloat(topScore[0].score)) {
+        console.log('this beats my top score - i must update');
+        PlayersList.update(thisScoreId, {$set:{topScore: true}});
+        return 'success top score';
+      } else {
+        console.log('this score does not beat my top score');
+        return 'success personal list';
+      }
+    }
+
+  });
+
   Accounts.onCreateUser(function(options, user) {
       if (options.profile) {
           user.profile = options.profile;
@@ -43,25 +72,11 @@ if (Meteor.isServer) {
     }
   });
 
-  Meteor.publish('thePlayers', function(){
-/*
-    return ReactiveAggregate(this, PlayersList,[
-      {
-        $sort:{"player_alias": -1},
-       $group:
-          { _id: "$_id",
-          scores: { "$push": {score: "$score"} }
-          }
 
-      },
-      {
-        $project: {
-          score: "$scores"
-        }
-      }
-    ], {clientCollection: 'scoreReport'});
-    */
-      return PlayersList.find({}, { //publish only the players with the top 15 scores
+
+  Meteor.publish('thePlayers', function(){
+
+      return PlayersList.find({topScore: true}, { //publish only the players with the top 15 scores
         sort: { score: 1 },
         limit: 15
       });
@@ -77,6 +92,8 @@ if (Meteor.isServer) {
       }
     );
   });
+
+
 
 }
 
@@ -147,7 +164,7 @@ if(Meteor.isClient){
   Template.leaderboard.helpers({
       'player' : function(){
         Meteor.subscribe('thePlayers');
-        return PlayersList.find({}, { ///mirrored query from server
+        return PlayersList.find({topScore: true}, { ///mirrored query from server
           sort: { score: 1 },
           limit: 15
         });
@@ -1177,7 +1194,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    // console.log('i have been called. patient error: '+ netDiopters); //comment out in production
+    // console.log('patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
@@ -1446,12 +1463,20 @@ function showTheDialog(finalscore){
 }
 
 function saveTheTime(finalScore){
-  PlayersList.insert({
-    createdBy: Meteor.userId(),
-    player_alias: Meteor.user().profile.name,
-    score: parseFloat(finalScore),
-    date: new Date().getTime()
+  Meteor.call('addNewScore', finalScore, function(error, result){
+    if (result) {
+      Meteor.call('updateTopScore', result, function(error, newresults){
+        console.log(newresults);
+      });
+    } else {
+      console.log('there was no result');
+    }
+
+    if (error) {
+      console.log(error);
+    }
   });
+
 }
 
 function averageTime(){
