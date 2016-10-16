@@ -43,10 +43,13 @@ if (Meteor.isServer) {
     updateTopScore: function(thisScoreId){
       var thisScore = PlayersList.findOne({_id:thisScoreId});
       var topScore = PlayersList.find({createdBy: Meteor.userId()},{sort: {score: 1}, limit: 1}).fetch();
+      var lastTopScore = PlayersList.find({createdBy: Meteor.userId(), topScore: true}).fetch();
       console.log(topScore[0].score + ' currentscore: '+ thisScore.score);
+      console.log(lastTopScore[0].topScore + ' score: '+lastTopScore[0].score);
       if (parseFloat(thisScore.score) <= parseFloat(topScore[0].score)) {
         console.log('this beats my top score - i must update');
-        PlayersList.update(thisScoreId, {$set:{topScore: true}});
+        PlayersList.update(lastTopScore[0]._id, {$set:{topScore: false}}); //set last topscore to false
+        PlayersList.update(thisScoreId, {$set:{topScore: true}}); //set new topscore to true
         return 'success top score';
       } else {
         console.log('this score does not beat my top score');
@@ -1194,7 +1197,7 @@ function updateTheScores(lensesTotals){
     snellen_text.text = snellenString;
     fadeLabel(false, snellen_text);
 
-    // console.log('patient error: '+ netDiopters); //comment out in production
+    //console.log('patient error: '+ netDiopters); //comment out in production
 
     var level = Session.get('currentLevel');
     var levels = Session.get('numberOfLevels');
