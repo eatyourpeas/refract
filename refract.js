@@ -1,5 +1,3 @@
-
-
 Router.configure({
   layoutTemplate : 'main'
 });
@@ -44,16 +42,21 @@ if (Meteor.isServer) {
       var thisScore = PlayersList.findOne({_id:thisScoreId});
       var topScore = PlayersList.find({createdBy: Meteor.userId()},{sort: {score: 1}, limit: 1}).fetch();
       var lastTopScore = PlayersList.find({createdBy: Meteor.userId(), topScore: true}).fetch();
-      console.log(topScore[0].score + ' currentscore: '+ thisScore.score);
-      console.log(lastTopScore[0].topScore + ' score: '+lastTopScore[0].score);
-      if (parseFloat(thisScore.score) <= parseFloat(topScore[0].score)) {
-        console.log('this beats my top score - i must update');
-        PlayersList.update(lastTopScore[0]._id, {$set:{topScore: false}}); //set last topscore to false
-        PlayersList.update(thisScoreId, {$set:{topScore: true}}); //set new topscore to true
-        return 'success top score';
+      if(lastTopScore.length > 0){ //there is a previous top score for this user
+        console.log(topScore[0].score + ' currentscore: '+ thisScore.score);
+        console.log(lastTopScore[0].topScore + ' score: '+lastTopScore[0].score);
+        if (parseFloat(thisScore.score) <= parseFloat(topScore[0].score)) {
+          console.log('this beats my top score - i must update');
+          PlayersList.update(lastTopScore[0]._id, {$set:{topScore: false}}); //set last topscore to false
+          PlayersList.update(thisScoreId, {$set:{topScore: true}}); //set new topscore to true
+          return 'success top score';
+        } else {
+          console.log('this score does not beat my top score');
+          return 'success personal list';
+        }
       } else {
-        console.log('this score does not beat my top score');
-        return 'success personal list';
+        //this is my first score
+        PlayersList.update(thisScoreId, {$set:{topScore: true}}); //set new topscore to true
       }
     }
 
@@ -241,6 +244,7 @@ if(Meteor.isClient){
           {id:"lensesremaining_black", src: "/img/lenses_remaining_black.png"},
           {id:"lensesused_black", src:"/img/lenses_used_black.png"},
           {id:"restart_black", src:"/img/restart_black.png"},
+          {id: "submit_red", src:"/img/submit_red.png"},
           {id:"sugar_cane", src:"/img/sweet_sprites/sugar-cane.png"},
           {id:"sugar_cane_filled", src:"/img/sweet_sprites/sugar-cane_filled.png"},
           {id:"eye_candy_grey", src:"/img/sweet_sprites/icandy_grey.png"},
@@ -307,6 +311,9 @@ function thisImageHasLoaded(event){
   if (event.item.id == 'restart_black') {
     restartbutton_black = new createjs.Bitmap(event.result);
   }
+  if (event.item.id == 'submit_red') {
+    submitbutton = new createjs.Bitmap(event.result);
+  }
   if (event.item.id == 'orange_yellow_candy') {
     orange_yellow_candy = new createjs.Bitmap(event.result);
   }
@@ -366,7 +373,8 @@ function loadDefinitions(){
     lensesLeftContainer = new createjs.Container();
     diopterTotalText = "0.00 DS total";
     diopterTotalLabel = new createjs.Text(diopterTotalText, "24px Oxygen Mono", "#303030");
-    directionsLabel = new createjs.Text("The clock will start when you place your first lens...", "18px Oxygen Mono", "#303030");
+    directionsLabel = new createjs.Text("The clock will start when you place your first lens.\nClick submit when you have worked out the prescription.", "18px Oxygen Mono", "#303030");
+    directionsLabel.lineHeight = 24;
 
     lensesUsedText = new createjs.Text("0", "24px Oxygen Mono", "#303030");
     lensesRemainingText = new createjs.Text("5", "24px Oxygen Mono", "#303030");
@@ -482,7 +490,8 @@ function init(){
   resize();
   var myPatient = selectPatient();
   Session.set('myPatient', myPatient);
-  Session.set('')
+  Session.set('');
+  Session.set('attempts', 0);
   updateTheScores(0);
   stage.update();
 }
@@ -580,6 +589,13 @@ function setTheStage(){
   clockText.x = snellen_chart.x; //padding for blur
   clockText.y = snellen_chart.y + snellen_chart_size.height;
   subStage.addChild(clockText);
+
+  //add the submit buttons
+  submitbutton.x = 0; //this will appear after the restart button has been pressed
+  submitbutton.y = lensesRemainingContainer.y + (lensesRemainingContainer.getBounds().height * 0.8);
+  submitbutton.alpha = 0.0;
+
+  subStage.addChild(submitbutton);
 
   //add the restart button
 
@@ -728,6 +744,35 @@ function addEventsToRestartButton(){
    });
    restartbutton.on("click", function(evt){
      restart();
+   });
+}
+
+function addEventsToSubmitButton(){
+  submitbutton.name = 'submitbutton';
+      //set hit area for submitbutton
+      var hit = new createjs.Shape();
+       hit.graphics.beginFill("#000").drawRect(0, 0, submitbutton.getBounds().width, submitbutton.getBounds().height);
+    submitbutton.hitArea = hit;
+
+   createjs.Ticker.addEventListener("tick", tick);
+
+  // restartbutton_black.regX = restartbutton_black.getBounds().width / 2 | 0;
+   //restartbutton_black.regY = restartbutton_black.getBounds().height / 2 | 0;
+   submitbutton.scaleX = submitbutton.scaleY = submitbutton.scale = 1;
+   submitbutton.cursor = "pointer";
+
+   submitbutton.on("rollover", function (evt) {
+       this.scaleX = this.scaleY = this.scale * 1.2;
+       update = true;
+   });
+
+   submitbutton.on("rollout", function (evt) {
+       this.scaleX = this.scaleY = this.scale;
+       update = true;
+   });
+   submitbutton.on("click", function(evt){
+     //submit fuction to implement
+     clickedSubmit()
    });
 }
 
@@ -914,6 +959,10 @@ function handleLensImageLoad(lensType){
                           firstTime = false;
                           fadeLabel(true, directionsLabel);
                           fadeLabel(false, clockText);
+                          addEventsToSubmitButton();
+                          restartbutton.removeAllEventListeners();
+                          fadeRestart(false); //fade out the restart button - replace with submit
+
                       };
                       if (numberOfLensesLeft < 1) {
                         update = true;
@@ -1117,24 +1166,39 @@ function selectPatient(){
 function fadeLabel(fade, label){
 
   if (fade) {
-    createjs.Tween.get(label, {loop: false}).to({alpha: 0}, 500, createjs.Ease.getPowInOut(2));
     fadeFlag = true;
-    createjs.Ticker.addEventListener("tick", tick);
+  //  createjs.Ticker.addEventListener("tick", tick);
+    createjs.Tween.get(label, {loop: false}).to({alpha: 0}, 500, createjs.Ease.getPowInOut(2));
+
   } else {
     createjs.Tween.get(label, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2));
     fadeFlag = true;
-    createjs.Ticker.addEventListener("tick", tick);
+  //  createjs.Ticker.addEventListener("tick", tick);
   }
+}
 
-    /*
+function fadeRestart(fadein){
+  if(fadein){
+    fadeFlag = true;
+    //now fade out the submit button
+    createjs.Tween.get(submitbutton, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2)).call(fadeOutSubmitComplete);
+  } else {
+    fadeFlag = true;
+    createjs.Tween.get(restartbutton, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2)).call(fadeOutRestartComplete);
+  }
+}
 
-    var box = bootbox.alert("The clock will start when you place your first lens. Good Luck!");
+function fadeOutRestartComplete(){
+  restartbutton.visible = false;
+  submitbutton.visible = true;
+  createjs.Tween.get(submitbutton, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2));
+}
 
-    setTimeout(function() {
-    // be careful not to call box.hide() here, which will invoke jQuery's hide method
-        box.modal('hide');
-    }, 2000);
-    */
+function fadeOutSubmitComplete(){
+  //fade in the restart button
+  submitbutton.visible = false;
+  restartbutton.visible = true;
+  createjs.Tween.get(restartbutton, {loop: false}).to({alpha: 1}, 500, createjs.Ease.getPowInOut(2));
 }
 
 function updateLensesUsed(){
@@ -1190,7 +1254,6 @@ function updateTheScores(lensesTotals){
 
     var patient = Session.get('myPatient');
     netDiopters = parseFloat(patient) + parseFloat(lensesTotals); //this is the degree of blur unless overplussed
-    var myPrescription = parseFloat(patient)*-1;
     var snellenString = snellenFromDiopters(netDiopters); //this is the snellen value if not overplussed/minussed
 
     blurSnellenChart(netDiopters);
@@ -1199,25 +1262,17 @@ function updateTheScores(lensesTotals){
 
     //console.log('patient error: '+ netDiopters); //comment out in production
 
-    var level = Session.get('currentLevel');
-    var levels = Session.get('numberOfLevels');
+}
 
-    if(netDiopters==0.0){
-      // you have won!
-      // save the time
-      var times = Session.get('timesArray');
-      var time = parseFloat(clockText.text);
-      times.push(time);
-      Session.set('timesArray', times);
-
-      if (level <= levels) {
-        moveUpALevel();
-      }
-
-      if (level == levels) {
-        showTheDialog(averageTime());
-      }
-    }
+function loseALevel(){
+  var level = Session.get('currentLevel');
+  var candyToAlpha = candyContainers[level-2].getChildByName('full');
+  candyToAlpha.alpha = 0;
+  var candyTextToAlpha = candyContainers[level-2].getChildByName('candyText');
+  fadeLabel(true, candyTextToAlpha);
+  level --;
+  Session.set('currentLevel', level);
+  console.log(level);
 }
 
 function moveUpALevel(){
@@ -1227,22 +1282,14 @@ function moveUpALevel(){
     //add a candy for current level
     var candyToAlpha = candyContainers[level-1].getChildByName('full');
     candyToAlpha.alpha = 1;
-    stage.update();
-    started = false;
     var time = clockText.text;
     var candyTextToAlpha = candyContainers[level-1].getChildByName('candyText');
-    candyTextToAlpha.text = time ;
-
-    //disable the stage
-    allLensesContainer.mouseEnabled = false;
-
-
+    candyTextToAlpha.text = time;
 
   //gain a level
   if (level < 3) {
     //show the success text box
     fadeLabel(false, candyTextToAlpha);
-
     completedSubText.text = level + ' down. ' + (totalLevels - level) + ' more to go.\nPress restart to have another go.';
     completedSubText.lineHeight = 40;
     fadeLabel(false, completedTextContainer);
@@ -1429,6 +1476,10 @@ function restart(){
   fadeLabel(true, clockText);
   fadeLabel(true, completedTextContainer);
   fadeLabel(false, directionsLabel);
+
+  submitbutton.removeAllEventListeners();
+  addEventsToRestartButton();
+  fadeRestart(false);
   stage.update();
 
 }
@@ -1436,7 +1487,7 @@ function restart(){
 function showTheDialog(finalscore){
 
     bootbox.dialog({
-        message:  'Your average time to refract over 3 attempts was '+ finalscore.toFixed(2).toString()+ ' seconds. Save your score (if you want to), and then click restart to begin the next level!',
+        message:  "Your average time to refract over " + Session.get("attempts") + " attempts was "+ finalscore.toFixed(2).toString()+ ' seconds. Save your score (if you want to), and then click restart to begin the next level!',
         title: "Well done " + Meteor.user().profile.name + '!',
         buttons:{
             success: {
@@ -1463,6 +1514,71 @@ function showTheDialog(finalscore){
 
   //  stage.removeAllEventListeners();
 
+}
+
+function clickedSubmit(){
+  //stop the clock
+  started = false;
+
+  //disable the stage
+  allLensesContainer.mouseEnabled = false;
+
+  var attempts = Session.get('attempts');
+  attempts ++;
+  Session.set('attempts', attempts);
+
+  //get the patient refractive error and the student prescription
+  var patient = Session.get('myPatient');
+  netDiopters = parseFloat(patient) + parseFloat(myTotalDiopters);
+
+  var level = Session.get('currentLevel');
+  var levels = Session.get('numberOfLevels');
+
+  if(netDiopters==0.0){
+    // student has the correct prescription!
+    // save the time
+    var times = Session.get('timesArray');
+    var time = parseFloat(clockText.text);
+    times.push(time);
+    Session.set('timesArray', times);
+
+    if (level <= levels) {
+      moveUpALevel();
+    }
+
+    if (level == levels) {
+      showTheDialog(averageTime());
+    }
+
+    addEventsToRestartButton();
+    submitbutton.removeAllEventListeners();
+    fadeRestart(true);
+  } else {
+    //student has the wrong prescription
+    failedDialog(patient);
+    if(level > 1){
+      console.log("I am losing a level");
+      loseALevel();
+    }
+  }
+
+}
+
+function failedDialog(patient_refractive_error){
+  bootbox.dialog({
+      message:  "Your chosen prescription of "+ myTotalDiopters + " DS did not match the patient\'s refractive error of " + parseFloat(patient_refractive_error) + "! Try again (your time won't be recorded, but you do lose an eye candy)",
+      title: "Ouch! Nice try, " + Meteor.user().profile.name + '!',
+      buttons:{
+          success: {
+              label: "Thanks anyway",
+              className: "btn-success",
+              callback: function(){
+                restart()
+              }
+          }
+      }
+
+  });
 }
 
 function saveTheTime(finalScore){
