@@ -161,10 +161,7 @@ if(Meteor.isClient){
           return true;
         }
       }
-    }],
-    requestPermissions: {
-    facebook: []
-  }
+    }]
   });
 
   Template.leaderboard.helpers({
@@ -1566,7 +1563,7 @@ function clickedSubmit(){
 
 function failedDialog(patient_refractive_error){
   bootbox.dialog({
-      message:  "Your chosen prescription of "+ myTotalDiopters + " DS did not match the patient\'s refractive error of " + parseFloat(patient_refractive_error) + "! Try again (your time won't be recorded, but you do lose an eye candy)",
+      message:  "Your chosen prescription of "+ myTotalDiopters.toFixed(2) + " DS did not match the patient\'s refractive error of " + parseFloat(patient_refractive_error).toFixed(2) + "! Try again (your time won't be recorded, but you do lose an eye candy)",
       title: "Ouch! Nice try, " + Meteor.user().profile.name + '!',
       buttons:{
           success: {
