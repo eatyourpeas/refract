@@ -1562,8 +1562,20 @@ function clickedSubmit(){
 }
 
 function failedDialog(patient_refractive_error){
+  var actualPrescription = "";
+  var candidate_prescription = "";
+  if(myTotalDiopters > 0){ //candidate prescription is positive
+    candidate_prescription = "+"+ myTotalDiopters.toFixed(2);
+  }else { //candidate prescription is negative
+    candidate_prescription = myTotalDiopters.toFixed(2);
+  }
+  if(patient_refractive_error > 0){ //patient actual prescription is negative
+    actualPrescription = parseFloat(patient_refractive_error *= -1).toFixed(2);
+  } else { //patient actual prescription is positive
+    actualPrescription = "+"+ parseFloat(patient_refractive_error *= -1).toFixed(2);
+  }
   bootbox.dialog({
-      message:  "Your chosen prescription of "+ myTotalDiopters.toFixed(2) + " DS did not match the patient\'s refractive error of " + parseFloat(patient_refractive_error).toFixed(2) + "! Try again (your time won't be recorded, but you do lose an eye candy)",
+      message:  "Your chosen prescription of "+ candidate_prescription + " DS did not match the patient\'s actual prescription of " + actualPrescription + " DS! Try again (your time won't be recorded, but you do lose an eye candy)",
       title: "Ouch! Nice try, " + Meteor.user().profile.name + '!',
       buttons:{
           success: {
