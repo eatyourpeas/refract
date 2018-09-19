@@ -1574,9 +1574,11 @@ function failedDialog(patient_refractive_error){
   } else { //patient actual prescription is positive
     actualPrescription = "+"+ parseFloat(patient_refractive_error *= -1).toFixed(2);
   }
-  bootbox.dialog({
+  bootbox.alert({
+      size: "small",
       message:  "Your chosen prescription of "+ candidate_prescription + " DS did not match the patient\'s actual prescription of " + actualPrescription + " DS! Try again (your time won't be recorded, but you do lose an eye candy)",
       title: "Ouch! Nice try, " + Meteor.user().profile.name + '!',
+      /*
       buttons:{
           success: {
               label: "Thanks anyway",
@@ -1586,7 +1588,14 @@ function failedDialog(patient_refractive_error){
               }
           }
       }
-
+      */
+      callback: function(){
+        restart()
+      },
+      onEscape: function(){
+        restart()
+      },
+      closeButton: false
   });
 }
 
