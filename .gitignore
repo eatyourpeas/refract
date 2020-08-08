@@ -1,2 +1,6 @@
 .meteor/
 .vscode/
+.DS_Store/
+public/fonts/.DS_Store
+public/img/.DS_Store
+public/img/sweet_sprites/.DS_Store
