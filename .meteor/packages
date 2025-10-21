@@ -26,3 +26,4 @@ standard-minifier-js
 accounts-facebook
 fortawesome:fontawesome
 shell-server
+meteorhacks:flow-router

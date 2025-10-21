@@ -1,48 +1,45 @@
-// TODO: Add routing back - temporarily commented out to get basic app working
-/*
-// Flow Router configuration for modern Meteor using communitypackages:flow-router
+// Simple routing without BlazeLayout - using Session to track current page
 FlowRouter.route('/', {
     name: 'home',
     action: function() {
-        BlazeLayout.render('main', {content: 'home'});
+        Session.set('currentPage', 'home');
     }
 });
 
 FlowRouter.route('/refract', {
     name: 'refract',
     action: function() {
-        BlazeLayout.render('main', {content: 'refract'});
+        Session.set('currentPage', 'refract');
     }
 });
 
 FlowRouter.route('/contact', {
     name: 'contact',
     action: function() {
-        BlazeLayout.render('main', {content: 'contact'});
+        Session.set('currentPage', 'contact');
     }
 });
 
 FlowRouter.route('/about', {
     name: 'about',
     action: function() {
-        BlazeLayout.render('main', {content: 'about'});
+        Session.set('currentPage', 'about');
     }
 });
 
 FlowRouter.route('/leaderboard', {
     name: 'leaderboard',
     action: function() {
-        BlazeLayout.render('main', {content: 'leaderboard'});
+        Session.set('currentPage', 'leaderboard');
     }
 });
 
 FlowRouter.route('/rules', {
     name: 'rules',
     action: function() {
-        BlazeLayout.render('main', {content: 'rules'});
+        Session.set('currentPage', 'rules');
     }
 });
-*/
 
 if (Meteor.isServer) {
 
@@ -148,30 +145,76 @@ if(Meteor.isClient){
 
   Template.navbaritemsleft.helpers({
     activeIfTemplateIs: function (template) {
-      // TODO: Fix routing - temporarily return empty string
-      // var currentRoute = FlowRouter.getRouteName();
-      // return currentRoute && template === currentRoute ? 'active' : '';
-      return '';
+      var currentPage = Session.get('currentPage') || 'home';
+      return currentPage === template ? 'active' : '';
+    }
+  });
+
+  Template.navbaritemsleft.events({
+    'click a[data-route]': function(e) {
+      e.preventDefault();
+      var route = e.currentTarget.getAttribute('data-route');
+      FlowRouter.go('/' + (route === 'home' ? '' : route));
     }
   });
 
   Template.navbaritemsright.helpers({
     activeIfTemplateIs: function (template) {
-      // TODO: Fix routing - temporarily return empty string
-      // var currentRoute = FlowRouter.getRouteName();
-      // return currentRoute && template === currentRoute ? 'active' : '';
-      return '';
+      var currentPage = Session.get('currentPage') || 'home';
+      return currentPage === template ? 'active' : '';
     }
   });
 
   Template.gamesdropdown.helpers({
     activeIfTemplateIs: function (template) {
-      // TODO: Fix routing - temporarily return empty string
-      // var currentRoute = FlowRouter.getRouteName();
-      // return currentRoute && template === currentRoute ? 'active' : '';
-      return '';
+      var currentPage = Session.get('currentPage') || 'home';
+      return currentPage === template ? 'active' : '';
     }
   });
+
+  Template.gamesdropdown.events({
+    'click a[data-route]': function(e) {
+      e.preventDefault();
+      var route = e.currentTarget.getAttribute('data-route');
+      FlowRouter.go('/' + (route === 'home' ? '' : route));
+    }
+  });
+
+  Template.navbrand.events({
+    'click a[data-route]': function(e) {
+      e.preventDefault();
+      var route = e.currentTarget.getAttribute('data-route');
+      FlowRouter.go('/' + (route === 'home' ? '' : route));
+    }
+  });
+
+  // Helper for main template to check current page
+  Template.main.helpers({
+    isCurrentPage: function(page) {
+      var currentPage = Session.get('currentPage') || 'home';
+      return currentPage === page;
+    }
+  });
+
+  // Add pathFor helper for navigation links
+  Template.registerHelper('pathFor', function(options) {
+    var route = options.hash && options.hash.route;
+    console.log('pathFor called with route:', route);
+    if (route) {
+      if (route === 'home') {
+        return '/';
+      }
+      return '/' + route;
+    }
+    return '/';
+  });
+
+  // Initialize the default page
+  if (Meteor.isClient) {
+    Meteor.startup(function() {
+      Session.setDefault('currentPage', 'home');
+    });
+  }
 
   // TODO: Replace with modern accounts UI configuration
   // Accounts.ui.config({

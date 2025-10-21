@@ -10,9 +10,11 @@
   <link rel="icon" sizes="16x16 32x32" href="/img/favicon.ico">
   <link href='https://fonts.googleapis.com/css?family=Oxygen:400,300,700|Roboto:400,100|Oxygen+Mono' rel='stylesheet' type='text/css'>
   <script src="/js/createjs-2015.11.26.min.js"></script>
-
-
 </head>
+
+<body>
+  {{> main}}
+</body>
 
 <template name="leaderboard">
         <div class="container">
@@ -83,14 +85,10 @@
 </template>
 
 
-<template name = "refract">
+<template name = "refractGame">
   <div class="container-fluid" id="canvascontainer">
     <canvas id ="specsCanvas" align="left"> </canvas>
   </div>
-</template>
-
-<template name = 'contact'>
-  <h2>Contact Us</h2>
 </template>
 
 <template name="home">
@@ -148,7 +146,24 @@
     {{>navigation}}
     <div id="wrapper">
       <div id='main'>
-        {{>yield}}
+        {{#if isCurrentPage 'home'}}
+          {{> home}}
+        {{/if}}
+        {{#if isCurrentPage 'about'}}
+          {{> about}}
+        {{/if}}
+        {{#if isCurrentPage 'contact'}}
+          {{> contact}}
+        {{/if}}
+        {{#if isCurrentPage 'rules'}}
+          {{> rules}}
+        {{/if}}
+        {{#if isCurrentPage 'refract'}}
+          {{> refract}}
+        {{/if}}
+        {{#if isCurrentPage 'leaderboard'}}
+          {{> leaderboard}}
+        {{/if}}
       </div>
     </div>
     <div class="push"></div>
@@ -187,29 +202,29 @@
 
 <template name = "navbrand">
   <img class = "navbar-brand" src="/img/favicon.png" height="50px">
-  <a class="navbar-brand" href="{{pathFor route='home'}}">Refr<strong>act</strong></a>
+  <a class="navbar-brand" href="{{ pathFor route='home' }}" data-route="home">Refr<strong>act</strong></a>
 </template>
 
 <template name = 'navbaritemsleft'>
-  <li class="{{ activeIfTemplateIs 'home' }}"><a href="{{ pathFor route='home' }}">Home<span class="sr-only">(current)</span></a></li>
-  <li class="{{ activeIfTemplateIs 'about' }}"><a href="{{ pathFor route='about' }}">About</a></li>
+  <li class="{{ activeIfTemplateIs 'home' }}"><a href="{{ pathFor route='home' }}" data-route="home">Home<span class="sr-only">(current)</span></a></li>
+  <li class="{{ activeIfTemplateIs 'about' }}"><a href="{{ pathFor route='about' }}" data-route="about">About</a></li>
   {{#if currentUser}}
       {{> gamesdropdown}}
   {{/if}}
 </template>
 
 <template name = 'navbaritemsright'>
-    <li>{{> loginButtons }}</li>
+    <li><a href="#" class="btn btn-sm navbar-btn">Login</a></li>
 </template>
 
 <template name = "gamesdropdown">
   <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Games<span class="caret"></span></a>
       <ul class="dropdown-menu">
-        <li class="{{ activeIfTemplateIs 'rules' }}"><a href="{{ pathFor route='rules' }}">Rules of Refracting</a></li>
-        <li class="{{ activeIfTemplateIs 'refract' }}"><a href="{{ pathFor route='refract' }}">Play Refract</a></li>
+        <li class="{{ activeIfTemplateIs 'rules' }}"><a href="{{ pathFor route='rules' }}" data-route="rules">Rules of Refracting</a></li>
+        <li class="{{ activeIfTemplateIs 'refract' }}"><a href="{{ pathFor route='refract' }}" data-route="refract">Play Refract</a></li>
         <li role="separator" class="divider"></li>
-        <li class="{{ activeIfTemplateIs 'leaderboard' }}"><a href="{{ pathFor route='leaderboard' }}">Leaderboard</a></li>
+        <li class="{{ activeIfTemplateIs 'leaderboard' }}"><a href="{{ pathFor route='leaderboard' }}" data-route="leaderboard">Leaderboard</a></li>
         <li role="separator" class="divider"></li>
       </ul>
   </li>
@@ -242,4 +257,19 @@
       <p> You have space for five lenses - if you need more, replace a weaker lens with a stronger one. To remove lenses from the frame, drag them off to the side, or click the one you want to remove once and it will return automatically to its pile. Good luck! </p>
     </div>
   </div>
+</template>
+
+<template name="refract">
+  {{> refractGame}}
+</template>
+
+<template name="contact">
+  <div class="container">
+    <h1>Contact</h1>
+    <p>Contact information will go here.</p>
+  </div>
+</template>
+
+<template name="loginButtons">
+  <a href="#" class="btn btn-primary btn-sm">Login</a>
 </template>
