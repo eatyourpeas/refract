@@ -5,13 +5,126 @@
 ## Background
 Teaching optometry students how to work out refractive errors in the clinical setting is like teaching doctors physical examination or bakers-to-be how to use an oven. It is a core skill and needs to be done well. Andy Gridley has been doing this for years as a University Lecturer and wanted to gamify the process, to allow students to practice on a computer to maximise the face to face time they have with volunteer patients.
 
+## ✨ Recent Modernization (October 2025)
+
+This application has been **completely modernized** from Meteor 1.4.1.2 to **Meteor 3.3.2** with the following improvements:
+
+### 🔧 Technical Upgrades
+- **Meteor 3.3.2**: Updated from legacy 1.4.1.2 to latest stable version
+- **Modern Routing**: Replaced Iron Router with FlowRouter and Session-based rendering
+- **Authentication System**: Rebuilt user authentication with Bootstrap modal UI
+- **Package Updates**: Resolved all deprecated package conflicts
+- **Docker Support**: Enhanced Docker configuration for development
+- **Template System**: Fixed Blaze template conflicts and modernized helpers
+
+### 🎯 Features
+- **User Authentication**: Clean login/signup system with email/password
+- **Responsive Design**: Bootstrap-based UI with mobile support
+- **Game Integration**: Canvas-based refraction training game
+- **Leaderboard**: Personal and global scoring system
+- **Navigation**: Modern single-page application routing
+
+### 🏗️ Architecture
+- **Frontend**: Blaze templates with Bootstrap 3, FontAwesome icons
+- **Backend**: Meteor methods with MongoDB collections
+- **Game Engine**: CreateJS for interactive game mechanics
+- **Routing**: FlowRouter with Session state management
+- **Authentication**: Meteor accounts-password with custom UI
+
 ## Tools
-Refract is written in Meteor and JS using [createjs](https://createjs.com/).
+Refract is written in **Meteor 3.3.2** and JavaScript using [CreateJS](https://createjs.com/) for the game engine.
 
 ## Rules
 The student has to work out the refractive error of the patient by dragging lenses of different strengths onto the frame and assessing the reported refractive error from the Snellen chart. A timer logs the time taken to get a correct prescription. Fastest times are logged to a leader board.
 
-## Set up
+## 🚀 Development Setup
 
-1. Install Meteor 1.2
-2. ```meteor```
+### Prerequisites
+- **Node.js** 18+ 
+- **Meteor 3.3.2**
+- **Docker** (optional, for containerized development)
+
+### Quick Start
+```bash
+# Install Meteor (if not already installed)
+curl https://install.meteor.com/ | sh
+
+# Clone and run
+git clone https://github.com/eatyourpeas/refract.git
+cd refract
+meteor npm install
+meteor
+```
+
+### Docker Development (Recommended)
+```bash
+# Using Docker Compose
+docker-compose up meteor-app
+
+# App will be available at http://localhost:3000
+```
+
+### Database
+- **MongoDB**: Automatically configured with Meteor
+- **Collections**: `players` for storing scores and user data
+- **Authentication**: Built-in Meteor accounts system
+
+## 🎮 Usage
+
+1. **Sign Up**: Create an account with email/password
+2. **Play Game**: Navigate to "Games" → "Play Refract"  
+3. **Practice**: Drag lenses to correct refractive errors
+4. **Compete**: Check leaderboard for top scores
+5. **Learn**: Review rules and techniques
+
+## 📁 Project Structure
+```
+refract/
+├── .meteor/           # Meteor configuration
+├── public/           # Static assets (images, sounds, fonts)
+├── server/           # Server-side configuration  
+├── refract.html      # Blaze templates
+├── refract.js        # Client/server logic
+├── refract.less      # Styling (legacy)
+├── refract_game.js   # Game engine logic
+└── docker-compose.yml # Docker configuration
+```
+
+## 🔧 Technical Details
+
+### Routing System
+- **FlowRouter**: Modern client-side routing
+- **Session**: State management for current page
+- **Templates**: Conditional rendering based on route
+
+### Authentication Flow
+- **Signup**: Email, password, name/alias
+- **Login**: Email/password authentication  
+- **Session**: Persistent login state
+- **Profile**: User name and scoring history
+
+### Game Mechanics
+- **Canvas**: HTML5 canvas with CreateJS
+- **Drag & Drop**: Lens placement interaction
+- **Scoring**: Time-based performance tracking
+- **Leaderboard**: Personal best and global rankings
+
+## 🚀 Deployment Options
+
+### Production Ready
+- **Meteor Galaxy**: Official Meteor hosting (paid)
+- **Heroku**: Free tier available with MongoDB addon
+- **DigitalOcean**: App Platform deployment
+- **Railway**: Modern hosting with free tier
+
+### Environment Variables
+```bash
+MONGO_URL=mongodb://localhost:27017/refract
+ROOT_URL=http://localhost:3000
+```
+
+## 📝 License
+Educational project for optometry training.
+
+## 🤝 Contributing
+This is an educational project. For improvements or issues, please open a GitHub issue or pull request.
