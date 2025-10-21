@@ -1,25 +1,48 @@
-Router.configure({
-  layoutTemplate : 'main'
+// TODO: Add routing back - temporarily commented out to get basic app working
+/*
+// Flow Router configuration for modern Meteor using communitypackages:flow-router
+FlowRouter.route('/', {
+    name: 'home',
+    action: function() {
+        BlazeLayout.render('main', {content: 'home'});
+    }
 });
 
-Router.route('/refract');
-Router.route('/contact');
-Router.route('/about',{
-  name:'about',
-  template:'about'
+FlowRouter.route('/refract', {
+    name: 'refract',
+    action: function() {
+        BlazeLayout.render('main', {content: 'refract'});
+    }
 });
-Router.route('/', {
-    name: 'home',
-    template: 'home'
+
+FlowRouter.route('/contact', {
+    name: 'contact',
+    action: function() {
+        BlazeLayout.render('main', {content: 'contact'});
+    }
 });
-Router.route('/leaderboard', {
-  name:'leaderboard',
-  template: 'leaderboard'
+
+FlowRouter.route('/about', {
+    name: 'about',
+    action: function() {
+        BlazeLayout.render('main', {content: 'about'});
+    }
 });
-Router.route('/rules',{
-  name:'rules',
-  template:'rules'
+
+FlowRouter.route('/leaderboard', {
+    name: 'leaderboard',
+    action: function() {
+        BlazeLayout.render('main', {content: 'leaderboard'});
+    }
 });
+
+FlowRouter.route('/rules', {
+    name: 'rules',
+    action: function() {
+        BlazeLayout.render('main', {content: 'rules'});
+    }
+});
+*/
 
 if (Meteor.isServer) {
 
@@ -117,52 +140,57 @@ if(Meteor.isClient){
 
     PlayersList = new Mongo.Collection('players');
 
-  accountsUIBootstrap3.logoutCallback = function(error) {
-    if(error) console.log("Error:" + error);
-    Router.go('home');
-  }
+  // TODO: Replace with modern accounts UI logout callback
+  // accountsUIBootstrap3.logoutCallback = function(error) {
+  //   if(error) console.log("Error:" + error);
+  //   FlowRouter.go('home');
+  // }
 
   Template.navbaritemsleft.helpers({
     activeIfTemplateIs: function (template) {
-      var currentRoute = Router.current();
-      return currentRoute &&
-        template === currentRoute.lookupTemplate() ? 'active' : '';
+      // TODO: Fix routing - temporarily return empty string
+      // var currentRoute = FlowRouter.getRouteName();
+      // return currentRoute && template === currentRoute ? 'active' : '';
+      return '';
     }
   });
 
   Template.navbaritemsright.helpers({
     activeIfTemplateIs: function (template) {
-      var currentRoute = Router.current();
-      return currentRoute &&
-      template === currentRoute.lookupTemplate() ? 'active' : '';
+      // TODO: Fix routing - temporarily return empty string
+      // var currentRoute = FlowRouter.getRouteName();
+      // return currentRoute && template === currentRoute ? 'active' : '';
+      return '';
     }
   });
 
   Template.gamesdropdown.helpers({
     activeIfTemplateIs: function (template) {
-      var currentRoute = Router.current();
-      return currentRoute &&
-        template === currentRoute.lookupTemplate() ? 'active' : '';
+      // TODO: Fix routing - temporarily return empty string
+      // var currentRoute = FlowRouter.getRouteName();
+      // return currentRoute && template === currentRoute ? 'active' : '';
+      return '';
     }
   });
 
-  Accounts.ui.config({
-    passwordSignupFields: "EMAIL_ONLY",
-    extraSignupFields: [{
-      fieldName: 'name',
-      fieldLabel: 'First Name or Alias',
-      inputType: 'text',
-      visible: true,
-      validate: function(value, errorFunction) {
-        if (!value) {
-          errorFunction("Please enter a name.");
-          return false;
-        } else {
-          return true;
-        }
-      }
-    }]
-  });
+  // TODO: Replace with modern accounts UI configuration
+  // Accounts.ui.config({
+  //   passwordSignupFields: "EMAIL_ONLY",
+  //   extraSignupFields: [{
+  //     fieldName: 'name',
+  //     fieldLabel: 'First Name or Alias',
+  //     inputType: 'text',
+  //     visible: true,
+  //     validate: function(value, errorFunction) {
+  //       if (!value) {
+  //         errorFunction("Please enter a name.");
+  //         return false;
+  //       } else {
+  //         return true;
+  //       }
+  //     }
+  //   }]
+  // });
 
   Template.leaderboard.helpers({
       'player' : function(){

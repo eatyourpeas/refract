@@ -6,9 +6,7 @@
 
 accounts-password
 twbs:bootstrap
-# Temporarily commented out - iron:router
 jquery
-# Temporarily commented out - ian:accounts-ui-bootstrap-3
 service-configuration
 mizzao:bootboxjs
 meteor-base
@@ -28,4 +26,3 @@ standard-minifier-js
 accounts-facebook
 fortawesome:fontawesome
 shell-server
-# Temporarily commented out - jcbernack:reactive-aggregate
