@@ -1,0 +1,8 @@
+# Docker
+node_modules
+npm-debug.log
+.dockerignore
+
+# Meteor
+.meteor/local
+.meteor/meteorite
