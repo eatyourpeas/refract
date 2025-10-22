@@ -11,6 +11,12 @@ Railway is the most cost-effective and developer-friendly option for Meteor apps
 - ✅ **Scalable**: Easy to upgrade as you grow
 - ✅ **Reliable**: Built for production workloads
 
+### **🔄 CI/CD Workflow**
+- **All pushes**: Run tests, security scans, and code quality checks
+- **PR to main**: Triggers automatic production deployment
+- **Feature branches**: Test and validate before merging
+- **Main branch**: Always production-ready code
+
 ---
 
 ## 📋 **Pre-Deployment Checklist**

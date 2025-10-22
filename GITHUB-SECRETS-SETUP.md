@@ -47,18 +47,30 @@ To enable automatic deployment, you need to add these secrets to your GitHub rep
 ### **🔄 CI/CD Workflow**
 ```mermaid
 graph LR
-    A[Push to deploy] --> B[Run Tests]
-    B --> C[Security Scan]
+    A[Push/PR] --> B[Run Tests]
+    B --> C[Security Scan] 
     C --> D[Code Quality]
-    D --> E[Auto Deploy]
-    E --> F[Production Live]
+    D --> E{Main branch?}
+    E -->|No| F[Complete ✅]
+    E -->|Yes| G[Check Railway Config]
+    G -->|Not configured| H[Skip Deploy ⏭️]
+    G -->|Configured| I[Deploy to Railway]
+    I -->|Success| J[Deploy Success ✅]
+    I -->|Failure| K[GitHub Action FAILS ❌]
 ```
+
+**Deployment Strategy:**
+
+- **Tests + Security + Quality**: Run on all pushes and PRs
+- **Production Deployment**: Only on PR merges to `main` branch
+- **Failure Handling**: GitHub Action fails if Railway deployment fails
 
 ---
 
 ## 🏃‍♂️ **Quick Railway Setup**
 
 ### **Option 1: Manual Deployment (Immediate)**
+
 ```bash
 # Deploy manually without CI/CD
 npm install -g @railway/cli
@@ -68,11 +80,12 @@ railway up
 ```
 
 ### **Option 2: GitHub Integration (Recommended)**
-1. **Sign up at Railway**: https://railway.app
+
+1. **Sign up at Railway**: <https://railway.app>
 2. **Connect GitHub**: Authorize railway to access your repositories
 3. **Deploy from repo**: Select `eatyourpeas/refract` repository
 4. **Add MongoDB**: Add database service in Railway dashboard
-5. **Set environment variables**: 
+5. **Set environment variables**:
    - `NODE_ENV=production`
    - `ROOT_URL=https://your-app.railway.app`
    - `MONGO_URL=<from Railway MongoDB service>`
@@ -84,30 +97,35 @@ railway up
 ## 🔒 **Security Notes**
 
 ### **Secret Management**
+
 - ✅ Secrets are encrypted in GitHub
 - ✅ Only accessible to repository collaborators
 - ✅ Not visible in logs or pull requests
 - ✅ Can be rotated anytime
 
 ### **Access Control**
-- ✅ Deploy only triggers from `deploy` branch
-- ✅ Only runs for repository owner pushes
-- ✅ Requires all tests to pass first
+
+- ✅ **Tests run on all branches** and pull requests
+- ✅ **Deploy only triggers** on PR merges to `main` branch
+- ✅ **Requires all tests** to pass before deployment
+- ✅ **Production deployments** are controlled and deliberate
 
 ---
 
 ## 🐛 **Troubleshooting**
 
 ### **CI/CD Failing?**
+
 ```bash
 # Check these common issues:
 1. Are all tests passing? Check the test tab
 2. Are Railway secrets set correctly?
 3. Is Railway project created and linked?
-4. Are you pushing to the 'deploy' branch?
+4. Are you merging PRs to 'main' branch for deployment?
 ```
 
 ### **Railway Deployment Failing?**
+
 ```bash
 # Common fixes:
 1. Check MONGO_URL is set correctly
@@ -115,5 +133,9 @@ railway up
 3. Ensure NODE_ENV=production is set
 4. Check Railway project has sufficient resources
 ```
+
+---
+
+Your CI/CD pipeline is production-ready! Just add the Railway secrets to enable auto-deployment. 🚀
 
 Your CI/CD pipeline is production-ready! Just add the Railway secrets to enable auto-deployment. 🚀
