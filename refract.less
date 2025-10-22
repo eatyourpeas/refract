@@ -4,10 +4,12 @@
 }
 body {
   background-color: #ffffff;
-  padding-top: 60px;
+  padding-top: 80px !important; /* Force body padding for navbar */
   min-height: 100%auto;
   font-family: sans-serif;
 }
+
+/* Remove the conflicting rules */
 
 * {
     margin: 0;
@@ -43,11 +45,31 @@ html, body {
   display:         flex;
 }
 
-#wrapper {min-height: 100%;}
+#wrapper {
+  min-height: 100%;
+}
 
-#main {overflow:auto;
-	padding-bottom: 100px;}  /* must be same height as the footer */
+#main {
+  overflow: auto;
+  padding: 20px 15px 100px 15px; /* Top, Right, Bottom (footer height), Left */
+}
 
+.footer {
+  position: relative;
+  margin-top: -100px; /* negative value of footer height */
+  height: 100px;
+  clear: both;
+  padding: 20px 30px !important; /* Force padding */
+  background-color: #f5f5f5;
+  border-top: 1px solid #e7e7e7;
+  text-align: center;
+}
+
+.footer p {
+  margin: 20px !important; /* Force margin on footer text */
+  color: #777;
+  padding: 0 20px !important; /* Force additional text padding */
+}
 
 /*Opera Fix*/
 body:before {
