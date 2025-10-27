@@ -46,9 +46,28 @@ if (Meteor.isServer) {
 
   Meteor.methods({
     addNewScore: function (finalscore) {
+      // Security: Input validation
+      check(finalscore, Number);
+
+      // Security: User authentication check
+      if (!this.userId) {
+        throw new Meteor.Error(401, "Must be logged in to add scores");
+      }
+
+      // Security: Validate score range (prevent impossible scores)
+      if (finalscore < 0 || finalscore > 3600) {
+        // 0 to 1 hour max
+        throw new Meteor.Error(400, "Invalid score range");
+      }
+
+      const user = Meteor.user();
+      if (!user || !user.profile || !user.profile.name) {
+        throw new Meteor.Error(400, "User profile not found");
+      }
+
       var newScore = PlayersList.insert({
-        createdBy: Meteor.userId(),
-        player_alias: Meteor.user().profile.name,
+        createdBy: this.userId,
+        player_alias: user.profile.name,
         score: parseFloat(finalscore),
         date: new Date().getTime(),
         topScore: false,
@@ -58,6 +77,13 @@ if (Meteor.isServer) {
     },
 
     updateTopScore: function (thisScoreId) {
+      // Security: Input validation
+      check(thisScoreId, String);
+
+      // Security: User authentication check
+      if (!this.userId) {
+        throw new Meteor.Error(401, "Must be logged in to update scores");
+      }
       var thisScore = PlayersList.findOne({ _id: thisScoreId });
       var topScore = PlayersList.find(
         { createdBy: Meteor.userId() },
@@ -102,15 +128,187 @@ if (Meteor.isServer) {
   Accounts.config({
     sendVerificationEmail: false,
     forbidClientAccountCreation: false,
+    loginExpirationInDays: 30, // Limit session duration
+    passwordResetTokenExpirationInDays: 1, // Short password reset window
   });
 
+  // Security: Rate limiting for login attempts
+  DDPRateLimiter.addRule(
+    {
+      type: "method",
+      name: "login",
+      connectionId() {
+        return true;
+      },
+    },
+    5,
+    60000
+  ); // 5 attempts per minute
+
+  // Security: Rate limiting for account creation
+  DDPRateLimiter.addRule(
+    {
+      type: "method",
+      name: "createUser",
+      connectionId() {
+        return true;
+      },
+    },
+    3,
+    60000
+  ); // 3 account creations per minute
+
+  // Security: Rate limiting for password reset
+  DDPRateLimiter.addRule(
+    {
+      type: "method",
+      name: "forgotPassword",
+      connectionId() {
+        return true;
+      },
+    },
+    2,
+    60000
+  ); // 2 password reset attempts per minute
+
+  // Security: Enhanced password validation
+  Accounts.validateNewUser(function (user) {
+    // Check if email is provided and valid
+    if (!user.emails || !user.emails[0] || !user.emails[0].address) {
+      throw new Meteor.Error(403, "Email address is required");
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(user.emails[0].address)) {
+      throw new Meteor.Error(403, "Invalid email address format");
+    }
+
+    // Check if profile name is provided and reasonable
+    if (!user.profile || !user.profile.name || user.profile.name.length < 2) {
+      throw new Meteor.Error(
+        403,
+        "Profile name must be at least 2 characters long"
+      );
+    }
+
+    // Prevent overly long names (potential DoS)
+    if (user.profile.name.length > 50) {
+      throw new Meteor.Error(
+        403,
+        "Profile name must be less than 50 characters"
+      );
+    }
+
+    return true;
+  });
+
+  // Security: Remove sensitive data from user object when published
+  Meteor.publish("userData", function () {
+    if (this.userId) {
+      return Meteor.users.find(
+        { _id: this.userId },
+        {
+          fields: {
+            "profile.name": 1,
+            "emails.address": 1,
+            createdAt: 1,
+            // Explicitly exclude services, password hashes, etc.
+          },
+        }
+      );
+    } else {
+      this.ready();
+    }
+  });
+
+  // Security: Audit log for suspicious activity
+  const AuditLog = new Mongo.Collection("auditlog");
+
+  function logSuspiciousActivity(userId, action, details) {
+    AuditLog.insertAsync({
+      userId: userId,
+      action: action,
+      details: details,
+      timestamp: new Date(),
+      ip: this.connection?.clientAddress || "unknown",
+    });
+  }
+
+  // Security: Monitor failed login attempts
+  Accounts.onLoginFailure(function (info) {
+    logSuspiciousActivity(info.user?._id || null, "failed_login", {
+      type: info.type,
+      error: info.error?.reason,
+      methodName: info.methodName,
+    });
+  });
+
+  // Security: Enhanced user validation
+  Accounts.validateLoginAttempt(async function (info) {
+    // Block if too many recent failed attempts from this user
+    if (info.user) {
+      const recentFailures = await AuditLog.find({
+        userId: info.user._id,
+        action: "failed_login",
+        timestamp: { $gt: new Date(Date.now() - 15 * 60 * 1000) }, // 15 minutes
+      }).countAsync();
+
+      if (recentFailures >= 5) {
+        throw new Meteor.Error(
+          403,
+          "Account temporarily locked due to too many failed attempts"
+        );
+      }
+    }
+
+    return true;
+  });
+
+  // Security: Restrict database access with proper validation
   PlayersList.allow({
     insert: function (userId, doc) {
-      /* user and doc checks ,
-      return true to allow insert */
+      // Only logged-in users can insert
+      if (!userId) return false;
+
+      // Validate document structure
+      if (!doc.createdBy || doc.createdBy !== userId) return false;
+      if (!doc.score || typeof doc.score !== "number") return false;
+      if (!doc.player_alias || doc.player_alias.length > 50) return false;
 
       return true;
     },
+    update: function (userId, doc, fields, modifier) {
+      // Only allow users to update their own records
+      if (!userId || doc.createdBy !== userId) return false;
+
+      // Only allow specific field updates
+      const allowedFields = ["topScore"];
+      return fields.every((field) => allowedFields.includes(field));
+    },
+    remove: function (userId, doc) {
+      // Only allow users to remove their own records
+      return userId && doc.createdBy === userId;
+    },
+  });
+
+  // Security: Deny all client-side database operations by default
+  PlayersList.deny({
+    insert: function () {
+      return true;
+    }, // Force use of methods
+    update: function () {
+      return true;
+    }, // Force use of methods
+    remove: function () {
+      return true;
+    }, // Force use of methods
+  });
+
+  // Security: Remove default user publication and create secure one
+  Meteor.publish(null, function () {
+    // Don't automatically publish user data
+    return [];
   });
 
   Meteor.publish("thePlayers", function () {
@@ -642,50 +840,77 @@ if (Meteor.isClient) {
       Session.set("timesArray", timesArray);
       updateLabel = this.find("#updateLabel");
       canvas = this.find("#specsCanvas");
-      queue = new createjs.LoadQueue(true);
-      snellenImage = new Image();
-      snellenImage.src = "/img/snellen.png";
-      queue.on("fileload", thisImageHasLoaded);
-      queue.on("complete", allImagesNowLoaded, this);
-      queue.loadManifest(
-        [
-          { id: "snellen_chart", src: "/img/snellen.png" },
-          { id: "animationspecs", src: "/img/optometry_specs_blocked.png" },
-          { id: "baizeTray", src: "/img/woodframe.png" },
-          { id: "plusLens", src: "/img/plus-lens.png" },
-          { id: "plusLensHitArea", src: "/img/plus-lens-hitarea.png" },
-          { id: "minusLens", src: "/img/minus-lens.png" },
-          { id: "minusLensHitArea", src: "/img/minus-lens-hitarea.png" },
-          { id: "restartbutton", src: "/img/restartbutton.png" },
-          { id: "lensesused", src: "/img/lensesused.png" },
-          { id: "lensesremaining", src: "/img/lensesremaining.png" },
-          {
-            id: "lensesremaining_black",
-            src: "/img/lenses_remaining_black.png",
-          },
-          { id: "lensesused_black", src: "/img/lenses_used_black.png" },
-          { id: "restart_black", src: "/img/restart_black.png" },
-          { id: "submit_red", src: "/img/submit_red.png" },
-          { id: "sugar_cane", src: "/img/sweet_sprites/sugar-cane.png" },
-          {
-            id: "sugar_cane_filled",
-            src: "/img/sweet_sprites/sugar-cane_filled.png",
-          },
-          { id: "eye_candy_grey", src: "/img/sweet_sprites/icandy_grey.png" },
-          { id: "eye_candy", src: "/img/sweet_sprites/icandy.png" },
-          {
-            id: "eye_candy_spritesheet",
-            src: "/img/sweet_sprites/eye_candy_spritesheet.png",
-          },
-          { id: "blink001", src: "/img/sweet_sprites/Blink 00.png" },
-          { id: "blink002", src: "/img/sweet_sprites/Blink 01.png" },
-          { id: "blink003", src: "/img/sweet_sprites/Blink 02.png" },
-          { id: "blink004", src: "/img/sweet_sprites/Blink 03.png" },
-          { id: "blink005", src: "/img/sweet_sprites/Blink 04.png" },
-          { id: "blink006", src: "/img/sweet_sprites/Blink 05.png" },
-        ],
-        true
-      );
+
+      // Dynamically load CreateJS library
+      var self = this;
+      var loadCreateJS = function () {
+        if (typeof createjs !== "undefined") {
+          console.log("CreateJS already loaded");
+          initializeGame();
+          return;
+        }
+
+        var script = document.createElement("script");
+        script.src = "/js/createjs-2015.11.26.min.js";
+        script.onload = function () {
+          console.log("CreateJS library loaded successfully");
+          initializeGame();
+        };
+        script.onerror = function () {
+          console.error("Failed to load CreateJS library");
+        };
+        document.head.appendChild(script);
+      };
+
+      var initializeGame = function () {
+        queue = new createjs.LoadQueue(true);
+        snellenImage = new Image();
+        snellenImage.src = "/img/snellen.png";
+        queue.on("fileload", thisImageHasLoaded);
+        queue.on("complete", allImagesNowLoaded, self);
+        queue.loadManifest(
+          [
+            { id: "snellen_chart", src: "/img/snellen.png" },
+            { id: "animationspecs", src: "/img/optometry_specs_blocked.png" },
+            { id: "baizeTray", src: "/img/woodframe.png" },
+            { id: "plusLens", src: "/img/plus-lens.png" },
+            { id: "plusLensHitArea", src: "/img/plus-lens-hitarea.png" },
+            { id: "minusLens", src: "/img/minus-lens.png" },
+            { id: "minusLensHitArea", src: "/img/minus-lens-hitarea.png" },
+            { id: "restartbutton", src: "/img/restartbutton.png" },
+            { id: "lensesused", src: "/img/lensesused.png" },
+            { id: "lensesremaining", src: "/img/lensesremaining.png" },
+            {
+              id: "lensesremaining_black",
+              src: "/img/lenses_remaining_black.png",
+            },
+            { id: "lensesused_black", src: "/img/lenses_used_black.png" },
+            { id: "restart_black", src: "/img/restart_black.png" },
+            { id: "submit_red", src: "/img/submit_red.png" },
+            { id: "sugar_cane", src: "/img/sweet_sprites/sugar-cane.png" },
+            {
+              id: "sugar_cane_filled",
+              src: "/img/sweet_sprites/sugar-cane_filled.png",
+            },
+            { id: "eye_candy_grey", src: "/img/sweet_sprites/icandy_grey.png" },
+            { id: "eye_candy", src: "/img/sweet_sprites/icandy.png" },
+            {
+              id: "eye_candy_spritesheet",
+              src: "/img/sweet_sprites/eye_candy_spritesheet.png",
+            },
+            { id: "blink001", src: "/img/sweet_sprites/Blink 00.png" },
+            { id: "blink002", src: "/img/sweet_sprites/Blink 01.png" },
+            { id: "blink003", src: "/img/sweet_sprites/Blink 02.png" },
+            { id: "blink004", src: "/img/sweet_sprites/Blink 03.png" },
+            { id: "blink005", src: "/img/sweet_sprites/Blink 04.png" },
+            { id: "blink006", src: "/img/sweet_sprites/Blink 05.png" },
+          ],
+          true
+        );
+      };
+
+      // Load CreateJS and initialize game
+      loadCreateJS();
     }
   };
 

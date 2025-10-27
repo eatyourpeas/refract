@@ -1,0 +1,22 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[environments.production]
+variables = { NODE_ENV = "production" }
+
+[[services]]
+name = "refract-app"
+source = "."
+
+[services.refract-app.variables]
+NODE_ENV = "production"
+PORT = "${{ PORT }}"
+ROOT_URL = "${{ RAILWAY_STATIC_URL }}"
+MONGO_URL = "${{ DATABASE_URL }}"
+METEOR_SETTINGS = '{"security": {"rateLimit": {"enabled": true}}}'
