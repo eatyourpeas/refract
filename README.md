@@ -112,19 +112,27 @@ refract/
 ## 🚀 Deployment Options
 
 ### Production Ready
+
+- **Railway**: Modern hosting with automatic deployment ($10/month)
 - **Meteor Galaxy**: Official Meteor hosting (paid)
 - **Heroku**: Free tier available with MongoDB addon
 - **DigitalOcean**: App Platform deployment
-- **Railway**: Modern hosting with free tier
+
+**📖 [See Complete Deployment Guide](./docs/deployment.md)** for setup instructions, CI/CD configuration, and troubleshooting.
 
 ### Environment Variables
+
 ```bash
 MONGO_URL=mongodb://localhost:27017/refract
 ROOT_URL=http://localhost:3000
 ```
 
+---
+
 ## 📝 License
+
 Educational project for optometry training.
 
 ## 🤝 Contributing
+
 This is an educational project. For improvements or issues, please open a GitHub issue or pull request.
