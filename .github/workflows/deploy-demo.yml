@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - game-engine
   workflow_dispatch:  # Allow manual trigger
 
 jobs:

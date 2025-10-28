@@ -1,5 +1,11 @@
 # Refract
 
+## 🎮 [Try the Demo](https://eatyourpeas.github.io/refract/)
+
+**Note**: The online demo is a standalone version without user accounts or leaderboard features. The full application includes authentication, score tracking, and competitive gameplay.
+
+---
+
 ## Authors: [Simon Chapman](https://twitter.com/eatyourpeas) and [Andy Gridley](https://personalpages.manchester.ac.uk/advanced.php?dn=cn%3DAndrew+Gridley%2Bumanroleid%3D99194%2Cou%3DDivision+of+Pharmacy+%26+Optometry%2Cou%3DSchool+of+Health+Sciences%2Cou%3DFaculty+of+Biology%5C%2C+Medicine+and+Health%2Cou%3DPeople%2Co%3DUniversity+of+Manchester%2Cc%3DGB&employeeType=&action=read&form_input=Submit)
 
 ## Background
