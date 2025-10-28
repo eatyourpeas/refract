@@ -158,6 +158,21 @@ standaloneCode = standaloneCode.replace(
   "// saveTheTime(finalscore); // Disabled in demo mode"
 );
 
+// Fix asset paths for GitHub Pages (remove leading slashes for relative paths)
+console.log("🔧 Converting absolute paths to relative for GitHub Pages...");
+standaloneCode = standaloneCode.replace(
+  /src: "\/img\//g,
+  'src: "img/'
+);
+standaloneCode = standaloneCode.replace(
+  /src: "\/sounds\//g,
+  'src: "sounds/'
+);
+standaloneCode = standaloneCode.replace(
+  /\.src = "\/img\//g,
+  '.src = "img/'
+);
+
 console.log("✅ Demo transformations applied");
 
 // Create output directory structure
