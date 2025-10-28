@@ -7,13 +7,16 @@ This project uses an automated workflow to extract the game from the Meteor appl
 ## How It Works
 
 ### 1. **Single Source of Truth**
-- The **main/modularise branches** contain the full Meteor application
+
+- The **main branch** contains the full Meteor application
 - Game code lives in `client/main.js`
 - Assets are in `public/` folder
 
 ### 2. **Automatic Extraction**
-When you push to `main` or `modularise` branches:
-- GitHub Actions runs `scripts/extract-standalone-game.js`
+
+When you push to `main` branch:
+
+- GitHub Action runs `scripts/extract-standalone-game.js`
 - This script:
   - Extracts game logic from `client/main.js`
   - Replaces `Session` with a simple state manager
@@ -22,32 +25,32 @@ When you push to `main` or `modularise` branches:
   - Converts LESS to CSS
 
 ### 3. **Asset Copying**
+
 The workflow copies all game assets:
+
 - ✅ `public/js/createjs-2015.11.26.min.js`
 - ✅ `public/img/*` (all game images)
 - ✅ `public/sounds/*` (game sounds)
 - ✅ `public/fonts/*` (custom fonts)
 - ✅ `public/css/fonts.css`
 
-### 4. **Demo Branch**
-- Everything is committed to the `demo` branch
-- **⚠️ Do not edit the demo branch manually!**
-- It's automatically overwritten on each deployment
 
 ### 5. **GitHub Pages**
-- The `demo` branch is deployed to GitHub Pages
-- Accessible at: `https://<username>.github.io/<repo-name>/`
+
+- The extracted bundle from the `main` branch is deployed to GitHub Pages
+- Accessible at: `https://eatyourpeas.github.io/refract/`
 
 ## Workflow Trigger
 
 The deployment runs automatically on:
+
 - Push to `main` branch
-- Push to `modularise` branch
 - Manual trigger via GitHub Actions UI
 
 ## Manual Deployment
 
 To manually trigger a deployment:
+
 1. Go to your repository on GitHub
 2. Click "Actions" tab
 3. Select "Deploy Demo to GitHub Pages"
@@ -105,6 +108,7 @@ public/                            ├─ Compiled from LESS
 ## Maintenance
 
 ### Updating the Game
+
 1. Make changes to `client/main.js` in Meteor version
 2. Test in Docker
 3. Commit and push
@@ -113,16 +117,19 @@ public/                            ├─ Compiled from LESS
 ### Troubleshooting
 
 **Demo not deploying?**
+
 - Check GitHub Actions tab for errors
 - Ensure GitHub Pages is enabled (Settings → Pages)
 - Verify `gh-pages` branch exists
 
 **Game not working in demo?**
+
 - Check browser console for errors
 - Verify assets loaded (Network tab)
 - Test extraction locally first
 
 **Want to customize demo HTML/CSS?**
+
 - Edit `scripts/extract-standalone-game.js`
 - Modify the HTML template in that file
 - Push changes → workflow runs with new template
