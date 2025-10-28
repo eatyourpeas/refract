@@ -95,7 +95,7 @@ jobs:
 
       - name: Check JavaScript syntax
         run: |
-          # Check for basic syntax errors
+          # Check for basic syntax errors in main application
           node -c client/main.js
           node -c client/routes.js
           node -c client/init.js
@@ -103,6 +103,10 @@ jobs:
           node -c server/security.js
           node -c server/social-config.js
           node -c test-security.js
+          
+          # Check extraction script
+          node -c scripts/extract-standalone-game.js
+          
           echo "✅ JavaScript syntax valid"
 
       - name: Check security configuration
