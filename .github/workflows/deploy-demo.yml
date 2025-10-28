@@ -4,66 +4,66 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   extract-and-deploy:
     runs-on: ubuntu-latest
-    
+
     permissions:
-      contents: read   # Read source code
-      pages: write     # Deploy to GitHub Pages
-      id-token: write  # Required for GitHub Pages deployment
-      
+      contents: read # Read source code
+      pages: write # Deploy to GitHub Pages
+      id-token: write # Required for GitHub Pages deployment
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for all branches
-      
+          fetch-depth: 0 # Fetch all history for all branches
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: "20"
+
       - name: Extract standalone game
         run: |
           echo "🎮 Extracting game from Meteor version..."
           node scripts/extract-standalone-game.js
-      
+
       - name: Copy assets
         run: |
           echo "📦 Copying game assets..."
-          
+
           # Create directories
           mkdir -p demo-build/js
           mkdir -p demo-build/img
           mkdir -p demo-build/sounds
           mkdir -p demo-build/fonts
-          
+
           # Copy JavaScript libraries
           cp public/js/createjs-2015.11.26.min.js demo-build/js/
-          
+
           # Copy images
           cp -r public/img/* demo-build/img/
-          
+
           # Copy sounds
           cp -r public/sounds/* demo-build/sounds/
-          
+
           # Copy fonts
           cp -r public/fonts/* demo-build/fonts/
-          
+
           echo "✅ Assets copied"
-      
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./demo-build
-      
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-          
+
       - name: Summary
         run: |
           echo "## 🎮 Demo Deployment Complete! " >> $GITHUB_STEP_SUMMARY

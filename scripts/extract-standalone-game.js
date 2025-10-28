@@ -159,21 +159,9 @@ standaloneCode = standaloneCode.replace(
 );
 
 // Fix asset paths for GitHub Pages (remove leading slashes for relative paths)
-console.log("🔧 Converting absolute paths to relative for GitHub Pages...");
-standaloneCode = standaloneCode.replace(
-  /src: "\/img\//g,
-  'src: "img/'
-);
-standaloneCode = standaloneCode.replace(
-  /src: "\/sounds\//g,
-  'src: "sounds/'
-);
-standaloneCode = standaloneCode.replace(
-  /\.src = "\/img\//g,
-  '.src = "img/'
-);
-
-console.log("✅ Demo transformations applied");
+standaloneCode = standaloneCode.replace(/src: "\/img\//g, 'src: "img/');
+standaloneCode = standaloneCode.replace(/src: "\/sounds\//g, 'src: "sounds/');
+standaloneCode = standaloneCode.replace(/\.src = "\/img\//g, '.src = "img/');
 
 // Create output directory structure
 const outputDir = "demo-build";
@@ -188,7 +176,6 @@ if (!fs.existsSync(path.join(outputDir, "js"))) {
 
 // Write standalone JS to js/ folder
 fs.writeFileSync(path.join(outputDir, "js/refract-game.js"), standaloneCode);
-console.log("✅ Created js/refract-game.js");
 
 // Create standalone HTML
 const html = `<!DOCTYPE html>
@@ -209,7 +196,7 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="css/fonts.css">
   <style>
     body {
-      padding-top: 5px;
+      padding: 0;
       margin: 0;
       overflow-x: hidden;
     }
@@ -220,9 +207,7 @@ const html = `<!DOCTYPE html>
       text-align: center;
       font-family: 'Oxygen', sans-serif;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      position: relative;
-      z-index: 1000;
-      margin-bottom: 15px;
+      margin: 0 0 25px 0;
     }
     .demo-banner h3 {
       margin: 0 0 5px 0;
@@ -239,7 +224,7 @@ const html = `<!DOCTYPE html>
     }
     #canvasWrapper {
       width: 100%;
-      height: calc(100vh - 80px);
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -288,7 +273,6 @@ const html = `<!DOCTYPE html>
 `;
 
 fs.writeFileSync(path.join(outputDir, "index.html"), html);
-console.log("✅ Created index.html");
 
 // Read and convert LESS to CSS (simple version - in production use a LESS compiler)
 let css = "";
@@ -302,7 +286,6 @@ if (!fs.existsSync(path.join(outputDir, "css"))) {
   fs.mkdirSync(path.join(outputDir, "css"), { recursive: true });
 }
 fs.writeFileSync(path.join(outputDir, "css/refract.css"), css);
-console.log("✅ Created CSS");
 
 // Copy fonts.css
 if (fs.existsSync("public/css/fonts.css")) {
@@ -310,12 +293,4 @@ if (fs.existsSync("public/css/fonts.css")) {
     "public/css/fonts.css",
     path.join(outputDir, "css/fonts.css")
   );
-  console.log("✅ Copied fonts.css");
 }
-
-console.log("\n📦 Standalone game ready in demo-build/");
-console.log("📝 Note: Still need to copy:");
-console.log("   - public/js/createjs-2015.11.26.min.js → demo-build/js/");
-console.log("   - public/img/* → demo-build/img/");
-console.log("   - public/sounds/* → demo-build/sounds/");
-console.log("   - public/fonts/* → demo-build/fonts/");
