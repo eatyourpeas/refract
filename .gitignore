@@ -4,3 +4,7 @@
 public/fonts/.DS_Store
 public/img/.DS_Store
 public/img/sweet_sprites/.DS_Store
+
+# Generated demo build
+demo-build/
+node_modules/
