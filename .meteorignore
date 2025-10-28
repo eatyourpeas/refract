@@ -1,0 +1,2 @@
+# Ignore extraction script - this is for build automation only, not part of the Meteor app
+scripts/
