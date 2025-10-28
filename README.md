@@ -31,6 +31,15 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Routing**: FlowRouter with Session state management
 - **Authentication**: Meteor accounts-password with custom UI
 
+### 🔒 Security
+- **Enterprise-Grade Protection**: Comprehensive security measures implemented
+- **Rate Limiting**: Protection against brute force and abuse
+- **Input Validation**: All user input sanitized and validated
+- **Audit Logging**: Security events tracked and monitored
+- **Data Protection**: User isolation and access controls
+
+**📖 [View Complete Security Policy](./docs/security-policy.md)**
+
 ## Tools
 Refract is written in **Meteor 3.3.2** and JavaScript using [CreateJS](https://createjs.com/) for the game engine.
 
