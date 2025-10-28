@@ -11,12 +11,6 @@
     const module = await import("/imports/game-module/refract-game-module.js");
     const RefractGameModule = module.RefractGameModule;
 
-    console.log(
-      "✓ RefractGameModule imported successfully:",
-      typeof RefractGameModule
-    );
-    console.log("✓ RefractGameModule name:", RefractGameModule.name);
-
     // Make RefractGameModule available globally
     window.RefractGameModule = RefractGameModule;
     s;
