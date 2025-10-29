@@ -10,6 +10,9 @@ const path = require("path");
 
 console.log("🎮 Extracting standalone game from Meteor version...\n");
 
+// Generate cache buster based on current timestamp
+const cacheBuster = Date.now();
+
 // Read the Meteor client code
 const meteorCode = fs.readFileSync("client/main.js", "utf8");
 
@@ -192,7 +195,7 @@ const html = `<!DOCTYPE html>
   <link href='https://fonts.googleapis.com/css?family=Oxygen:400,300,700|Roboto:400,100|Oxygen+Mono' rel='stylesheet' type='text/css'>
   
   <link rel="icon" type="image/x-icon" href="img/favicon.ico">
-  <link rel="stylesheet" href="css/refract.css">
+  <link rel="stylesheet" href="css/refract.css?v=${cacheBuster}">
   <link rel="stylesheet" href="css/fonts.css">
   <style>
     body {
