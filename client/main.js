@@ -781,6 +781,17 @@ function resize() {
   // Apply scaling to subStage only (not canvas buffer)
   subStage.scaleX = subStage.scaleY = scale;
 
+  // Center subStage within canvas only when there's extra space (scale = 1)
+  var scaledWidth = contentSize.width * scale;
+  var scaledHeight = contentSize.height * scale;
+  if (scale === 1) {
+    subStage.x = (gameCanvas.width - scaledWidth) / 2;
+    subStage.y = (gameCanvas.height - scaledHeight) / 2;
+  } else {
+    subStage.x = 0;
+    subStage.y = 0;
+  }
+
   // Size the container to match scaled content
   if (newWidthToHeight > widthToHeight) {
     newWidth = newHeight * widthToHeight;
@@ -1293,12 +1304,14 @@ function handleLensImageLoad(lensType) {
         //the frame dims when lens is over it
         // Manual bounds check instead of hitTest to handle scaling properly
         var specsGlobalBounds = animationspecs.getTransformedBounds();
-        
-        if (specsGlobalBounds && 
-            evt.stageX >= specsGlobalBounds.x && 
-            evt.stageX <= specsGlobalBounds.x + specsGlobalBounds.width &&
-            evt.stageY >= specsGlobalBounds.y && 
-            evt.stageY <= specsGlobalBounds.y + specsGlobalBounds.height) {
+
+        if (
+          specsGlobalBounds &&
+          evt.stageX >= specsGlobalBounds.x &&
+          evt.stageX <= specsGlobalBounds.x + specsGlobalBounds.width &&
+          evt.stageY >= specsGlobalBounds.y &&
+          evt.stageY <= specsGlobalBounds.y + specsGlobalBounds.height
+        ) {
           animationspecs.alpha = 0.2;
           lensInPlace = true;
         } else {
