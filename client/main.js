@@ -773,12 +773,10 @@ function resize() {
   // Calculate scale based on window size vs content size
   var scale = 1;
 
-  // Mobile: scale so height fits in viewport width (landscape mode)
+  // Mobile: scale so canvas height equals viewport width (landscape mode)
   if (!isDesktop) {
-    // Scale based on viewport width as the constraint for height
-    if (newWidth < contentSize.height) {
-      scale = newWidth / contentSize.height;
-    }
+    // Always scale based on viewport width to match canvas height
+    scale = newWidth / contentSize.height;
     // Set container to match scaled content
     var scaledWidth = contentSize.width * scale;
     var scaledHeight = contentSize.height * scale;
