@@ -222,14 +222,6 @@ const html = `<!DOCTYPE html>
       color: #FFD700;
       text-decoration: underline;
     }
-    #canvasWrapper {
-      width: 100%;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f5f5f5;
-    }
   </style>
 </head>
 <body>
