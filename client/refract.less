@@ -149,3 +149,62 @@ lead {
 .facebook { background-color:#354E84;color:#fff; }
 .twitter { background-color:#00A5E3;color:#fff; }
 .facebook:hover,.twitter:hover { color:#fff; }
+
+/* Mobile rotation message - hidden by default */
+.rotation-message {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  z-index: 10000;
+  font-family: 'Oxygen', sans-serif;
+  
+  h2 {
+    margin: 20px 0 10px 0;
+    font-size: 1.5em;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1em;
+    opacity: 0.9;
+    max-width: 300px;
+  }
+}
+
+.rotate-icon {
+  width: 80px;
+  height: 80px;
+  animation: rotateAnimation 2s ease-in-out infinite;
+}
+
+@keyframes rotateAnimation {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
+/* Show rotation message on mobile portrait mode */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  #canvasWrapper, .demo-banner {
+    display: none !important;
+  }
+  .rotation-message {
+    display: flex !important;
+  }
+}
+
+/* Mobile landscape - let JavaScript resize handler manage canvas scaling */
+@media screen and (max-width: 1200px) and (orientation: landscape) {
+  #canvascontainer {
+    max-width: 100%;
+  }
+}

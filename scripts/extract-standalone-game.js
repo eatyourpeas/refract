@@ -207,7 +207,7 @@ const html = `<!DOCTYPE html>
       text-align: center;
       font-family: 'Oxygen', sans-serif;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      margin: 0 0 25px 0;
+      margin: 0 0 15px 0;
     }
     .demo-banner h3 {
       margin: 0 0 5px 0;
@@ -233,6 +233,19 @@ const html = `<!DOCTYPE html>
   </style>
 </head>
 <body>
+  <!-- Rotation message for mobile portrait -->
+  <div class="rotation-message">
+    <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+      <path d="M8 21h8"></path>
+      <path d="M12 17v4"></path>
+      <path d="M7 7l10 10"></path>
+      <path d="M17 7l-10 10"></path>
+    </svg>
+    <h2>📱 Please Rotate Your Device</h2>
+    <p>This game is optimized for landscape mode. Please rotate your device to continue playing.</p>
+  </div>
+  
   <div class="demo-banner">
     <h3>🎮 Refract Game - Demo Version</h3>
     <p>Scores are not saved in this demo. <a href="https://github.com/eatyourpeas/refract" target="_blank">Visit our Github</a> to view the code for the larger project that has a leaderboard!</p>

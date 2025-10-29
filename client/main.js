@@ -756,24 +756,32 @@ function resize() {
   updateScreenSize = true;
 
   var gameArea = document.getElementById("canvascontainer");
+  var gameCanvas = document.getElementById("specsCanvas");
   var widthToHeight = 1.5;
   var newWidth = window.innerWidth;
   var newHeight = window.innerHeight;
   var newWidthToHeight = newWidth / newHeight;
   var contentSize = subStage.getBounds();
 
+  // Set fixed canvas buffer size on first run
+  if (!gameCanvas.width || gameCanvas.width === 0) {
+    gameCanvas.width = contentSize.width;
+    gameCanvas.height = contentSize.height;
+  }
+
+  // Calculate scale based on window size vs content size
+  var scale = 1;
   if (newWidth < contentSize.width) {
-    var scale = newWidth / contentSize.width;
-    subStage.scaleX = subStage.scaleY = scale;
-    stage.update();
+    scale = Math.min(scale, newWidth / contentSize.width);
   }
-
   if (newHeight < contentSize.height) {
-    var scale = newHeight / contentSize.height;
-    subStage.scaleX = subStage.scaleY = scale;
-    stage.update();
+    scale = Math.min(scale, newHeight / contentSize.height);
   }
 
+  // Apply scaling to subStage only (not canvas buffer)
+  subStage.scaleX = subStage.scaleY = scale;
+
+  // Size the container to match scaled content
   if (newWidthToHeight > widthToHeight) {
     newWidth = newHeight * widthToHeight;
     gameArea.style.height = newHeight + "px";
@@ -784,9 +792,9 @@ function resize() {
     gameArea.style.height = newHeight + "px";
   }
 
-  var gameCanvas = document.getElementById("specsCanvas");
-  gameCanvas.width = newWidth;
-  gameCanvas.height = newHeight;
+  if (stage) {
+    stage.update();
+  }
 }
 
 function init() {
@@ -851,14 +859,21 @@ function setTheStage() {
   animationspecs.y = baizeTrayDimensions.height + baizeTray.y;
   subStage.addChild(animationspecs);
 
-  //add the hit area
+  //add the hit area - use the specs image bounds for perfect alignment
   hitArea = new createjs.Shape();
-  hitArea.graphics.beginFill("FFF").drawCircle(125, 125, 50);
-  hitArea.x = animationspecs.x + 30;
-  hitArea.y = animationspecs.y + 60;
+  var specsHitBounds = animationspecs.getBounds();
+  // Hit area is in LOCAL coordinates (relative to animationspecs)
+  hitArea.graphics
+    .beginFill("#FFF")
+    .drawRect(0, 0, specsHitBounds.width, specsHitBounds.height);
+
+  // Store lens drop target offsets as percentages of image size (right eye of glasses)
+  // These percentages work regardless of image scaling
+  hitArea.lensTargetOffsetX = specsHitBounds.width * 0.275; // ~27.5% from left (right eye)
+  hitArea.lensTargetOffsetY = specsHitBounds.height * 0.675; // ~67.5% from top (center of lens)
+
   animationspecs.hitArea = hitArea;
-  subStage.addChild(hitArea);
-  hitArea.alpha = 0;
+  // Don't add hitArea to stage - it's only for hit testing, not visual display
 
   //add the snellen text
 
@@ -1276,10 +1291,14 @@ function handleLensImageLoad(lensType) {
         this.y = evt.currentTarget.y;
 
         //the frame dims when lens is over it
-
-        var pt = animationspecs.globalToLocal(evt.stageX, evt.stageY);
-
-        if (animationspecs.hitTest(pt.x, pt.y)) {
+        // Manual bounds check instead of hitTest to handle scaling properly
+        var specsGlobalBounds = animationspecs.getTransformedBounds();
+        
+        if (specsGlobalBounds && 
+            evt.stageX >= specsGlobalBounds.x && 
+            evt.stageX <= specsGlobalBounds.x + specsGlobalBounds.width &&
+            evt.stageY >= specsGlobalBounds.y && 
+            evt.stageY <= specsGlobalBounds.y + specsGlobalBounds.height) {
           animationspecs.alpha = 0.2;
           lensInPlace = true;
         } else {
@@ -1387,8 +1406,8 @@ function handleLensImageLoad(lensType) {
 function nudgeLensIntoPlace(event) {
   var dioptersOfThisLens = event.target.diopter;
   //lens must rotate and final position moves depending on if positive or negative
-  var finalPositionX = hitArea.x + 95;
-  var finalPositionY = hitArea.y + 100;
+  var finalPositionX = animationspecs.x + hitArea.lensTargetOffsetX;
+  var finalPositionY = animationspecs.y + hitArea.lensTargetOffsetY;
   var lensRotation = 0;
   var numberOfNegativeLenses = Session.get("negativeLensNumber");
   var numberOfPositiveLenses = Session.get("positiveLensNumber");
@@ -1404,8 +1423,8 @@ function nudgeLensIntoPlace(event) {
       Session.set("positiveLensNumber", numberOfPositiveLenses);
       lensRotation = numberOfPositiveLenses * 20;
 
-      var finalPositionX = hitArea.x + 95;
-      var finalPositionY = hitArea.y + 100;
+      var finalPositionX = animationspecs.x + hitArea.lensTargetOffsetX;
+      var finalPositionY = animationspecs.y + hitArea.lensTargetOffsetY;
     } else {
       numberOfNegativeLenses = numberOfNegativeLenses + 1;
       Session.set("negativeLensNumber", numberOfNegativeLenses);
