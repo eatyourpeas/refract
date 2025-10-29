@@ -772,15 +772,20 @@ function resize() {
 
   // Calculate scale based on window size vs content size
   var scale = 1;
-  
-  // Mobile: scale based on width only to avoid vertical overflow
+
+  // Mobile: scale to fit both width and height in viewport
   if (!isDesktop) {
     if (newWidth < contentSize.width) {
       scale = newWidth / contentSize.width;
     }
-    // Set container to match scaled content width, let height follow aspect ratio
-    var scaledWidth = contentSize.width * scale;
+    // Also check if height fits after width scaling
     var scaledHeight = contentSize.height * scale;
+    if (scaledHeight > newHeight) {
+      scale = newHeight / contentSize.height;
+    }
+    // Set container to match scaled content
+    var scaledWidth = contentSize.width * scale;
+    scaledHeight = contentSize.height * scale;
     gameArea.style.width = scaledWidth + "px";
     gameArea.style.height = scaledHeight + "px";
   } else {
@@ -791,7 +796,7 @@ function resize() {
     if (newHeight < contentSize.height) {
       scale = Math.min(scale, newHeight / contentSize.height);
     }
-    
+
     // Size the container to match scaled content
     if (newWidthToHeight > widthToHeight) {
       newWidth = newHeight * widthToHeight;
