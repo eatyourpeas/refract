@@ -781,10 +781,12 @@ function resize() {
   // Apply scaling to subStage only (not canvas buffer)
   subStage.scaleX = subStage.scaleY = scale;
 
-  // Center subStage within canvas only when there's extra space (scale = 1)
+  // Center subStage within canvas only on desktop (width > 1200px) when there's extra space
   var scaledWidth = contentSize.width * scale;
   var scaledHeight = contentSize.height * scale;
-  if (scale === 1) {
+  var isDesktop = window.innerWidth > 1200;
+  
+  if (scale === 1 && isDesktop) {
     subStage.x = (gameCanvas.width - scaledWidth) / 2;
     subStage.y = (gameCanvas.height - scaledHeight) / 2;
   } else {
