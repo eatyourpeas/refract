@@ -1293,13 +1293,9 @@ function handleLensImageLoad(lensType) {
       });
 
       lensContainer.on("pressmove", function (evt) {
-        evt.currentTarget.set({
-          x: evt.stageX,
-          y: evt.stageY,
-        });
-
-        this.x = evt.currentTarget.x;
-        this.y = evt.currentTarget.y;
+        // Use the offset calculated in mousedown to keep lens centered on mouse
+        this.x = evt.stageX + this.offset.x;
+        this.y = evt.stageY + this.offset.y;
 
         //the frame dims when lens is over it
         // Manual bounds check instead of hitTest to handle scaling properly
