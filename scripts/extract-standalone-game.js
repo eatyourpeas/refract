@@ -243,7 +243,7 @@ const html = `<!DOCTYPE html>
       <path d="M17 7l-10 10"></path>
     </svg>
     <h2>📱 Please Rotate Your Device</h2>
-    <p>This game is optimized for landscape mode. Please rotate your device to continue playing.</p>
+    <p>This game is optimized for landscape mode. Please rotate your device and refresh the page to continue playing.</p>
   </div>
   
   <div class="demo-banner">
