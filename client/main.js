@@ -762,6 +762,7 @@ function resize() {
   var newHeight = window.innerHeight;
   var newWidthToHeight = newWidth / newHeight;
   var contentSize = subStage.getBounds();
+  var isDesktop = window.innerWidth > 1200;
 
   // Set fixed canvas buffer size on first run
   if (!gameCanvas.width || gameCanvas.width === 0) {
@@ -771,38 +772,51 @@ function resize() {
 
   // Calculate scale based on window size vs content size
   var scale = 1;
-  if (newWidth < contentSize.width) {
-    scale = Math.min(scale, newWidth / contentSize.width);
-  }
-  if (newHeight < contentSize.height) {
-    scale = Math.min(scale, newHeight / contentSize.height);
+  
+  // Mobile: scale based on width only to avoid vertical overflow
+  if (!isDesktop) {
+    if (newWidth < contentSize.width) {
+      scale = newWidth / contentSize.width;
+    }
+    // Set container to match scaled content width, let height follow aspect ratio
+    var scaledWidth = contentSize.width * scale;
+    var scaledHeight = contentSize.height * scale;
+    gameArea.style.width = scaledWidth + "px";
+    gameArea.style.height = scaledHeight + "px";
+  } else {
+    // Desktop: original behavior
+    if (newWidth < contentSize.width) {
+      scale = Math.min(scale, newWidth / contentSize.width);
+    }
+    if (newHeight < contentSize.height) {
+      scale = Math.min(scale, newHeight / contentSize.height);
+    }
+    
+    // Size the container to match scaled content
+    if (newWidthToHeight > widthToHeight) {
+      newWidth = newHeight * widthToHeight;
+      gameArea.style.height = newHeight + "px";
+      gameArea.style.width = newWidth + "px";
+    } else {
+      newHeight = newWidth / widthToHeight;
+      gameArea.style.width = newWidth + "px";
+      gameArea.style.height = newHeight + "px";
+    }
   }
 
   // Apply scaling to subStage only (not canvas buffer)
   subStage.scaleX = subStage.scaleY = scale;
 
-  // Center subStage within canvas only on desktop (width > 1200px) when there's extra space
+  // Center subStage within canvas only on desktop when there's extra space
   var scaledWidth = contentSize.width * scale;
   var scaledHeight = contentSize.height * scale;
-  var isDesktop = window.innerWidth > 1200;
-  
+
   if (scale === 1 && isDesktop) {
     subStage.x = (gameCanvas.width - scaledWidth) / 2;
     subStage.y = (gameCanvas.height - scaledHeight) / 2;
   } else {
     subStage.x = 0;
     subStage.y = 0;
-  }
-
-  // Size the container to match scaled content
-  if (newWidthToHeight > widthToHeight) {
-    newWidth = newHeight * widthToHeight;
-    gameArea.style.height = newHeight + "px";
-    gameArea.style.width = newWidth + "px";
-  } else {
-    newHeight = newWidth / widthToHeight;
-    gameArea.style.width = newWidth + "px";
-    gameArea.style.height = newHeight + "px";
   }
 
   if (stage) {

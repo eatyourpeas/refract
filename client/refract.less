@@ -160,22 +160,20 @@ lead {
   width: 100%;
   padding: 0;
   background: #f5f5f5;
-  min-height: 100vh;
 }
 
-/* Center canvas horizontally on mobile */
+/* Mobile: simple block layout, no scroll needed */
 @media screen and (max-width: 1200px) {
   #canvasWrapper {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    padding-top: 10px;
+    align-items: center;
+    min-height: 100vh;
   }
 }
 
 #canvascontainer {
   display: block;
-  margin: 0 auto;
 }
 
 #specsCanvas {
@@ -188,6 +186,7 @@ lead {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
   }
   
   #specsCanvas {
