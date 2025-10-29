@@ -218,18 +218,14 @@ lead {
   }
 }
 
-/* Hide rotation message and show game in landscape mode */
-@media screen and (orientation: landscape) {
+/* Hide rotation message and show game in mobile landscape mode */
+@media screen and (max-width: 1200px) and (orientation: landscape) {
   .rotation-message {
     display: none !important;
   }
   #canvasWrapper {
     display: block !important;
   }
-}
-
-/* Mobile landscape - let JavaScript resize handler manage canvas scaling */
-@media screen and (max-width: 1200px) and (orientation: landscape) {
   #canvascontainer {
     max-width: 100%;
   }
