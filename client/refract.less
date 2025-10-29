@@ -7,6 +7,16 @@ body {
   padding-top: 80px !important; /* Force body padding for navbar */
   min-height: 100%auto;
   font-family: sans-serif;
+  overflow: auto;
+}
+
+/* Remove body padding on mobile - no navbar in demo */
+@media screen and (max-width: 1200px) {
+  body {
+    padding-top: 0 !important;
+    margin: 0;
+    overflow: auto;
+  }
 }
 
 /* Remove the conflicting rules */
