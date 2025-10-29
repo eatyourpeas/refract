@@ -773,11 +773,14 @@ function resize() {
   // Calculate scale based on window size vs content size
   var scale = 1;
 
-  // Mobile: scale so canvas height equals viewport width (landscape mode)
+  // Mobile: fit entire canvas within viewport (landscape mode)
   if (!isDesktop) {
-    // Scale to fit both width and height within viewport
-    var scaleX = newWidth / contentSize.width;
-    var scaleY = newHeight / contentSize.height;
+    // Scale to fit both width and height within viewport with some padding
+    // Use 75% of available space to ensure comfortable fit
+    var availableWidth = newWidth * 0.75;
+    var availableHeight = newHeight * 0.75;
+    var scaleX = availableWidth / contentSize.width;
+    var scaleY = availableHeight / contentSize.height;
     scale = Math.min(scaleX, scaleY); // Use smaller scale to fit everything
 
     // Set container to match scaled content
@@ -806,7 +809,7 @@ function resize() {
     }
   }
 
-  // Apply scaling to subStage only (not canvas buffer)
+  // Apply scaling to subStage
   subStage.scaleX = subStage.scaleY = scale;
 
   // Center subStage within canvas only on desktop when there's extra space
@@ -856,7 +859,13 @@ function setTheStage() {
   // create stage and point it to the canvas:
 
   createjs.Touch.enable(stage);
-  stage.enableMouseOver(10);
+
+  // Only enable mouse over on desktop - it interferes with touch dragging on mobile
+  var isDesktop = window.innerWidth > 1200;
+  if (isDesktop) {
+    stage.enableMouseOver(10);
+  }
+
   stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
 
   //sizes
@@ -1281,6 +1290,20 @@ function handleLensImageLoad(lensType) {
         nextLabelText.y = 85;
       }
 
+      // Increase hit area for mobile touch - make it easier to grab lenses
+      var isDesktop = window.innerWidth > 1200;
+      if (!isDesktop) {
+        var touchHitArea = new createjs.Shape();
+        touchHitArea.graphics
+          .beginFill("#000")
+          .drawCircle(
+            lensWidth / 2,
+            lensHeight / 2,
+            Math.max(lensWidth, lensHeight) * 0.8
+          );
+        lensContainer.hitArea = touchHitArea;
+      }
+
       lensContainer.addChild(nextLabelText);
       lensContainer.mouseChildren = false;
 
@@ -1316,15 +1339,21 @@ function handleLensImageLoad(lensType) {
         this.y = evt.stageY + this.offset.y;
 
         //the frame dims when lens is over it
-        // Manual bounds check instead of hitTest to handle scaling properly
-        var specsGlobalBounds = animationspecs.getTransformedBounds();
+        // Convert lens position to subStage coordinates
+        // this.parent is allLensesContainer, which is on subStage
+        var lensInSubStage = this.parent.localToLocal(this.x, this.y, subStage);
+
+        // Get specs bounds in subStage coordinates
+        var specsBounds = animationspecs.getBounds();
+        var specsX = animationspecs.x;
+        var specsY = animationspecs.y;
 
         if (
-          specsGlobalBounds &&
-          evt.stageX >= specsGlobalBounds.x &&
-          evt.stageX <= specsGlobalBounds.x + specsGlobalBounds.width &&
-          evt.stageY >= specsGlobalBounds.y &&
-          evt.stageY <= specsGlobalBounds.y + specsGlobalBounds.height
+          specsBounds &&
+          lensInSubStage.x >= specsX &&
+          lensInSubStage.x <= specsX + specsBounds.width &&
+          lensInSubStage.y >= specsY &&
+          lensInSubStage.y <= specsY + specsBounds.height
         ) {
           animationspecs.alpha = 0.2;
           lensInPlace = true;
