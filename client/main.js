@@ -773,19 +773,15 @@ function resize() {
   // Calculate scale based on window size vs content size
   var scale = 1;
 
-  // Mobile: scale to fit both width and height in viewport
+  // Mobile: scale so height fits in viewport width (landscape mode)
   if (!isDesktop) {
-    if (newWidth < contentSize.width) {
-      scale = newWidth / contentSize.width;
-    }
-    // Also check if height fits after width scaling
-    var scaledHeight = contentSize.height * scale;
-    if (scaledHeight > newHeight) {
-      scale = newHeight / contentSize.height;
+    // Scale based on viewport width as the constraint for height
+    if (newWidth < contentSize.height) {
+      scale = newWidth / contentSize.height;
     }
     // Set container to match scaled content
     var scaledWidth = contentSize.width * scale;
-    scaledHeight = contentSize.height * scale;
+    var scaledHeight = contentSize.height * scale;
     gameArea.style.width = scaledWidth + "px";
     gameArea.style.height = scaledHeight + "px";
   } else {
