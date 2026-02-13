@@ -1,38 +1,50 @@
-# Use Ubuntu 22.04 with Node.js 18 for better compatibility
-FROM ubuntu:22.04
+FROM node:22-bookworm-slim
+
+# Reduce interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Set working directory
 WORKDIR /app
 
-# Install Node.js 18, curl, build tools and other dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
+# Install required system packages (build tools for native modules + mongosh for startup script)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     ca-certificates \
+    curl \
     gnupg \
-    lsb-release \
     build-essential \
     python3 \
     make \
     g++ \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && curl https://install.meteor.com/ | sh
+    && npm install -g npm@latest \
+    && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+    && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends mongodb-mongosh \
+    && rm -rf /var/lib/apt/lists/*
 
-# Add Meteor to PATH
+# Install Meteor using the official installer (latest release)
+RUN curl https://install.meteor.com/ | sed 's/--progress-bar/ /' | /bin/sh -s -- --release METEOR@latest
+
+# Ensure meteor is on PATH
 ENV PATH="/root/.meteor:${PATH}"
 
-# Copy package files
+# Copy meteor tool manifest and package files first for caching installs
 COPY .meteor .meteor
 COPY package*.json ./
 
-# Install npm dependencies
-RUN METEOR_ALLOW_SUPERUSER=1 meteor npm install
+# Install project npm dependencies using Meteor's bundled npm
+RUN METEOR_ALLOW_SUPERUSER=1 meteor npm install --no-audit --no-fund
 
-# Copy source code
+# Copy remaining project files
 COPY . .
+
+# Copy and prepare startup script
+COPY scripts/start-meteor.sh /usr/local/bin/start-meteor.sh
+RUN chmod +x /usr/local/bin/start-meteor.sh
 
 # Expose the default Meteor port
 EXPOSE 3000
 
-# Start the application
-CMD ["meteor", "run", "--allow-superuser"]
+# Start Meteor using the startup script that waits for MongoDB user
+CMD ["/usr/local/bin/start-meteor.sh"]

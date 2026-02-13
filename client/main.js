@@ -653,6 +653,10 @@ function loadDefinitions() {
   });
   createjs.MotionGuidePlugin.install();
 
+  // Create canvas context with willReadFrequently option BEFORE CreateJS uses it
+  // This prevents the browser warning about frequent getImageData calls
+  canvas.getContext("2d", { willReadFrequently: true });
+  
   stage = new createjs.Stage(canvas);
   subStage = new createjs.Container();
 
@@ -764,10 +768,10 @@ function resize() {
   var contentSize = subStage.getBounds();
   var isDesktop = window.innerWidth > 1200;
 
-  // Set fixed canvas buffer size on first run
-  if (!gameCanvas.width || gameCanvas.width === 0) {
-    gameCanvas.width = contentSize.width;
-    gameCanvas.height = contentSize.height;
+  // Ensure contentSize is valid
+  if (!contentSize || contentSize.width === 0) {
+    console.warn("subStage bounds not set, skipping resize");
+    return;
   }
 
   // Calculate scale based on window size vs content size
@@ -839,6 +843,12 @@ function init() {
       "Your browser does not appear to support " + "the HTML5 Canvas element";
     return;
   }
+  
+  // Set initial canvas dimensions before creating stage
+  var gameCanvas = document.getElementById("specsCanvas");
+  gameCanvas.width = 1500;
+  gameCanvas.height = 1000;
+  
   loadDefinitions();
   setVariables();
   createjs.Ticker.addEventListener("tick", stage);
@@ -1006,6 +1016,15 @@ function setTheStage() {
   allCandyContainers.x = snellen_chart.x + snellen_chart_size.width;
 
   stage.addChild(subStage);
+  
+  // Set explicit bounds for subStage so resize() can calculate properly
+  // Calculate based on the rightmost and bottommost elements
+  var boundsWidth = allCandyContainers.x + 200; // candy containers + some padding
+  var boundsHeight = Math.max(
+    submitbutton.y + 100,
+    restartbutton.y + 100
+  );
+  subStage.setBounds(0, 0, boundsWidth, boundsHeight);
 }
 
 function addTheCompletedTextContainer() {
