@@ -9,14 +9,16 @@
 ## Authors: [Simon Chapman](https://twitter.com/eatyourpeas) and [Andy Gridley](https://personalpages.manchester.ac.uk/advanced.php?dn=cn%3DAndrew+Gridley%2Bumanroleid%3D99194%2Cou%3DDivision+of+Pharmacy+%26+Optometry%2Cou%3DSchool+of+Health+Sciences%2Cou%3DFaculty+of+Biology%5C%2C+Medicine+and+Health%2Cou%3DPeople%2Co%3DUniversity+of+Manchester%2Cc%3DGB&employeeType=&action=read&form_input=Submit)
 
 ## Background
+
 Teaching optometry students how to work out refractive errors in the clinical setting is like teaching doctors physical examination or bakers-to-be how to use an oven. It is a core skill and needs to be done well. Andy Gridley has been doing this for years as a University Lecturer and wanted to gamify the process, to allow students to practice on a computer to maximise the face to face time they have with volunteer patients.
 
 ## ✨ Recent Modernization (October 2025)
 
-This application has been **completely modernized** from Meteor 1.4.1.2 to **Meteor 3.3.2** with the following improvements:
+This application has been **completely modernized** from Meteor 1.4.1.2 to **Meteor 3.4.2** with the following improvements:
 
 ### 🔧 Technical Upgrades
-- **Meteor 3.3.2**: Updated from legacy 1.4.1.2 to latest stable version
+
+- **Meteor 3.4.1**: Updated from legacy 1.4.1.2 to latest stable version
 - **Modern Routing**: Replaced Iron Router with FlowRouter and Session-based rendering
 - **Authentication System**: Rebuilt user authentication with Bootstrap modal UI
 - **Package Updates**: Resolved all deprecated package conflicts
@@ -24,6 +26,7 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Template System**: Fixed Blaze template conflicts and modernized helpers
 
 ### 🎯 Features
+
 - **User Authentication**: Clean login/signup system with email/password
 - **Responsive Design**: Bootstrap-based UI with mobile support
 - **Game Integration**: Canvas-based refraction training game
@@ -31,6 +34,7 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Navigation**: Modern single-page application routing
 
 ### 🏗️ Architecture
+
 - **Frontend**: Blaze templates with Bootstrap 3, FontAwesome icons
 - **Backend**: Meteor methods with MongoDB collections
 - **Game Engine**: CreateJS for interactive game mechanics
@@ -38,6 +42,7 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Authentication**: Meteor accounts-password with custom UI
 
 ### 🔒 Security
+
 - **Enterprise-Grade Protection**: Comprehensive security measures implemented
 - **Rate Limiting**: Protection against brute force and abuse
 - **Input Validation**: All user input sanitized and validated
@@ -47,19 +52,23 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 **📖 [View Complete Security Policy](./docs/security-policy.md)**
 
 ## Tools
+
 Refract is written in **Meteor 3.3.2** and JavaScript using [CreateJS](https://createjs.com/) for the game engine.
 
 ## Rules
+
 The student has to work out the refractive error of the patient by dragging lenses of different strengths onto the frame and assessing the reported refractive error from the Snellen chart. A timer logs the time taken to get a correct prescription. Fastest times are logged to a leader board.
 
 ## 🚀 Development Setup
 
 ### Prerequisites
+
 - **Node.js** 18+ 
 - **Meteor 3.3.2**
-- **Docker** (optional, for containerized development)
+- **Docker** (optional, for containerised development)
 
 ### Quick Start
+
 ```bash
 # Install Meteor (if not already installed)
 curl https://install.meteor.com/ | sh
@@ -72,6 +81,7 @@ meteor
 ```
 
 ### Docker Development (Recommended)
+
 ```bash
 # Using Docker Compose
 docker-compose up meteor-app
@@ -80,6 +90,7 @@ docker-compose up meteor-app
 ```
 
 ### Database
+
 - **MongoDB**: Automatically configured with Meteor
 - **Collections**: `players` for storing scores and user data
 - **Authentication**: Built-in Meteor accounts system
@@ -93,6 +104,7 @@ docker-compose up meteor-app
 5. **Learn**: Review rules and techniques
 
 ## 📁 Project Structure
+
 ```
 refract/
 ├── .meteor/           # Meteor configuration
@@ -108,17 +120,20 @@ refract/
 ## 🔧 Technical Details
 
 ### Routing System
+
 - **FlowRouter**: Modern client-side routing
 - **Session**: State management for current page
 - **Templates**: Conditional rendering based on route
 
 ### Authentication Flow
+
 - **Signup**: Email, password, name/alias
 - **Login**: Email/password authentication  
 - **Session**: Persistent login state
 - **Profile**: User name and scoring history
 
 ### Game Mechanics
+
 - **Canvas**: HTML5 canvas with CreateJS
 - **Drag & Drop**: Lens placement interaction
 - **Scoring**: Time-based performance tracking

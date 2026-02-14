@@ -334,6 +334,7 @@ Meteor.startup(function () {
   Session.setDefault("currentPage", "home");
   Session.setDefault("isSignUp", false);
   Session.setDefault("authError", null);
+  Session.setDefault("passwordStrength", null);
 });
 
 // Authentication Templates
@@ -343,6 +344,10 @@ Template.loginButtons.events({
     Session.set("isSignUp", false);
     Session.set("authError", null);
     $("#loginModal").modal("show");
+    // ensure password strength indicator exists
+    if ($("#password-strength").length === 0) {
+      $("<div id=\"password-strength\" class=\"password-strength\" style=\"margin-top:6px;font-size:0.9em;color:#666\"></div>").insertAfter('#auth-password');
+    }
   },
   "click #logout-link": function (e) {
     e.preventDefault();
@@ -356,6 +361,9 @@ Template.loginModal.helpers({
   },
   errorMessage: function () {
     return Session.get("authError");
+  },
+  passwordStrength: function () {
+    return Session.get("passwordStrength");
   },
 });
 
@@ -386,20 +394,22 @@ Template.loginModal.events({
         return;
       }
 
-      Accounts.createUser(
-        {
-          email: email,
-          password: password,
-          profile: {
-            name: name,
-          },
-        },
-        function (error) {
+      // Use server-side registration method to enforce password policy
+      Meteor.call(
+        "users.register",
+        email,
+        password,
+        { name: name },
+        function (error, result) {
           if (error) {
-            Session.set("authError", error.reason);
+            // Surface server validation messages to the user
+            Session.set("authError", error.reason || error.message);
           } else {
+            // Registration succeeded — hide modal and clear errors
             $("#loginModal").modal("hide");
             Session.set("authError", null);
+            Session.set("passwordStrength", null);
+            $("#password-strength").text("");
           }
         },
       );
@@ -412,6 +422,40 @@ Template.loginModal.events({
           Session.set("authError", null);
         }
       });
+    }
+  },
+  // Update password strength indicator as the user types
+  "input #auth-password": function (e) {
+    var pwd = e.currentTarget.value || "";
+    var score = 0;
+    if (pwd.length >= 8) score++;
+    if (pwd.length >= 12) score++;
+    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+    var label = "";
+    switch (score) {
+      case 0:
+      case 1:
+        label = "Too weak";
+        break;
+      case 2:
+        label = "Weak";
+        break;
+      case 3:
+        label = "Fair";
+        break;
+      case 4:
+        label = "Good";
+        break;
+      case 5:
+        label = "Strong";
+        break;
+    }
+    Session.set("passwordStrength", label);
+    if ($("#password-strength").length) {
+      $("#password-strength").text(label);
     }
   },
   "click #auth-submit": function (e) {

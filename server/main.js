@@ -49,7 +49,7 @@ Meteor.methods({
     var thisScore = PlayersList.findOne({ _id: thisScoreId });
     var topScore = PlayersList.find(
       { createdBy: Meteor.userId() },
-      { sort: { score: 1 }, limit: 1 }
+      { sort: { score: 1 }, limit: 1 },
     ).fetch();
     var lastTopScore = PlayersList.find({
       createdBy: Meteor.userId(),
@@ -59,7 +59,7 @@ Meteor.methods({
       //there is a previous top score for this user
       console.log(topScore[0].score + " currentscore: " + thisScore.score);
       console.log(
-        lastTopScore[0].topScore + " score: " + lastTopScore[0].score
+        lastTopScore[0].topScore + " score: " + lastTopScore[0].score,
       );
       if (parseFloat(thisScore.score) <= parseFloat(topScore[0].score)) {
         console.log("this beats my top score - i must update");
@@ -77,6 +77,48 @@ Meteor.methods({
       PlayersList.update(thisScoreId, { $set: { topScore: true } }); //set new topscore to true
     }
   },
+  // Server-side registration to enforce password policy (min length 8)
+  "users.register": function (email, password, profile) {
+    check(email, String);
+    check(password, String);
+    check(profile, Match.Optional(Object));
+
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Meteor.Error(403, "Invalid email address format");
+    }
+
+    // Enforce minimum password length
+    if (!password || password.length < 8) {
+      throw new Meteor.Error(
+        422,
+        "Password must be at least 8 characters long",
+      );
+    }
+
+    // Optional profile name validation
+    if (!profile || !profile.name || profile.name.length < 2) {
+      throw new Meteor.Error(
+        403,
+        "Profile name must be at least 2 characters long",
+      );
+    }
+
+    // Create the user server-side (this will trigger Accounts.validateNewUser)
+    try {
+      const userId = Accounts.createUser({
+        email: email,
+        password: password,
+        profile: profile,
+      });
+      return userId;
+    } catch (err) {
+      // Propagate Meteor.Error messages where possible
+      if (err instanceof Meteor.Error) throw err;
+      throw new Meteor.Error(500, err.message || "Failed to create user");
+    }
+  },
 });
 
 // Account Configuration
@@ -90,7 +132,7 @@ Accounts.onCreateUser(function (options, user) {
 // Configure accounts
 Accounts.config({
   sendVerificationEmail: false,
-  forbidClientAccountCreation: false,
+  forbidClientAccountCreation: true,
   loginExpirationInDays: 30, // Limit session duration
   passwordResetTokenExpirationInDays: 1, // Short password reset window
 });
@@ -105,7 +147,7 @@ DDPRateLimiter.addRule(
     },
   },
   5,
-  60000
+  60000,
 ); // 5 attempts per minute
 
 // Security: Rate limiting for account creation
@@ -118,8 +160,21 @@ DDPRateLimiter.addRule(
     },
   },
   3,
-  60000
+  60000,
 ); // 3 account creations per minute
+
+// Security: Rate limiting for server-side registration method
+DDPRateLimiter.addRule(
+  {
+    type: "method",
+    name: "users.register",
+    connectionId() {
+      return true;
+    },
+  },
+  3,
+  60000,
+); // 3 registrations per minute
 
 // Security: Rate limiting for password reset
 DDPRateLimiter.addRule(
@@ -131,7 +186,7 @@ DDPRateLimiter.addRule(
     },
   },
   2,
-  60000
+  60000,
 ); // 2 password reset attempts per minute
 
 // Security: Enhanced password validation
@@ -151,7 +206,7 @@ Accounts.validateNewUser(function (user) {
   if (!user.profile || !user.profile.name || user.profile.name.length < 2) {
     throw new Meteor.Error(
       403,
-      "Profile name must be at least 2 characters long"
+      "Profile name must be at least 2 characters long",
     );
   }
 
@@ -175,7 +230,7 @@ Meteor.publish("userData", function () {
           createdAt: 1,
           // Explicitly exclude services, password hashes, etc.
         },
-      }
+      },
     );
   } else {
     this.ready();
@@ -215,7 +270,7 @@ Accounts.validateLoginAttempt(async function (info) {
     if (recentFailures >= 5) {
       throw new Meteor.Error(
         403,
-        "Account temporarily locked due to too many failed attempts"
+        "Account temporarily locked due to too many failed attempts",
       );
     }
   }
@@ -277,7 +332,7 @@ Meteor.publish("thePlayers", function () {
       //publish only the players with the top 15 scores
       sort: { score: 1 },
       limit: 15,
-    }
+    },
   );
 });
 
@@ -287,6 +342,6 @@ Meteor.publish("meAsAPlayer", function () {
     {
       sort: { score: 1 },
       limit: 15,
-    }
+    },
   );
 });
