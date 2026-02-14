@@ -43,7 +43,7 @@ if (Meteor.isClient) {
             } else {
               console.log(`Account creation attempt ${i + 1}: Success`);
             }
-          }
+          },
         );
       }, i * 1000);
     }
@@ -73,14 +73,14 @@ if (Meteor.isClient) {
           (error) => {
             if (error) {
               console.log(
-                `Malicious input test ${index + 1}: BLOCKED - ${error.reason}`
+                `Malicious input test ${index + 1}: BLOCKED - ${error.reason}`,
               );
             } else {
               console.log(
-                `Malicious input test ${index + 1}: ALLOWED (Security issue!)`
+                `Malicious input test ${index + 1}: ALLOWED (Security issue!)`,
               );
             }
-          }
+          },
         );
       }, index * 2000);
     });
@@ -96,15 +96,15 @@ if (Meteor.isClient) {
       .then((response) => {
         const headers = {
           "X-Content-Type-Options": response.headers.get(
-            "X-Content-Type-Options"
+            "X-Content-Type-Options",
           ),
           "X-Frame-Options": response.headers.get("X-Frame-Options"),
           "X-XSS-Protection": response.headers.get("X-XSS-Protection"),
           "Strict-Transport-Security": response.headers.get(
-            "Strict-Transport-Security"
+            "Strict-Transport-Security",
           ),
           "Content-Security-Policy": response.headers.get(
-            "Content-Security-Policy"
+            "Content-Security-Policy",
           ),
         };
 
@@ -137,17 +137,4 @@ if (Meteor.isClient) {
     setTimeout(testAccountCreationRateLimit, 10000);
     setTimeout(testInputValidation, 20000);
   };
-
-  // Log available test functions on startup
-  Meteor.startup(() => {
-    console.log("🔒 Security Test Functions Available:");
-    console.log("- testLoginRateLimit() - Test login rate limiting");
-    console.log(
-      "- testAccountCreationRateLimit() - Test account creation limits"
-    );
-    console.log("- testInputValidation() - Test malicious input blocking");
-    console.log("- testSecurityHeaders() - Check security headers");
-    console.log("- runAllSecurityTests() - Run all tests sequentially");
-    console.log("Usage: Open browser console and run any function by name");
-  });
 }

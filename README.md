@@ -9,14 +9,16 @@
 ## Authors: [Simon Chapman](https://twitter.com/eatyourpeas) and [Andy Gridley](https://personalpages.manchester.ac.uk/advanced.php?dn=cn%3DAndrew+Gridley%2Bumanroleid%3D99194%2Cou%3DDivision+of+Pharmacy+%26+Optometry%2Cou%3DSchool+of+Health+Sciences%2Cou%3DFaculty+of+Biology%5C%2C+Medicine+and+Health%2Cou%3DPeople%2Co%3DUniversity+of+Manchester%2Cc%3DGB&employeeType=&action=read&form_input=Submit)
 
 ## Background
+
 Teaching optometry students how to work out refractive errors in the clinical setting is like teaching doctors physical examination or bakers-to-be how to use an oven. It is a core skill and needs to be done well. Andy Gridley has been doing this for years as a University Lecturer and wanted to gamify the process, to allow students to practice on a computer to maximise the face to face time they have with volunteer patients.
 
 ## ✨ Recent Modernization (October 2025)
 
-This application has been **completely modernized** from Meteor 1.4.1.2 to **Meteor 3.3.2** with the following improvements:
+This application has been **completely modernized** from Meteor 1.4.1.2 to **Meteor 3.4.2** with the following improvements:
 
 ### 🔧 Technical Upgrades
-- **Meteor 3.3.2**: Updated from legacy 1.4.1.2 to latest stable version
+
+- **Meteor 3.4.1**: Updated from legacy 1.4.1.2 to latest stable version
 - **Modern Routing**: Replaced Iron Router with FlowRouter and Session-based rendering
 - **Authentication System**: Rebuilt user authentication with Bootstrap modal UI
 - **Package Updates**: Resolved all deprecated package conflicts
@@ -24,6 +26,7 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Template System**: Fixed Blaze template conflicts and modernized helpers
 
 ### 🎯 Features
+
 - **User Authentication**: Clean login/signup system with email/password
 - **Responsive Design**: Bootstrap-based UI with mobile support
 - **Game Integration**: Canvas-based refraction training game
@@ -31,6 +34,7 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Navigation**: Modern single-page application routing
 
 ### 🏗️ Architecture
+
 - **Frontend**: Blaze templates with Bootstrap 3, FontAwesome icons
 - **Backend**: Meteor methods with MongoDB collections
 - **Game Engine**: CreateJS for interactive game mechanics
@@ -38,6 +42,7 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 - **Authentication**: Meteor accounts-password with custom UI
 
 ### 🔒 Security
+
 - **Enterprise-Grade Protection**: Comprehensive security measures implemented
 - **Rate Limiting**: Protection against brute force and abuse
 - **Input Validation**: All user input sanitized and validated
@@ -47,19 +52,23 @@ This application has been **completely modernized** from Meteor 1.4.1.2 to **Met
 **📖 [View Complete Security Policy](./docs/security-policy.md)**
 
 ## Tools
+
 Refract is written in **Meteor 3.3.2** and JavaScript using [CreateJS](https://createjs.com/) for the game engine.
 
 ## Rules
+
 The student has to work out the refractive error of the patient by dragging lenses of different strengths onto the frame and assessing the reported refractive error from the Snellen chart. A timer logs the time taken to get a correct prescription. Fastest times are logged to a leader board.
 
 ## 🚀 Development Setup
 
 ### Prerequisites
+
 - **Node.js** 18+ 
 - **Meteor 3.3.2**
-- **Docker** (optional, for containerized development)
+- **Docker** (optional, for containerised development)
 
 ### Quick Start
+
 ```bash
 # Install Meteor (if not already installed)
 curl https://install.meteor.com/ | sh
@@ -72,6 +81,7 @@ meteor
 ```
 
 ### Docker Development (Recommended)
+
 ```bash
 # Using Docker Compose
 docker-compose up meteor-app
@@ -79,7 +89,73 @@ docker-compose up meteor-app
 # App will be available at http://localhost:3000
 ```
 
+### VPS Deploy (recommended for production)
+
+For VPS deployments where you `curl`/checkout the repo and build with `docker compose`, ensure the app can show the current branch and commit by providing `repo-info.json` or environment variables before building.
+
+Option 1 — use the included `scripts/start.sh` (recommended):
+
+```bash
+# on the VPS, inside the repository root (accepts --prod or --dev flags)
+./scripts/start.sh --prod
+```
+
+Note in development this initial build step can take 10 minutes.
+
+`scripts/start.sh` will attempt to read git data (if `.git` is present) or use the `GIT_COMMIT` / `GIT_BRANCH` env vars and will write `repo-info.json` into the project root before running `docker compose`. The server prefers `repo-info.json` and then environment variables.
+
+Option 2 — manually create `repo-info.json` before building:
+
+```bash
+# derive values from git or CI
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+REPO=$(git config --get remote.origin.url 2>/dev/null || echo "eatyourpeas/refract")
+cat > repo-info.json <<EOF
+{ "branch": "${BRANCH}", "commit": "${COMMIT}", "repo": "${REPO}" }
+EOF
+
+docker compose build --no-cache
+docker compose up -d
+```
+
+Option 3 — supply env vars (the `docker-compose.yml` reads these):
+
+```bash
+export GIT_COMMIT=$(git rev-parse HEAD)
+export GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+export GIT_REPO="eatyourpeas/refract"
+docker compose up -d --build
+```
+
+Notes:
+
+- If your deploy process downloads a zip without `.git`, use Option 1 or 2 and/or pass these values from your CI or webhook payload.
+- The server method `Meteor.call('repo.info')` reads `repo-info.json`, then environment variables, then falls back to host `git` (best-effort).
+
+Running locally in dev vs prod using Docker
+
+- Development (fast iterating, mounts local code):
+
+```bash
+# default development flow uses docker-compose.yml which mounts your source
+APP_ENV=development docker compose up --build
+```
+
+- Production (builds a Meteor production bundle into the image and runs the bundle):
+
+```bash
+# build image with production bundle and run using docker-compose.prod.yml
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Notes:
+
+- `docker-compose.prod.yml` builds the image with `BUILD_BUNDLE=1` so the production Meteor bundle is included in the image. The container runs `node main.js` from the bundle when `APP_ENV=production`.
+- The dev setup mounts your working tree and runs `meteor run` inside the container so you can iterate quickly.
+
 ### Database
+
 - **MongoDB**: Automatically configured with Meteor
 - **Collections**: `players` for storing scores and user data
 - **Authentication**: Built-in Meteor accounts system
@@ -93,6 +169,7 @@ docker-compose up meteor-app
 5. **Learn**: Review rules and techniques
 
 ## 📁 Project Structure
+
 ```
 refract/
 ├── .meteor/           # Meteor configuration
@@ -108,17 +185,20 @@ refract/
 ## 🔧 Technical Details
 
 ### Routing System
+
 - **FlowRouter**: Modern client-side routing
 - **Session**: State management for current page
 - **Templates**: Conditional rendering based on route
 
 ### Authentication Flow
+
 - **Signup**: Email, password, name/alias
 - **Login**: Email/password authentication  
 - **Session**: Persistent login state
 - **Profile**: User name and scoring history
 
 ### Game Mechanics
+
 - **Canvas**: HTML5 canvas with CreateJS
 - **Drag & Drop**: Lens placement interaction
 - **Scoring**: Time-based performance tracking

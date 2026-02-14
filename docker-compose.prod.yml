@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  meteor-app:
+    build:
+      context: .
+      args:
+        BUILD_BUNDLE: "1"
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      APP_ENV: production
+      ROOT_URL: "http://localhost:3000"
+      MONGO_APP_USER: "refract_user"
+      MONGO_APP_PASS: "refract_pass"
+      GIT_COMMIT: "${GIT_COMMIT:-}"
+      GIT_BRANCH: "${GIT_BRANCH:-}"
+      GIT_REPO: "${GIT_REPO:-}"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - refract-internal
+
+  mongo:
+    image: mongo:5.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin_pass
+      MONGO_APP_USER: "refract_user"
+      MONGO_APP_PASS: "refract_pass"
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 120s
+    networks:
+      - refract-internal
+
+networks:
+  refract-internal:
+    driver: bridge
+    internal: false
+
+volumes:
+  mongo_data:

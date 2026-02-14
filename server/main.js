@@ -49,7 +49,7 @@ Meteor.methods({
     var thisScore = PlayersList.findOne({ _id: thisScoreId });
     var topScore = PlayersList.find(
       { createdBy: Meteor.userId() },
-      { sort: { score: 1 }, limit: 1 }
+      { sort: { score: 1 }, limit: 1 },
     ).fetch();
     var lastTopScore = PlayersList.find({
       createdBy: Meteor.userId(),
@@ -59,7 +59,7 @@ Meteor.methods({
       //there is a previous top score for this user
       console.log(topScore[0].score + " currentscore: " + thisScore.score);
       console.log(
-        lastTopScore[0].topScore + " score: " + lastTopScore[0].score
+        lastTopScore[0].topScore + " score: " + lastTopScore[0].score,
       );
       if (parseFloat(thisScore.score) <= parseFloat(topScore[0].score)) {
         console.log("this beats my top score - i must update");
@@ -77,6 +77,130 @@ Meteor.methods({
       PlayersList.update(thisScoreId, { $set: { topScore: true } }); //set new topscore to true
     }
   },
+  // Server-side registration to enforce password policy (min length 8)
+  "users.register": function (email, password, profile) {
+    check(email, String);
+    check(password, String);
+    check(profile, Match.Optional(Object));
+
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Meteor.Error(403, "Invalid email address format");
+    }
+
+    // Enforce minimum password length
+    if (!password || password.length < 8) {
+      throw new Meteor.Error(
+        422,
+        "Password must be at least 8 characters long",
+      );
+    }
+
+    // Optional profile name validation
+    if (!profile || !profile.name || profile.name.length < 2) {
+      throw new Meteor.Error(
+        403,
+        "Profile name must be at least 2 characters long",
+      );
+    }
+
+    // Create the user server-side (this will trigger Accounts.validateNewUser)
+    try {
+      const userId = Accounts.createUser({
+        email: email,
+        password: password,
+        profile: profile,
+      });
+      return userId;
+    } catch (err) {
+      // Propagate Meteor.Error messages where possible
+      if (err instanceof Meteor.Error) throw err;
+      throw new Meteor.Error(500, err.message || "Failed to create user");
+    }
+  },
+  // Provide repository info to clients. Reads repo-info.json if present,
+  // otherwise falls back to environment variables or git if available.
+  "repo.info": function () {
+    const safeRequire = (m) =>
+      typeof require !== "undefined" ? require(m) : null;
+    const fs = safeRequire("fs");
+    const path = safeRequire("path");
+    const child = safeRequire("child_process");
+
+    const candidates = [];
+    if (path) {
+      candidates.push(path.join(process.cwd(), "repo-info.json"));
+      candidates.push(path.join(process.cwd(), "public", "repo-info.json"));
+    }
+
+    let info = {};
+
+    if (fs) {
+      for (const p of candidates) {
+        try {
+          if (fs.existsSync(p)) {
+            const raw = fs.readFileSync(p, "utf8");
+            try {
+              const parsed = JSON.parse(raw);
+              if (parsed && typeof parsed === "object") {
+                info = Object.assign(info, parsed);
+                break;
+              }
+            } catch (e) {
+              // ignore parse errors and continue
+            }
+          }
+        } catch (e) {
+          // ignore file system errors
+        }
+      }
+    }
+
+    // Environment variable fallbacks (set by CI or deployment)
+    info.branch =
+      info.branch ||
+      process.env.GITHUB_REF_NAME ||
+      process.env.GIT_BRANCH ||
+      null;
+    info.commit =
+      info.commit || process.env.GITHUB_SHA || process.env.GIT_COMMIT || null;
+    info.repo = info.repo || process.env.GITHUB_REPOSITORY || null;
+
+    // Try to query git on the host if still missing (best-effort)
+    if (child) {
+      try {
+        if (!info.commit) {
+          const out = child
+            .execSync("git rev-parse HEAD", {
+              cwd: process.cwd(),
+              timeout: 2000,
+            })
+            .toString()
+            .trim();
+          if (out) info.commit = out;
+        }
+      } catch (e) {
+        // ignore
+      }
+      try {
+        if (!info.branch) {
+          const out = child
+            .execSync("git rev-parse --abbrev-ref HEAD", {
+              cwd: process.cwd(),
+              timeout: 2000,
+            })
+            .toString()
+            .trim();
+          if (out) info.branch = out;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return info;
+  },
 });
 
 // Account Configuration
@@ -90,7 +214,7 @@ Accounts.onCreateUser(function (options, user) {
 // Configure accounts
 Accounts.config({
   sendVerificationEmail: false,
-  forbidClientAccountCreation: false,
+  forbidClientAccountCreation: true,
   loginExpirationInDays: 30, // Limit session duration
   passwordResetTokenExpirationInDays: 1, // Short password reset window
 });
@@ -105,7 +229,7 @@ DDPRateLimiter.addRule(
     },
   },
   5,
-  60000
+  60000,
 ); // 5 attempts per minute
 
 // Security: Rate limiting for account creation
@@ -118,8 +242,21 @@ DDPRateLimiter.addRule(
     },
   },
   3,
-  60000
+  60000,
 ); // 3 account creations per minute
+
+// Security: Rate limiting for server-side registration method
+DDPRateLimiter.addRule(
+  {
+    type: "method",
+    name: "users.register",
+    connectionId() {
+      return true;
+    },
+  },
+  3,
+  60000,
+); // 3 registrations per minute
 
 // Security: Rate limiting for password reset
 DDPRateLimiter.addRule(
@@ -131,7 +268,7 @@ DDPRateLimiter.addRule(
     },
   },
   2,
-  60000
+  60000,
 ); // 2 password reset attempts per minute
 
 // Security: Enhanced password validation
@@ -151,7 +288,7 @@ Accounts.validateNewUser(function (user) {
   if (!user.profile || !user.profile.name || user.profile.name.length < 2) {
     throw new Meteor.Error(
       403,
-      "Profile name must be at least 2 characters long"
+      "Profile name must be at least 2 characters long",
     );
   }
 
@@ -175,7 +312,7 @@ Meteor.publish("userData", function () {
           createdAt: 1,
           // Explicitly exclude services, password hashes, etc.
         },
-      }
+      },
     );
   } else {
     this.ready();
@@ -215,7 +352,7 @@ Accounts.validateLoginAttempt(async function (info) {
     if (recentFailures >= 5) {
       throw new Meteor.Error(
         403,
-        "Account temporarily locked due to too many failed attempts"
+        "Account temporarily locked due to too many failed attempts",
       );
     }
   }
@@ -277,7 +414,7 @@ Meteor.publish("thePlayers", function () {
       //publish only the players with the top 15 scores
       sort: { score: 1 },
       limit: 15,
-    }
+    },
   );
 });
 
@@ -287,6 +424,80 @@ Meteor.publish("meAsAPlayer", function () {
     {
       sort: { score: 1 },
       limit: 15,
-    }
+    },
   );
+});
+
+// Health endpoint for readiness checks and monitoring
+// Use the global `WebApp` provided by Meteor's `webapp` package
+// Guard require() usage because some Meteor runtime contexts may not expose CommonJS `require`.
+const fs = typeof require !== "undefined" ? require("fs") : null;
+const path = typeof require !== "undefined" ? require("path") : null;
+
+WebApp.connectHandlers.use("/health", (req, res, next) => {
+  res.setHeader("Content-Type", "application/json");
+
+  // Gather repo info (same sources as repo.info)
+  const candidates = [
+    path.join(process.cwd(), "repo-info.json"),
+    path.join(process.cwd(), "public", "repo-info.json"),
+  ];
+  let repoInfo = {};
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, "utf8");
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            repoInfo = Object.assign(repoInfo, parsed);
+            break;
+          }
+        } catch (e) {
+          // ignore parse errors
+        }
+      }
+    } catch (e) {
+      // ignore fs errors
+    }
+  }
+
+  repoInfo.branch =
+    repoInfo.branch ||
+    process.env.GITHUB_REF_NAME ||
+    process.env.GIT_BRANCH ||
+    null;
+  repoInfo.commit =
+    repoInfo.commit || process.env.GITHUB_SHA || process.env.GIT_COMMIT || null;
+  repoInfo.repo = repoInfo.repo || process.env.GITHUB_REPOSITORY || null;
+
+  // Check MongoDB by requesting collection stats
+  PlayersList.rawCollection()
+    .stats()
+    .then((stats) => {
+      const payload = {
+        status: "ok",
+        uptime_seconds: Math.floor(process.uptime()),
+        db: {
+          ok: true,
+          collections: stats.collections || null,
+        },
+        repo: repoInfo,
+      };
+      res.writeHead(200);
+      res.end(JSON.stringify(payload));
+    })
+    .catch((err) => {
+      const payload = {
+        status: "error",
+        uptime_seconds: Math.floor(process.uptime()),
+        db: {
+          ok: false,
+          error: err && err.message ? err.message : String(err),
+        },
+        repo: repoInfo,
+      };
+      res.writeHead(503);
+      res.end(JSON.stringify(payload));
+    });
 });
