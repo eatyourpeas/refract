@@ -401,7 +401,7 @@ Template.loginModal.events({
             $("#loginModal").modal("hide");
             Session.set("authError", null);
           }
-        }
+        },
       );
     } else {
       Meteor.loginWithPassword(email, password, function (error) {
@@ -429,7 +429,7 @@ Template.leaderboard.helpers({
         ///mirrored query from server
         sort: { score: 1 },
         limit: 15,
-      }
+      },
     );
   },
   measplayer: function () {
@@ -441,7 +441,7 @@ Template.leaderboard.helpers({
       {
         sort: { score: 1 },
         limit: 5,
-      }
+      },
     );
   },
   dateformat: function (datetoformat) {
@@ -487,15 +487,14 @@ Template.refract.rendered = function () {
     var self = this;
     var loadCreateJS = function () {
       if (typeof createjs !== "undefined") {
-        console.log("CreateJS already loaded");
         initializeGame();
         return;
       }
 
       var script = document.createElement("script");
       script.src = "/js/createjs-2015.11.26.min.js";
+
       script.onload = function () {
-        console.log("CreateJS library loaded successfully");
         initializeGame();
       };
       script.onerror = function () {
@@ -547,7 +546,7 @@ Template.refract.rendered = function () {
           { id: "blink005", src: "/img/sweet_sprites/Blink 04.png" },
           { id: "blink006", src: "/img/sweet_sprites/Blink 05.png" },
         ],
-        true
+        true,
       );
     };
 
@@ -653,10 +652,6 @@ function loadDefinitions() {
   });
   createjs.MotionGuidePlugin.install();
 
-  // Create canvas context with willReadFrequently option BEFORE CreateJS uses it
-  // This prevents the browser warning about frequent getImageData calls
-  canvas.getContext("2d", { willReadFrequently: true });
-  
   stage = new createjs.Stage(canvas);
   subStage = new createjs.Container();
 
@@ -665,12 +660,12 @@ function loadDefinitions() {
   positiveText = new createjs.Text(
     "Positive Diopter lenses",
     "18px Oxygen Mono",
-    "#9999FF"
+    "#9999FF",
   );
   negativeText = new createjs.Text(
     "Negative Diopter lenses",
     "18px Oxygen Mono",
-    "#9999FF"
+    "#9999FF",
   );
 
   clockText = new createjs.Text(" ", "24px Oxygen Mono", "#303030");
@@ -681,12 +676,12 @@ function loadDefinitions() {
   diopterTotalLabel = new createjs.Text(
     diopterTotalText,
     "24px Oxygen Mono",
-    "#303030"
+    "#303030",
   );
   directionsLabel = new createjs.Text(
     "The clock will start when you place your first lens.\nClick submit when you have worked out the prescription.",
     "18px Oxygen Mono",
-    "#303030"
+    "#303030",
   );
   directionsLabel.lineHeight = 24;
 
@@ -699,7 +694,7 @@ function loadDefinitions() {
   completedSubText = new createjs.Text(
     "Best of Three.",
     "24px Oxygen Mono",
-    "white"
+    "white",
   );
   completedTextContainer = new createjs.Container();
 
@@ -843,12 +838,12 @@ function init() {
       "Your browser does not appear to support " + "the HTML5 Canvas element";
     return;
   }
-  
+
   // Set initial canvas dimensions before creating stage
   var gameCanvas = document.getElementById("specsCanvas");
   gameCanvas.width = 1500;
   gameCanvas.height = 1000;
-  
+
   loadDefinitions();
   setVariables();
   createjs.Ticker.addEventListener("tick", stage);
@@ -1016,14 +1011,11 @@ function setTheStage() {
   allCandyContainers.x = snellen_chart.x + snellen_chart_size.width;
 
   stage.addChild(subStage);
-  
+
   // Set explicit bounds for subStage so resize() can calculate properly
   // Calculate based on the rightmost and bottommost elements
   var boundsWidth = allCandyContainers.x + 200; // candy containers + some padding
-  var boundsHeight = Math.max(
-    submitbutton.y + 100,
-    restartbutton.y + 100
-  );
+  var boundsHeight = Math.max(submitbutton.y + 100, restartbutton.y + 100);
   subStage.setBounds(0, 0, boundsWidth, boundsHeight);
 }
 
@@ -1070,7 +1062,7 @@ function candyLoaded(candyType) {
       var candyText = new createjs.Text(
         "Time in secs",
         "18px Oxygen Mono",
-        "#303030"
+        "#303030",
       );
       candyText.x =
         (candyBitmap.getBounds().width - candyText.getMeasuredWidth()) / 2;
@@ -1142,7 +1134,7 @@ function addEventsToRestartButton() {
       0,
       0,
       restartbutton.getBounds().width,
-      restartbutton.getBounds().height
+      restartbutton.getBounds().height,
     );
   restartbutton.hitArea = hit;
 
@@ -1177,7 +1169,7 @@ function addEventsToSubmitButton() {
       0,
       0,
       submitbutton.getBounds().width,
-      submitbutton.getBounds().height
+      submitbutton.getBounds().height,
     );
   submitbutton.hitArea = hit;
 
@@ -1222,7 +1214,7 @@ function createLensesLeft() {
     var lensLeftNumber = new createjs.Text(
       l + 1,
       "48px Bungee Shade",
-      "#303030"
+      "#303030",
     );
     var lensLeftSize = lensLeft.getBounds();
     var lensLeftNumberSize = lensLeftNumber.getBounds();
@@ -1318,7 +1310,7 @@ function handleLensImageLoad(lensType) {
           .drawCircle(
             lensWidth / 2,
             lensHeight / 2,
-            Math.max(lensWidth, lensHeight) * 0.8
+            Math.max(lensWidth, lensHeight) * 0.8,
           );
         lensContainer.hitArea = touchHitArea;
       }
@@ -1434,7 +1426,7 @@ function handleLensImageLoad(lensType) {
             myTotalDiopters = updateTheLensTotals(
               lensValue,
               myTotalDiopters,
-              true
+              true,
             );
             updateTheScores(myTotalDiopters);
           }
@@ -1462,7 +1454,7 @@ function handleLensImageLoad(lensType) {
             myTotalDiopters = updateTheLensTotals(
               lensValue,
               myTotalDiopters,
-              false
+              false,
             );
             updateTheScores(myTotalDiopters);
             //reset the flag
@@ -1568,7 +1560,7 @@ function returnLensToOrigin(event) {
           ],
         },
       },
-      500
+      500,
     )
     .to({ rotation: lensRotation }, 1000, createjs.Ease.linear)
     .call(returnComplete);
@@ -1583,6 +1575,8 @@ function returnComplete() {
 }
 
 function tick(event) {
+  // Create canvas context with willReadFrequently option BEFORE CreateJS uses it
+  // This prevents the browser warning about frequent getImageData calls
   if (updateScreenSize) {
     updateScreenSize = false;
     stage.update(event);
@@ -1633,13 +1627,13 @@ function fadeLabel(fade, label) {
     createjs.Tween.get(label, { loop: false }).to(
       { alpha: 0 },
       500,
-      createjs.Ease.getPowInOut(2)
+      createjs.Ease.getPowInOut(2),
     );
   } else {
     createjs.Tween.get(label, { loop: false }).to(
       { alpha: 1 },
       500,
-      createjs.Ease.getPowInOut(2)
+      createjs.Ease.getPowInOut(2),
     );
     fadeFlag = true;
     //  createjs.Ticker.addEventListener("tick", tick);
@@ -1667,7 +1661,7 @@ function fadeOutRestartComplete() {
   createjs.Tween.get(submitbutton, { loop: false }).to(
     { alpha: 1 },
     500,
-    createjs.Ease.getPowInOut(2)
+    createjs.Ease.getPowInOut(2),
   );
 }
 
@@ -1678,7 +1672,7 @@ function fadeOutSubmitComplete() {
   createjs.Tween.get(restartbutton, { loop: false }).to(
     { alpha: 1 },
     500,
-    createjs.Ease.getPowInOut(2)
+    createjs.Ease.getPowInOut(2),
   );
 }
 
@@ -1934,7 +1928,7 @@ function blurSnellenChart(diopterValue) {
     -50,
     -50,
     snellenImage.width + 50,
-    snellenImage.height + 50
+    snellenImage.height + 50,
   );
   blurTick = true;
 
@@ -2070,7 +2064,7 @@ function failedDialog(patient_refractive_error) {
   if (patient_refractive_error > 0) {
     //patient actual prescription is negative
     actualPrescription = parseFloat((patient_refractive_error *= -1)).toFixed(
-      2
+      2,
     );
   } else {
     //patient actual prescription is positive
