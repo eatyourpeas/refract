@@ -16,6 +16,7 @@ RUN apt-get update \
     python3 \
     make \
     g++ \
+    git \
     && npm install -g npm@latest \
     && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
     && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
@@ -43,8 +44,22 @@ COPY . .
 COPY scripts/start-meteor.sh /usr/local/bin/start-meteor.sh
 RUN chmod +x /usr/local/bin/start-meteor.sh
 
+# Allow building a production bundle during image build. Set build arg BUILD_BUNDLE=1 to enable.
+ARG BUILD_BUNDLE=0
+RUN if [ "$BUILD_BUNDLE" = "1" ]; then \
+    echo "Building Meteor production bundle..."; \
+    METEOR_ALLOW_SUPERUSER=1 meteor build --directory /tmp/bundle --server-only; \
+    cd /tmp/bundle/programs/server && npm install --production; \
+    mkdir -p /app/bundle && cp -a /tmp/bundle/. /app/bundle/; \
+    else \
+    echo "Skipping bundle build (BUILD_BUNDLE != 1)"; \
+    fi
+
 # Expose the default Meteor port
 EXPOSE 3000
 
 # Start Meteor using the startup script that waits for MongoDB user
-CMD ["/usr/local/bin/start-meteor.sh"]
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+CMD ["/usr/local/bin/entrypoint.sh"]

@@ -55,6 +55,13 @@ jobs:
 
           echo "✅ Assets copied"
 
+      - name: Write repo info for demo
+        run: |
+          echo "Writing repo info into demo-build/repo-info.json"
+          cat > demo-build/repo-info.json <<EOF
+          { "branch": "${{ github.ref_name }}", "commit": "${{ github.sha }}", "repo": "${{ github.repository }}" }
+          EOF
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -476,6 +476,15 @@ Template.leaderboard.helpers({
       },
     );
   },
+  hasPlayers: function () {
+    Meteor.subscribe("thePlayers");
+    return PlayersList.find({ topScore: true }).count() > 0;
+  },
+  hasMeasPlayers: function () {
+    Meteor.subscribe("meAsAPlayer");
+    var currentUserId = Meteor.userId();
+    return PlayersList.find({ createdBy: currentUserId }).count() > 0;
+  },
   measplayer: function () {
     //mirrored query from server
     Meteor.subscribe("meAsAPlayer");
@@ -2174,3 +2183,50 @@ function averageTime() {
 
   return totalTime / numberOfTimes;
 }
+
+// Append GitHub repo info (repo link, issues, branch and last commit)
+Meteor.startup(function () {
+  var owner = "eatyourpeas";
+  var repo = "refract";
+  var branch = "upgrade-meteor";
+
+  // Ensure branch placeholder is populated
+  var $branchEl = $("#repo-branch");
+  if ($branchEl.length) {
+    $branchEl.text(branch);
+  }
+
+  // Fetch latest commit for the branch from GitHub API (public repo)
+  // Ask the server for repo info first (works for VPS builds); fallback to /repo-info.json
+  Meteor.call('repo.info', function (err, info) {
+    if (!err && info) {
+      if (info.branch) $branchEl.text(info.branch);
+      if (info.commit) {
+        var short = info.commit.substring(0, 7);
+        var commitUrl = 'https://github.com/' + (info.repo || (owner + '/' + repo)) + '/commit/' + info.commit;
+        $('#repo-commit').html('<a href="' + commitUrl + '" target="_blank" rel="noopener">' + short + '</a>');
+        return;
+      }
+    }
+
+    // Fallback to static file (used by GH Pages demo workflow)
+    fetch('/repo-info.json')
+      .then(function (resp) {
+        if (!resp.ok) throw new Error('no repo-info');
+        return resp.json();
+      })
+      .then(function (info2) {
+        if (info2.branch) $branchEl.text(info2.branch);
+        if (info2.commit) {
+          var short = info2.commit.substring(0, 7);
+          var commitUrl = 'https://github.com/' + (info2.repo || (owner + '/' + repo)) + '/commit/' + info2.commit;
+          $('#repo-commit').html('<a href="' + commitUrl + '" target="_blank" rel="noopener">' + short + '</a>');
+        } else {
+          $('#repo-commit').text('n/a');
+        }
+      })
+      .catch(function () {
+        $('#repo-commit').text('n/a');
+      });
+  });
+});

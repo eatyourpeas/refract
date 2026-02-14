@@ -44,6 +44,7 @@
           <div class="row">
             <div class="col-lg-3 col-md-2"></div>
             <div class="col-lg-6 col-md-8 col-xs-12">
+              {{#if hasPlayers}}
               <table class="table table-condensed">
                 <thead>
                   <tr>
@@ -62,6 +63,9 @@
                   {{/each}}
                 </tbody>
               </table>
+              {{else}}
+                <div class="alert alert-info">No leaderboard entries yet — play and save a score to appear here.</div>
+              {{/if}}
             </div>
             <div class="col-lg-3 col-md-2"></div>
           </div> <!--row-->
@@ -78,22 +82,26 @@
         <div class="row">
           <div class="col-lg-3 col-md-2"></div>
           <div class="col-lg-6 col-md-8 col-xs-12">
-            <table class="table table-condensed">
-              <thead>
-                <tr>
-                  <th>Time (seconds)</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each measplayer}}
+            {{#if hasMeasPlayers}}
+              <table class="table table-condensed">
+                <thead>
                   <tr>
-                    <td>{{oneDP score}}</td>
-                    <td>{{dateformat date}}</td>
+                    <th>Time (seconds)</th>
+                    <th>Date</th>
                   </tr>
-                {{/each}}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {{#each measplayer}}
+                    <tr>
+                      <td>{{oneDP score}}</td>
+                      <td>{{dateformat date}}</td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            {{else}}
+              <div class="alert alert-info">No personal best times yet — play and save a score to see them here.</div>
+            {{/if}}
           </div>
           <div class="col-lg-3 col-md-2"></div>
         </div> <!--row-->
@@ -185,7 +193,17 @@
     <div class="push"></div>
 
   <div class="footer">
-    <p>Copyright &copy; Refract, 2015. Inspired by Andrew Gridley. Developed by <a href='eatyourpeas.co.uk'>@eatyourpeas</a></p>
+    <p>
+      <span class="site-credit">Copyright &copy; Refract, 2015. Inspired by Andrew Gridley. Developed by <a href='eatyourpeas.co.uk'>@eatyourpeas</a></span>
+      <span class="pull-right" id="github-footer">
+        <i class="fa fa-github" aria-hidden="true" style="margin-right:6px"></i>
+        <a href="https://github.com/eatyourpeas/refract" target="_blank" rel="noopener">Repository</a>
+        &nbsp;|&nbsp;
+        <a href="https://github.com/eatyourpeas/refract/issues" target="_blank" rel="noopener">Issues</a>
+        &nbsp;|&nbsp;Branch: <span id="repo-branch">upgrade-meteor</span>
+        &nbsp;|&nbsp;Commit: <span id="repo-commit">loading...</span>
+      </span>
+    </p>
   </div>
 
   {{> loginModal}}

@@ -8,8 +8,17 @@ services:
       ROOT_URL: "http://localhost:3000"
       MONGO_APP_USER: "refract_user"
       MONGO_APP_PASS: "refract_pass"
+      # Repo/build info (optional) - supply via .env or export before running
+      GIT_COMMIT: "${GIT_COMMIT:-}"
+      GIT_BRANCH: "${GIT_BRANCH:-}"
+      GIT_REPO: "${GIT_REPO:-}"
+      # GitHub-compatible names (CI may set these)
+      GITHUB_SHA: "${GITHUB_SHA:-}"
+      GITHUB_REF_NAME: "${GITHUB_REF_NAME:-}"
+      GITHUB_REPOSITORY: "${GITHUB_REPOSITORY:-}"
       # MongoDB connection via internal Docker network only
-      MONGO_URL: "mongodb://refract_user:refract_pass@mongo:27017/refract?authSource=admin&directConnection=true&serverSelectionTimeoutMS=30000&connectTimeoutMS=30000"
+      # Increased timeouts to tolerate slower container startup and transient network delays
+      MONGO_URL: "mongodb://refract_user:refract_pass@mongo:27017/refract?authSource=admin&directConnection=true&serverSelectionTimeoutMS=120000&connectTimeoutMS=120000"
     volumes:
       # For local dev only - remove these volumes for production VPS deployment
       - .:/app
@@ -17,6 +26,12 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
     networks:
       - refract-internal
 
@@ -37,8 +52,8 @@ services:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 20
+      start_period: 120s
     networks:
       - refract-internal
 

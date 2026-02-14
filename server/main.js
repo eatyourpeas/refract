@@ -119,6 +119,88 @@ Meteor.methods({
       throw new Meteor.Error(500, err.message || "Failed to create user");
     }
   },
+  // Provide repository info to clients. Reads repo-info.json if present,
+  // otherwise falls back to environment variables or git if available.
+  "repo.info": function () {
+    const safeRequire = (m) =>
+      typeof require !== "undefined" ? require(m) : null;
+    const fs = safeRequire("fs");
+    const path = safeRequire("path");
+    const child = safeRequire("child_process");
+
+    const candidates = [];
+    if (path) {
+      candidates.push(path.join(process.cwd(), "repo-info.json"));
+      candidates.push(path.join(process.cwd(), "public", "repo-info.json"));
+    }
+
+    let info = {};
+
+    if (fs) {
+      for (const p of candidates) {
+        try {
+          if (fs.existsSync(p)) {
+            const raw = fs.readFileSync(p, "utf8");
+            try {
+              const parsed = JSON.parse(raw);
+              if (parsed && typeof parsed === "object") {
+                info = Object.assign(info, parsed);
+                break;
+              }
+            } catch (e) {
+              // ignore parse errors and continue
+            }
+          }
+        } catch (e) {
+          // ignore file system errors
+        }
+      }
+    }
+
+    // Environment variable fallbacks (set by CI or deployment)
+    info.branch =
+      info.branch ||
+      process.env.GITHUB_REF_NAME ||
+      process.env.GIT_BRANCH ||
+      null;
+    info.commit =
+      info.commit || process.env.GITHUB_SHA || process.env.GIT_COMMIT || null;
+    info.repo = info.repo || process.env.GITHUB_REPOSITORY || null;
+
+    // Try to query git on the host if still missing (best-effort)
+    if (child) {
+      try {
+        if (!info.commit) {
+          const out = child
+            .execSync("git rev-parse HEAD", {
+              cwd: process.cwd(),
+              timeout: 2000,
+            })
+            .toString()
+            .trim();
+          if (out) info.commit = out;
+        }
+      } catch (e) {
+        // ignore
+      }
+      try {
+        if (!info.branch) {
+          const out = child
+            .execSync("git rev-parse --abbrev-ref HEAD", {
+              cwd: process.cwd(),
+              timeout: 2000,
+            })
+            .toString()
+            .trim();
+          if (out) info.branch = out;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return info;
+  },
 });
 
 // Account Configuration
@@ -344,4 +426,78 @@ Meteor.publish("meAsAPlayer", function () {
       limit: 15,
     },
   );
+});
+
+// Health endpoint for readiness checks and monitoring
+// Use the global `WebApp` provided by Meteor's `webapp` package
+// Guard require() usage because some Meteor runtime contexts may not expose CommonJS `require`.
+const fs = typeof require !== "undefined" ? require("fs") : null;
+const path = typeof require !== "undefined" ? require("path") : null;
+
+WebApp.connectHandlers.use("/health", (req, res, next) => {
+  res.setHeader("Content-Type", "application/json");
+
+  // Gather repo info (same sources as repo.info)
+  const candidates = [
+    path.join(process.cwd(), "repo-info.json"),
+    path.join(process.cwd(), "public", "repo-info.json"),
+  ];
+  let repoInfo = {};
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, "utf8");
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            repoInfo = Object.assign(repoInfo, parsed);
+            break;
+          }
+        } catch (e) {
+          // ignore parse errors
+        }
+      }
+    } catch (e) {
+      // ignore fs errors
+    }
+  }
+
+  repoInfo.branch =
+    repoInfo.branch ||
+    process.env.GITHUB_REF_NAME ||
+    process.env.GIT_BRANCH ||
+    null;
+  repoInfo.commit =
+    repoInfo.commit || process.env.GITHUB_SHA || process.env.GIT_COMMIT || null;
+  repoInfo.repo = repoInfo.repo || process.env.GITHUB_REPOSITORY || null;
+
+  // Check MongoDB by requesting collection stats
+  PlayersList.rawCollection()
+    .stats()
+    .then((stats) => {
+      const payload = {
+        status: "ok",
+        uptime_seconds: Math.floor(process.uptime()),
+        db: {
+          ok: true,
+          collections: stats.collections || null,
+        },
+        repo: repoInfo,
+      };
+      res.writeHead(200);
+      res.end(JSON.stringify(payload));
+    })
+    .catch((err) => {
+      const payload = {
+        status: "error",
+        uptime_seconds: Math.floor(process.uptime()),
+        db: {
+          ok: false,
+          error: err && err.message ? err.message : String(err),
+        },
+        repo: repoInfo,
+      };
+      res.writeHead(503);
+      res.end(JSON.stringify(payload));
+    });
 });
