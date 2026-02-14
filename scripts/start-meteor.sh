@@ -12,7 +12,7 @@ done
 echo "MongoDB is up - waiting for user to be created..."
 
 # Wait for the app user to exist and be able to authenticate
-max_retries=30
+max_retries=90
 retry_count=0
 
 while [ $retry_count -lt $max_retries ]; do
@@ -23,7 +23,7 @@ while [ $retry_count -lt $max_retries ]; do
   
   retry_count=$((retry_count + 1))
   echo "Attempt $retry_count/$max_retries: User not ready yet, waiting..."
-  sleep 2
+  sleep 3
 done
 
 if [ $retry_count -eq $max_retries ]; then

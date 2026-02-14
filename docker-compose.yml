@@ -9,7 +9,7 @@ services:
       MONGO_APP_USER: "refract_user"
       MONGO_APP_PASS: "refract_pass"
       # MongoDB connection via internal Docker network only
-      MONGO_URL: "mongodb://refract_user:refract_pass@mongo:27017/refract?authSource=admin&directConnection=true"
+      MONGO_URL: "mongodb://refract_user:refract_pass@mongo:27017/refract?authSource=admin&directConnection=true&serverSelectionTimeoutMS=30000&connectTimeoutMS=30000"
     volumes:
       # For local dev only - remove these volumes for production VPS deployment
       - .:/app
@@ -37,8 +37,8 @@ services:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 10
+      start_period: 30s
     networks:
       - refract-internal
 
