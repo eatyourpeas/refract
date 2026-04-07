@@ -3,6 +3,9 @@ if (Meteor.isServer) {
   // Security: Remove autopublish and insecure packages (should be done via meteor remove)
   // This file serves as documentation of security measures
 
+  // Accessibility: Ensure the HTML document has a lang attribute
+  WebApp.addHtmlAttributeHook(() => ({ lang: 'en' }));
+
   // Security: Configure CORS headers
   WebApp.rawConnectHandlers.use(function (req, res, next) {
     // Remove server information headers

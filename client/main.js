@@ -331,6 +331,27 @@ Template.registerHelper("pathFor", function (options) {
 
 // Initialize the default page
 Meteor.startup(function () {
+  // Accessibility: Improve color contrast for navbar-brand to meet WCAG 2.1 AA (4.5:1)
+  var style = document.createElement('style');
+  style.innerHTML =
+    '.navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a { color: #5e5e5e !important; } ' +
+    '.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus { color: #333 !important; } ' +
+    /* Accessibility: Improve legibility of login/logout links on blue backgrounds (Top Right) */
+    '#login-link, #logout-link { color: #ffffff !important; font-weight: 600; } ' +
+    '#login-link:hover, #login-link:focus, #logout-link:hover, #logout-link:focus { color: #ffffff !important; text-decoration: underline; } ' +
+    '#canvascontainer { position: relative; } ' + // Ensure parent is positioned for absolute children
+    '#acc-controls.sr-only { position: absolute !important; clip: rect(1px, 1px, 1px, 1px) !important; } ' + // Ensure it's hidden without taking space
+    '#acc-controls.sr-only-focusable:focus-within { ' +
+      'position: absolute !important; ' + // Make it absolute to overlay
+      'top: 15px !important; ' + // Position it at the top-left of the canvascontainer
+      'left: 15px !important; ' +
+      'width: auto !important; height: auto !important; margin: 0 !important; overflow: visible !important; clip: auto !important; ' +
+      'z-index: 1000 !important; ' + // Ensure it's on top of other content
+    '} ' +
+    '#acc-controls button:focus { outline: 4px solid #f39c12 !important; outline-offset: 2px !important; box-shadow: 0 0 10px rgba(243, 156, 18, 0.7) !important; z-index: 10 !important; position: relative !important; } ' +
+    '#acc-controls button.btn-primary:focus { background-color: #286090 !important; }';
+  document.head.appendChild(style);
+
   Session.setDefault("currentPage", "home");
   Session.setDefault("isSignUp", false);
   Session.setDefault("authError", null);
@@ -505,21 +526,27 @@ Template.leaderboard.helpers({
   },
   trophycolor: function (index) {
     if (index == 0) {
-      return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FFD700;' ></i>"; //gold
+      return "<i class='fa fa-trophy' style='color: #FFD700;' aria-label='Gold Trophy'></i><span class='sr-only'> (Gold)</span>";
     }
     if (index == 1) {
-      return "<i class='fa fa-trophy' aria-hidden='true' style='color: #C0C0C0;' ></i>"; //silver
+      return "<i class='fa fa-trophy' style='color: #C0C0C0;' aria-label='Silver Trophy'></i><span class='sr-only'> (Silver)</span>";
     }
     if (index == 2) {
-      return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FF7F00;' ></i>"; //bronze
-    } else {
-      return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FF7F00; opacity: 0;' ></i>"; //transparent
+      return "<i class='fa fa-trophy' style='color: #FF7F00;' aria-label='Bronze Trophy'></i><span class='sr-only'> (Bronze)</span>";
     }
+    // Maintain alignment for other positions
+    return "<i class='fa fa-trophy' aria-hidden='true' style='color: #FF7F00; opacity: 0;'></i>";
   },
   oneDP: function (score) {
     var onedp = score.toFixed(2);
     return onedp;
   },
+  isTopThree: function(index) {
+  return index < 3;
+},
+positionLabel: function(index) {
+  return ['1st', '2nd', '3rd'][index];
+},
 });
 
 Template.refract.rendered = function () {
@@ -696,6 +723,10 @@ function thisImageHasLoaded(event) {
 function allImagesNowLoaded(event) {
   window.addEventListener("resize", resize, false);
   init();
+  // Accessibility: Initialize keyboard controls after game init
+  if (typeof createAccessibilityControls === 'function') {
+    createAccessibilityControls();
+  }
 }
 
 function loadDefinitions() {
@@ -1995,12 +2026,16 @@ function restart() {
   updateLensesUsed();
   updateLensesRemaining();
 
-  for (var i = 0; i < lensesInPlace.length; i++) {
-    var lensEvent = lensesInPlace[i];
+  var announcer = document.getElementById('acc-announcer');
+  if (announcer) announcer.innerText = "";
+
+  // Use while loop to return all lenses correctly as returnLensToOrigin splices the array
+  while (lensesInPlace.length > 0) {
+    var lensEvent = lensesInPlace[0];
     var lens = lensEvent.target;
+    returnLensToOrigin(lensEvent);
     lens.thisLensHasBeenPlacedAlready = false;
     lens.lensInPlace = false;
-    returnLensToOrigin(lensesInPlace[i]);
   }
 
   resetVariables();
@@ -2182,6 +2217,115 @@ function averageTime() {
   Session.set("timesArray", times);
 
   return totalTime / numberOfTimes;
+}
+
+// Accessibility: Keyboard-based alternative for drag-and-drop
+function placeLensByKey(val) {
+  if (!allLensesContainer) return;
+  var lenses = allLensesContainer.children;
+  for (var i = 0; i < lenses.length; i++) {
+    var lens = lenses[i];
+    if (lens.diopter === val && !lens.lensInPlace) {
+      var numberOfLensesLeft = Session.get("numberOfLensesLeft");
+      if (numberOfLensesLeft < 1) return;
+      
+      if (firstTime) {
+        started = true;
+        startTime = new Date().getTime();
+        firstTime = false;
+        fadeLabel(true, directionsLabel);
+        fadeLabel(false, clockText);
+        addEventsToSubmitButton();
+        restartbutton.removeAllEventListeners();
+        fadeRestart(false);
+      }
+
+      lens.lensInPlace = true;
+      
+      var lensValue = parseFloat(lens.diopter);
+      myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, true);
+      updateTheScores(myTotalDiopters);
+      
+      nudgeLensIntoPlace({ target: lens });
+      lens.thisLensHasBeenPlacedAlready = true;
+      updateLensesUsed();
+      updateLensesRemaining();
+      
+      // Announce to screen readers
+      var announcer = document.getElementById('acc-announcer');
+      if (announcer) announcer.innerText = "Added " + val + " lens. Current total: " + diopterTotalText;
+      break;
+    }
+  }
+}
+
+function removeLastLensByKey() {
+  if (lensesInPlace && lensesInPlace.length > 0) {
+    var lastEvent = lensesInPlace[lensesInPlace.length - 1];
+    var lens = lastEvent.target;
+    
+    var lensValue = parseFloat(lens.diopter);
+    myTotalDiopters = updateTheLensTotals(lensValue, myTotalDiopters, false);
+    updateTheScores(myTotalDiopters);
+    
+    Session.set("numberOfLensesLeft", parseInt(Session.get("numberOfLensesLeft")) + 1);
+    
+    returnLensToOrigin(lastEvent);
+    lens.lensInPlace = false;
+    lens.thisLensHasBeenPlacedAlready = false;
+    updateLensesUsed();
+    updateLensesRemaining();
+    
+    var announcer = document.getElementById('acc-announcer');
+    if (announcer) announcer.innerText = "Removed " + lens.diopter + " lens. Current total: " + diopterTotalText;
+  }
+}
+
+function createAccessibilityControls() {
+  var existing = document.getElementById('acc-controls');
+  if (existing) existing.remove();
+  
+  var controls = document.createElement('div');
+  controls.id = 'acc-controls';
+  controls.className = 'sr-only sr-only-focusable';
+  controls.setAttribute('role', 'region');
+  controls.setAttribute('aria-label', 'Keyboard Lens Controls');
+  controls.style.cssText = 'padding: 15px; background: #fdfdfd; border: 2px solid #337ab7; margin-bottom: 10px; border-radius: 4px;';
+  controls.innerHTML = '<h3 style="margin-top:0">Lens Controls</h3><p>Select a lens to add it to the trial frame. (Visible on focus)</p>';
+  
+  ["-4.0", "-2.0", "-1.0", "-0.5", "-0.25", "+4.0", "+2.0", "+1.0", "+0.5", "+0.25"].forEach(function(v) {
+    var b = document.createElement('button');
+    b.className = 'btn btn-sm btn-primary';
+    b.style.margin = '3px';
+    b.innerText = 'Add ' + v;
+    b.onclick = function() { placeLensByKey(v); };
+    controls.appendChild(b);
+  });
+  
+  var removeBtn = document.createElement('button');
+  removeBtn.className = 'btn btn-sm btn-danger';
+  removeBtn.style.margin = '3px';
+  removeBtn.innerText = 'Remove Last Lens';
+  removeBtn.onclick = removeLastLensByKey;
+  controls.appendChild(removeBtn);
+  
+  var submitBtn = document.createElement('button');
+  submitBtn.type = 'button';
+  submitBtn.className = 'btn btn-sm btn-success';
+  submitBtn.style.margin = '3px';
+  submitBtn.innerText = 'Submit Prescription';
+  submitBtn.onclick = clickedSubmit;
+  controls.appendChild(submitBtn);
+  
+  var ann = document.createElement('div');
+  ann.id = 'acc-announcer';
+  ann.setAttribute('aria-live', 'polite');
+  ann.style.marginTop = '10px';
+  ann.style.fontWeight = 'bold';
+  controls.appendChild(ann);
+  
+  var target = document.getElementById('canvascontainer');
+  if (target) target.insertBefore(controls, target.firstChild);
 }
 
 // Append GitHub repo info (repo link, issues, branch and last commit)
