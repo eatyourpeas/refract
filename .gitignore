@@ -1,10 +1,19 @@
-.meteor/
-.vscode/
-.DS_Store/
-public/fonts/.DS_Store
-public/img/.DS_Store
-public/img/sweet_sprites/.DS_Store
+# macOS system files
+.DS_Store
+**/.DS_Store
 
-# Generated demo build
-demo-build/
+# Meteor
+.meteor/local/
+.meteor/.id
+# Ensure we DO track these essential config files
+! .meteor/packages
+! .meteor/platforms
+! .meteor/release
+! .meteor/versions
+
+# IDEs and Dependencies
+.vscode/
 node_modules/
+
+# Builds
+demo-build/
