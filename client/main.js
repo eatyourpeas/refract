@@ -341,6 +341,8 @@ Meteor.startup(function () {
     /* Accessibility: Improve legibility of login/logout links on blue backgrounds (Top Right) */
     '#login-link, #logout-link { color: #ffffff !important; font-weight: 600; } ' +
     '#login-link:hover, #login-link:focus, #logout-link:hover, #logout-link:focus { color: #ffffff !important; text-decoration: underline; } ' +
+    /* Accessibility: Distinguish footer links from surrounding text and improve contrast */
+    '#github-footer a { text-decoration: underline !important; color: #23527c !important; } ' +
     '#acc-controls.sr-only { position: absolute !important; clip: rect(1px, 1px, 1px, 1px) !important; padding: 0 !important; border: 0 !important; height: 1px !important; width: 1px !important; overflow: hidden !important; } ' +
     '#acc-controls.sr-only-focusable:focus-within { ' +
       'position: relative !important; ' + // Push content instead of overlaying
