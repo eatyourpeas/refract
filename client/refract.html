@@ -14,7 +14,7 @@
   <style>
     /* Force navbar spacing */
     body {
-      padding-top: 80px !important;
+      padding-top: 70px !important; /* Revert to 70px to clear navbar */
     }
     
     /* Force footer padding */
@@ -111,6 +111,7 @@
 
 
 <template name = "refractGame">
+  <div id="game-top-buffer" style="height: 100px; position: relative; margin-bottom: 10px;"></div>
   <div class="container-fluid" id="canvascontainer">
     <canvas id ="specsCanvas" align="left"> </canvas>
   </div>

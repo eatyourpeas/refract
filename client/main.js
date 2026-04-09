@@ -334,19 +334,27 @@ Meteor.startup(function () {
   // Accessibility: Improve color contrast for navbar-brand to meet WCAG 2.1 AA (4.5:1)
   var style = document.createElement('style');
   style.innerHTML =
-    '.navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a { color: #5e5e5e !important; } ' +
+    '.navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a { color: #444444 !important; } ' +
     '.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus { color: #333 !important; } ' +
     /* Accessibility: Improve legibility of login/logout links on blue backgrounds (Top Right) */
     '#login-link, #logout-link { color: #ffffff !important; font-weight: 600; } ' +
     '#login-link:hover, #login-link:focus, #logout-link:hover, #logout-link:focus { color: #ffffff !important; text-decoration: underline; } ' +
-    '#canvascontainer { position: relative; } ' + // Ensure parent is positioned for absolute children
-    '#acc-controls.sr-only { position: absolute !important; clip: rect(1px, 1px, 1px, 1px) !important; } ' + // Ensure it's hidden without taking space
+    '#acc-controls.sr-only { position: absolute !important; clip: rect(1px, 1px, 1px, 1px) !important; padding: 0 !important; border: 0 !important; height: 1px !important; width: 1px !important; overflow: hidden !important; } ' +
     '#acc-controls.sr-only-focusable:focus-within { ' +
-      'position: absolute !important; ' + // Make it absolute to overlay
-      'top: 15px !important; ' + // Position it at the top-left of the canvascontainer
-      'left: 15px !important; ' +
-      'width: auto !important; height: auto !important; margin: 0 !important; overflow: visible !important; clip: auto !important; ' +
-      'z-index: 1000 !important; ' + // Ensure it's on top of other content
+      'position: relative !important; ' + // Push content instead of overlaying
+      'display: block !important; ' +
+      'position: absolute !important; ' + 
+      'top: 50% !important; ' +
+      'left: 50% !important; ' +
+      'transform: translate(-50%, -50%) !important; ' + // Center both horizontally and vertically
+      'width: 100% !important; ' + // Stretch to full width
+      'max-width: 95% !important; ' +
+      'height: auto !important; ' +
+      'margin: 0 !important; ' + 
+      'text-align: center !important; ' + // Center buttons within the wide box
+      'overflow: visible !important; ' +
+      'clip: auto !important; ' +
+      'z-index: 1000 !important; ' + // Ensure it's on top
     '} ' +
     '#acc-controls button:focus { outline: 4px solid #f39c12 !important; outline-offset: 2px !important; box-shadow: 0 0 10px rgba(243, 156, 18, 0.7) !important; z-index: 10 !important; position: relative !important; } ' +
     '#acc-controls button.btn-primary:focus { background-color: #286090 !important; }';
@@ -901,7 +909,7 @@ function resize() {
 
   if (scale === 1 && isDesktop) {
     subStage.x = (gameCanvas.width - scaledWidth) / 2;
-    subStage.y = (gameCanvas.height - scaledHeight) / 2;
+    subStage.y = 0; // Pin to top of canvas, as buffer now handles top spacing
   } else {
     subStage.x = 0;
     subStage.y = 0;
@@ -2324,8 +2332,8 @@ function createAccessibilityControls() {
   ann.style.fontWeight = 'bold';
   controls.appendChild(ann);
   
-  var target = document.getElementById('canvascontainer');
-  if (target) target.insertBefore(controls, target.firstChild);
+  var target = document.getElementById('game-top-buffer'); // Insert into the new buffer
+  if (target) target.appendChild(controls);
 }
 
 // Append GitHub repo info (repo link, issues, branch and last commit)
