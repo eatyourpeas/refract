@@ -334,6 +334,8 @@ Meteor.startup(function () {
   // Accessibility: Improve color contrast for navbar-brand to meet WCAG 2.1 AA (4.5:1)
   var style = document.createElement('style');
   style.innerHTML =
+    'html, body { overflow: hidden !important; height: 100% !important; width: 100% !important; position: relative !important; } ' +
+    '#wrapper, #main { overflow: hidden !important; } ' +
     '.navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a { color: #444444 !important; } ' +
     '.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus { color: #333 !important; } ' +
     /* Accessibility: Improve legibility of login/logout links on blue backgrounds (Top Right) */
@@ -364,6 +366,12 @@ Meteor.startup(function () {
   Session.setDefault("isSignUp", false);
   Session.setDefault("authError", null);
   Session.setDefault("passwordStrength", null);
+
+  // Prevent browser scroll-into-view behavior during keyboard navigation (Tabbing)
+  // This prevents the "shoot up" effect in iframes when bottom elements gain focus
+  window.addEventListener('focusin', function() {
+    window.scrollTo(0, 0);
+  });
 });
 
 // Authentication Templates
