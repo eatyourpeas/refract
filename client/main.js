@@ -346,7 +346,9 @@ Template.loginButtons.events({
     $("#loginModal").modal("show");
     // ensure password strength indicator exists
     if ($("#password-strength").length === 0) {
-      $("<div id=\"password-strength\" class=\"password-strength\" style=\"margin-top:6px;font-size:0.9em;color:#666\"></div>").insertAfter('#auth-password');
+      $(
+        '<div id="password-strength" class="password-strength" style="margin-top:6px;font-size:0.9em;color:#666"></div>',
+      ).insertAfter("#auth-password");
     }
   },
   "click #logout-link": function (e) {
@@ -732,7 +734,7 @@ function loadDefinitions() {
     "#303030",
   );
   directionsLabel = new createjs.Text(
-    "The clock will start when you place your first lens.\nClick submit when you have worked out the prescription.",
+    "Collect candy with every successful refract!\nThe clock will start when you place your first lens.\nClick submit when you have worked out the prescription.",
     "18px Oxygen Mono",
     "#303030",
   );
@@ -2024,10 +2026,12 @@ function restart() {
 }
 
 function showTheDialog(finalscore) {
+  var attemptCount = Session.get("attempts");
+
   bootbox.dialog({
     message:
       "Your average time to refract over " +
-      Session.get("attempts") +
+      attemptCount +
       " attempts was " +
       finalscore.toFixed(2).toString() +
       " seconds. Save your score (if you want to), and then click restart to begin the next level!",
@@ -2038,14 +2042,16 @@ function showTheDialog(finalscore) {
         className: "btn-success",
         callback: function () {
           saveTheTime(finalscore);
+          Session.set("attempts", 0);
           restart(true);
         },
       },
       main: {
         label: "Naw. Forget it.",
         className: "btn-primary",
-        called: function () {
+        callback: function () {
           console.log("forgotten");
+          Session.set("attempts", 0);
           restart(false);
         },
       },
@@ -2064,10 +2070,6 @@ function clickedSubmit() {
   //disable the stage
   allLensesContainer.mouseEnabled = false;
 
-  var attempts = Session.get("attempts");
-  attempts++;
-  Session.set("attempts", attempts);
-
   //get the patient refractive error and the student prescription
   var patient = Session.get("myPatient");
   netDiopters = parseFloat(patient) + parseFloat(myTotalDiopters);
@@ -2077,6 +2079,9 @@ function clickedSubmit() {
 
   if (netDiopters == 0.0) {
     // student has the correct prescription!
+    var attempts = Session.get("attempts") + 1;
+    Session.set("attempts", attempts);
+
     // save the time
     var times = Session.get("timesArray");
     var time = parseFloat(clockText.text);
@@ -2096,17 +2101,22 @@ function clickedSubmit() {
     fadeRestart(true);
   } else {
     //student has the wrong prescription
-    failedDialog(patient);
-    if (level > 1) {
+    var willLoseCandy = level > 1;
+    failedDialog(patient, willLoseCandy);
+    if (willLoseCandy) {
       console.log("I am losing a level");
       loseALevel();
     }
   }
 }
 
-function failedDialog(patient_refractive_error) {
+function failedDialog(patient_refractive_error, willLoseCandy) {
   var actualPrescription = "";
   var candidate_prescription = "";
+  var playerName = Meteor.user().profile.name;
+  var title = "Ouch! Nice try, " + playerName + "!";
+  var message = "";
+
   if (myTotalDiopters > 0) {
     //candidate prescription is positive
     candidate_prescription = "+" + myTotalDiopters.toFixed(2);
@@ -2124,15 +2134,27 @@ function failedDialog(patient_refractive_error) {
     actualPrescription =
       "+" + parseFloat((patient_refractive_error *= -1)).toFixed(2);
   }
+
+  message =
+    "Your chosen prescription of " +
+    candidate_prescription +
+    " DS did not match the patient's actual prescription of " +
+    actualPrescription +
+    " DS!";
+
+  if (willLoseCandy) {
+    message +=
+      " Try again. Your time won't be recorded, and you lose one eye candy.";
+  } else {
+    title = "Better luck next time, " + playerName + ".";
+    message +=
+      " Try again. Your time won't be recorded. You have not earned any eye candy yet, so none is lost on this attempt.";
+  }
+
   bootbox.alert({
     size: "small",
-    message:
-      "Your chosen prescription of " +
-      candidate_prescription +
-      " DS did not match the patient's actual prescription of " +
-      actualPrescription +
-      " DS! Try again (your time won't be recorded, but you do lose an eye candy)",
-    title: "Ouch! Nice try, " + Meteor.user().profile.name + "!",
+    message: message,
+    title: title,
     /*
       buttons:{
           success: {
@@ -2198,35 +2220,55 @@ Meteor.startup(function () {
 
   // Fetch latest commit for the branch from GitHub API (public repo)
   // Ask the server for repo info first (works for VPS builds); fallback to /repo-info.json
-  Meteor.call('repo.info', function (err, info) {
+  Meteor.call("repo.info", function (err, info) {
     if (!err && info) {
       if (info.branch) $branchEl.text(info.branch);
       if (info.commit) {
         var short = info.commit.substring(0, 7);
-        var commitUrl = 'https://github.com/' + (info.repo || (owner + '/' + repo)) + '/commit/' + info.commit;
-        $('#repo-commit').html('<a href="' + commitUrl + '" target="_blank" rel="noopener">' + short + '</a>');
+        var commitUrl =
+          "https://github.com/" +
+          (info.repo || owner + "/" + repo) +
+          "/commit/" +
+          info.commit;
+        $("#repo-commit").html(
+          '<a href="' +
+            commitUrl +
+            '" target="_blank" rel="noopener">' +
+            short +
+            "</a>",
+        );
         return;
       }
     }
 
     // Fallback to static file (used by GH Pages demo workflow)
-    fetch('/repo-info.json')
+    fetch("/repo-info.json")
       .then(function (resp) {
-        if (!resp.ok) throw new Error('no repo-info');
+        if (!resp.ok) throw new Error("no repo-info");
         return resp.json();
       })
       .then(function (info2) {
         if (info2.branch) $branchEl.text(info2.branch);
         if (info2.commit) {
           var short = info2.commit.substring(0, 7);
-          var commitUrl = 'https://github.com/' + (info2.repo || (owner + '/' + repo)) + '/commit/' + info2.commit;
-          $('#repo-commit').html('<a href="' + commitUrl + '" target="_blank" rel="noopener">' + short + '</a>');
+          var commitUrl =
+            "https://github.com/" +
+            (info2.repo || owner + "/" + repo) +
+            "/commit/" +
+            info2.commit;
+          $("#repo-commit").html(
+            '<a href="' +
+              commitUrl +
+              '" target="_blank" rel="noopener">' +
+              short +
+              "</a>",
+          );
         } else {
-          $('#repo-commit').text('n/a');
+          $("#repo-commit").text("n/a");
         }
       })
       .catch(function () {
-        $('#repo-commit').text('n/a');
+        $("#repo-commit").text("n/a");
       });
   });
 });
