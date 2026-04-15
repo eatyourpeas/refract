@@ -114,9 +114,15 @@ Meteor.methods({
       });
       return userId;
     } catch (err) {
-      // Propagate Meteor.Error messages where possible
-      if (err instanceof Meteor.Error) throw err;
-      throw new Meteor.Error(500, err.message || "Failed to create user");
+      // Keep responses consistent and non-enumerating for account creation failures.
+      console.warn("User registration failed", {
+        reason: err?.reason,
+        message: err?.message,
+      });
+      throw new Meteor.Error(
+        "registration-failed",
+        "We couldn't create your account with those details. If you already signed up, try logging in or resetting your password.",
+      );
     }
   },
   // Provide repository info to clients. Reads repo-info.json if present,
