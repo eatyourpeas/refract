@@ -309,7 +309,7 @@
 <template name="loginButtons">
   {{#if currentUser}}
     <div class="dropdown">
-      <a href="#" class="dropdown-toggle btn btn-primary btn-sm" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+      <a href="#" class="dropdown-toggle btn btn-primary btn-sm auth-btn" style="background-color:#111111;color:#ffffff;border-color:#111111;background-image:none;" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
         {{#if currentUser.profile.name}}{{currentUser.profile.name}}{{else}}{{currentUser.username}}{{/if}} <span class="caret"></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-right">
@@ -317,7 +317,7 @@
       </ul>
     </div>
   {{else}}
-    <a href="#" class="btn btn-primary btn-sm" id="login-link">Login</a>
+    <a href="#" class="btn btn-primary btn-sm auth-btn" id="login-link" style="background-color:#111111;color:#ffffff;border-color:#111111;background-image:none;">Login</a>
   {{/if}}
 </template>
 
@@ -363,8 +363,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="auth-submit">
+          <button type="button" class="btn btn-default auth-btn" style="background-color:#111111;color:#ffffff;border-color:#111111;background-image:none;" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary auth-btn" id="auth-submit" style="background-color:#111111;color:#ffffff;border-color:#111111;background-image:none;">
             {{#if isSignUp}}Sign Up{{else}}Login{{/if}}
           </button>
           <hr>
