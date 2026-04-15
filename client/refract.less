@@ -270,3 +270,137 @@ lead {
     max-width: 100%;
   }
 }
+
+/* Accessibility: high-contrast auth controls */
+a#login-link,
+a#login-link.btn,
+a#login-link.btn-primary,
+a#login-link.btn-small,
+a#login-link.btn-sm,
+a#login-link.auth-btn,
+a#login-link:hover,
+a#login-link:focus,
+a#login-link:active,
+a#login-link:visited,
+a#login-link.btn-primary:hover,
+a#login-link.btn-primary:focus,
+a#login-link.btn-primary:active,
+a#login-link.btn-primary:visited,
+.auth-btn,
+#login-link,
+#auth-submit,
+#loginModal .btn-primary,
+#loginModal .btn-default,
+.navbar .btn.btn-primary.btn-sm {
+  background-color: #111111 !important;
+  border-color: #111111 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  text-shadow: none;
+}
+.btn-primary {
+  background-color: #111111 !important;
+  border-color: #111111 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+.auth-btn:hover,
+.auth-btn:focus,
+#login-link:hover,
+#login-link:focus,
+#auth-submit:hover,
+#auth-submit:focus,
+#loginModal .btn-primary:hover,
+#loginModal .btn-primary:focus,
+#loginModal .btn-default:hover,
+#loginModal .btn-default:focus,
+.navbar .btn.btn-primary.btn-sm:hover,
+.navbar .btn.btn-primary.btn-sm:focus {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.auth-btn:focus,
+#login-link:focus,
+#auth-submit:focus,
+#loginModal .btn-primary:focus,
+#loginModal .btn-default:focus,
+.navbar .btn.btn-primary.btn-sm:focus {
+  outline: 3px solid #ffd54f;
+  outline-offset: 2px;
+}
+
+/* Keep auth helper links readable and obvious */
+#switch-to-login,
+#switch-to-signup {
+  color: #111111;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Fallback for stock Meteor accounts UI if enabled */
+.login-link-and-dropdown-list .login-link-text,
+#login-buttons .login-link-and-dropdown-list a,
+#login-dropdown-list .login-button,
+#login-dropdown-list .btn,
+#login-dropdown-list .btn-primary,
+#login-dropdown-list .btn-default,
+.accounts-dialog .login-button,
+.accounts-dialog .login-button:hover,
+.accounts-dialog .login-button:focus,
+.accounts-dialog .btn,
+.accounts-dialog .btn:hover,
+.accounts-dialog .btn:focus,
+.bootbox .btn,
+.bootbox .btn-primary,
+.bootbox .btn-default,
+.bootbox .btn:hover,
+.bootbox .btn:focus {
+  background-color: #111111;
+  border-color: #111111;
+  color: #ffffff !important;
+}
+
+.auth-btn .caret,
+#login-buttons .login-link-and-dropdown-list .caret {
+  border-top-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+/* Force text visibility for stock auth link wrappers */
+#login-buttons .login-link-and-dropdown-list a,
+#login-buttons .login-link-and-dropdown-list a:hover,
+#login-buttons .login-link-and-dropdown-list a:focus,
+#login-buttons .login-link-and-dropdown-list a:active,
+#login-buttons .login-link-and-dropdown-list a:visited,
+.login-link-and-dropdown-list a,
+.login-link-and-dropdown-list a:hover,
+.login-link-and-dropdown-list a:focus,
+.login-link-and-dropdown-list a:active,
+.login-link-and-dropdown-list a:visited {
+  color: #ffffff !important;
+}
+
+/* Definitive override for Bootstrap navbar link color inheritance */
+.navbar-default .navbar-nav > li > a#login-link,
+.navbar-default .navbar-nav > li > a#login-link:hover,
+.navbar-default .navbar-nav > li > a#login-link:focus,
+.navbar-default .navbar-nav > li > a#login-link:active,
+.navbar-default .navbar-nav > li > a#login-link:visited,
+.navbar-nav > li > a#login-link,
+.navbar-nav > li > a#login-link:hover,
+.navbar-nav > li > a#login-link:focus,
+.navbar-nav > li > a#login-link:active,
+.navbar-nav > li > a#login-link:visited {
+  background-color: #111111 !important;
+  border-color: #111111 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+.navbar-nav > li > a#login-link *,
+.navbar-default .navbar-nav > li > a#login-link * {
+  color: #ffffff !important;
+}

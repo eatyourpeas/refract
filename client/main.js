@@ -346,7 +346,9 @@ Template.loginButtons.events({
     $("#loginModal").modal("show");
     // ensure password strength indicator exists
     if ($("#password-strength").length === 0) {
-      $("<div id=\"password-strength\" class=\"password-strength\" style=\"margin-top:6px;font-size:0.9em;color:#666\"></div>").insertAfter('#auth-password');
+      $(
+        '<div id="password-strength" class="password-strength" style="margin-top:6px;font-size:0.9em;color:#666"></div>',
+      ).insertAfter("#auth-password");
     }
   },
   "click #logout-link": function (e) {
@@ -366,6 +368,36 @@ Template.loginModal.helpers({
     return Session.get("passwordStrength");
   },
 });
+
+function normalizeAuthErrorMessage(error, isSignUpFlow) {
+  var rawMessage = (error && (error.reason || error.message)) || "";
+  var normalized = rawMessage.toLowerCase();
+
+  if (normalized.indexOf("too many") !== -1) {
+    return "Too many attempts. Please wait a minute and try again.";
+  }
+
+  if (
+    normalized.indexOf(
+      "something went wrong. please check your credentials.",
+    ) !== -1 ||
+    normalized.indexOf("user not found") !== -1 ||
+    normalized.indexOf("incorrect password") !== -1 ||
+    normalized.indexOf("login failed") !== -1
+  ) {
+    return isSignUpFlow
+      ? "We couldn't create your account with those details. If you already signed up, try logging in or resetting your password."
+      : "Login failed. Please check your email and password and try again.";
+  }
+
+  if (rawMessage) {
+    return rawMessage;
+  }
+
+  return isSignUpFlow
+    ? "We couldn't create your account right now. Please review your details and try again."
+    : "Login failed. Please check your email and password and try again.";
+}
 
 Template.loginModal.events({
   "click #switch-to-signup": function (e) {
@@ -402,8 +434,7 @@ Template.loginModal.events({
         { name: name },
         function (error, result) {
           if (error) {
-            // Surface server validation messages to the user
-            Session.set("authError", error.reason || error.message);
+            Session.set("authError", normalizeAuthErrorMessage(error, true));
           } else {
             // Registration succeeded — hide modal and clear errors
             $("#loginModal").modal("hide");
@@ -416,7 +447,7 @@ Template.loginModal.events({
     } else {
       Meteor.loginWithPassword(email, password, function (error) {
         if (error) {
-          Session.set("authError", error.reason);
+          Session.set("authError", normalizeAuthErrorMessage(error, false));
         } else {
           $("#loginModal").modal("hide");
           Session.set("authError", null);
@@ -452,7 +483,11 @@ Template.loginModal.events({
       case 5:
         label = "Strong";
         break;
+      default:
+        label = "Too weak";
+        break;
     }
+
     Session.set("passwordStrength", label);
     if ($("#password-strength").length) {
       $("#password-strength").text(label);
@@ -2198,35 +2233,55 @@ Meteor.startup(function () {
 
   // Fetch latest commit for the branch from GitHub API (public repo)
   // Ask the server for repo info first (works for VPS builds); fallback to /repo-info.json
-  Meteor.call('repo.info', function (err, info) {
+  Meteor.call("repo.info", function (err, info) {
     if (!err && info) {
       if (info.branch) $branchEl.text(info.branch);
       if (info.commit) {
         var short = info.commit.substring(0, 7);
-        var commitUrl = 'https://github.com/' + (info.repo || (owner + '/' + repo)) + '/commit/' + info.commit;
-        $('#repo-commit').html('<a href="' + commitUrl + '" target="_blank" rel="noopener">' + short + '</a>');
+        var commitUrl =
+          "https://github.com/" +
+          (info.repo || owner + "/" + repo) +
+          "/commit/" +
+          info.commit;
+        $("#repo-commit").html(
+          '<a href="' +
+            commitUrl +
+            '" target="_blank" rel="noopener">' +
+            short +
+            "</a>",
+        );
         return;
       }
     }
 
     // Fallback to static file (used by GH Pages demo workflow)
-    fetch('/repo-info.json')
+    fetch("/repo-info.json")
       .then(function (resp) {
-        if (!resp.ok) throw new Error('no repo-info');
+        if (!resp.ok) throw new Error("no repo-info");
         return resp.json();
       })
       .then(function (info2) {
         if (info2.branch) $branchEl.text(info2.branch);
         if (info2.commit) {
           var short = info2.commit.substring(0, 7);
-          var commitUrl = 'https://github.com/' + (info2.repo || (owner + '/' + repo)) + '/commit/' + info2.commit;
-          $('#repo-commit').html('<a href="' + commitUrl + '" target="_blank" rel="noopener">' + short + '</a>');
+          var commitUrl =
+            "https://github.com/" +
+            (info2.repo || owner + "/" + repo) +
+            "/commit/" +
+            info2.commit;
+          $("#repo-commit").html(
+            '<a href="' +
+              commitUrl +
+              '" target="_blank" rel="noopener">' +
+              short +
+              "</a>",
+          );
         } else {
-          $('#repo-commit').text('n/a');
+          $("#repo-commit").text("n/a");
         }
       })
       .catch(function () {
-        $('#repo-commit').text('n/a');
+        $("#repo-commit").text("n/a");
       });
   });
 });

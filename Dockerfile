@@ -34,7 +34,7 @@ ENV PATH="/root/.meteor:${PATH}"
 COPY .meteor .meteor
 COPY package*.json ./
 
-# Install project npm dependencies using Meteor's bundled npm
+# Install project npm dependencies using Meteor's bundled npm.
 RUN METEOR_ALLOW_SUPERUSER=1 meteor npm install --no-audit --no-fund
 
 # Copy remaining project files
