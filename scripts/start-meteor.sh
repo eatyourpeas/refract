@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# Do NOT use set -e or set -u here — the retry loop needs to survive non-zero exits from meteor run
 
 echo "Waiting for MongoDB to be ready with user configured..."
 
@@ -39,7 +39,7 @@ while [ $start_attempt -lt $max_start_retries ]; do
   start_attempt=$((start_attempt + 1))
   echo "Starting Meteor (attempt $start_attempt/$max_start_retries)..."
   # run in foreground; if it exits with 0 we finish, otherwise retry after a delay
-  meteor run --port 0.0.0.0:3000 --allow-superuser --verbose
+  METEOR_ALLOW_SUPERUSER=1 meteor run --port 0.0.0.0:3000 --allow-superuser --verbose
   rc=$?
   if [ $rc -eq 0 ]; then
     echo "Meteor exited normally (code 0)."

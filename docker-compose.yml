@@ -8,6 +8,9 @@ services:
       ROOT_URL: "http://localhost:3000"
       MONGO_APP_USER: "refract_user"
       MONGO_APP_PASS: "refract_pass"
+      # Give the Meteor build process enough heap to avoid OOM kills during bundle compilation
+      NODE_OPTIONS: "--max-old-space-size=2048"
+      METEOR_ALLOW_SUPERUSER: "1"
       # Repo/build info (optional) - supply via .env or export before running
       GIT_COMMIT: "${GIT_COMMIT:-}"
       GIT_BRANCH: "${GIT_BRANCH:-}"
