@@ -4,6 +4,14 @@
 
 **Note**: The online demo is a standalone version without user accounts or leaderboard features. The full application includes authentication, score tracking, and competitive gameplay.
 
+### Why a separate demo?
+
+Refract is a Meteor application. Meteor embeds MongoDB as part of the application itself, which means user accounts, scores, and the leaderboard all depend on a live database. GitHub Pages only hosts static files, so a database-backed Meteor build cannot run there.
+
+To work around this, `scripts/extract-standalone-game.js` strips the Meteor-specific code — authentication, `Meteor.call()` score saves, and all database interaction — and outputs a plain HTML5 page containing only the core game JavaScript and assets. The leaderboard and score tracking are omitted; a mock `Meteor.user()` returns a "Demo Player" so the game logic still runs without a real account.
+
+**You never need to run this script by hand.** The GitHub Actions workflow [`.github/workflows/deploy-demo.yml`](.github/workflows/deploy-demo.yml) runs it automatically on every push to `main` and deploys the result to GitHub Pages. If you change `client/main.js`, committing and pushing to `main` is all that is needed for the demo to update.
+
 ---
 
 ## Authors: [Simon Chapman](https://twitter.com/eatyourpeas) and [Andy Gridley](https://personalpages.manchester.ac.uk/advanced.php?dn=cn%3DAndrew+Gridley%2Bumanroleid%3D99194%2Cou%3DDivision+of+Pharmacy+%26+Optometry%2Cou%3DSchool+of+Health+Sciences%2Cou%3DFaculty+of+Biology%5C%2C+Medicine+and+Health%2Cou%3DPeople%2Co%3DUniversity+of+Manchester%2Cc%3DGB&employeeType=&action=read&form_input=Submit)
