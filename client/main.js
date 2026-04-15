@@ -378,8 +378,9 @@ function normalizeAuthErrorMessage(error, isSignUpFlow) {
   }
 
   if (
-    normalized.indexOf("something went wrong. please check your credentials.") !==
-      -1 ||
+    normalized.indexOf(
+      "something went wrong. please check your credentials.",
+    ) !== -1 ||
     normalized.indexOf("user not found") !== -1 ||
     normalized.indexOf("incorrect password") !== -1 ||
     normalized.indexOf("login failed") !== -1
