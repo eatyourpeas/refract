@@ -96,11 +96,11 @@ For VPS deployments where you `curl`/checkout the repo and build with `docker co
 Option 1 — use the included `scripts/start.sh` (recommended):
 
 ```bash
-# on the VPS, inside the repository root (accepts --prod or --dev flags)
+# on the VPS, inside the repository root (accepts --prod/--dev and --build/--no-build)
 ./scripts/start.sh --prod
 ```
 
-Note in development this initial build step can take 10 minutes.
+By default, development starts no longer force image rebuilds. Use `--build` when you changed Dockerfile/dependencies and need a fresh image.
 
 `scripts/start.sh` will attempt to read git data (if `.git` is present) or use the `GIT_COMMIT` / `GIT_BRANCH` env vars and will write `repo-info.json` into the project root before running `docker compose`. The server prefers `repo-info.json` and then environment variables.
 
@@ -125,7 +125,7 @@ Option 3 — supply env vars (the `docker-compose.yml` reads these):
 export GIT_COMMIT=$(git rev-parse HEAD)
 export GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 export GIT_REPO="eatyourpeas/refract"
-docker compose up -d --build
+docker compose up -d
 ```
 
 Notes:
@@ -139,7 +139,7 @@ Running locally in dev vs prod using Docker
 
 ```bash
 # default development flow uses docker-compose.yml which mounts your source
-APP_ENV=development docker compose up --build
+APP_ENV=development docker compose up
 ```
 
 - Production (builds a Meteor production bundle into the image and runs the bundle):
@@ -153,6 +153,9 @@ Notes:
 
 - `docker-compose.prod.yml` builds the image with `BUILD_BUNDLE=1` so the production Meteor bundle is included in the image. The container runs `node main.js` from the bundle when `APP_ENV=production`.
 - The dev setup mounts your working tree and runs `meteor run` inside the container so you can iterate quickly.
+- To avoid repeated startup churn on low-memory hosts, Meteor retries default to 1 attempt. You can increase with `METEOR_START_RETRIES=3` if needed.
+- Default Node heap is `2048 MB` in compose. Override when needed: `NODE_OPTIONS=--max-old-space-size=3072`.
+- Development startup excludes `web.browser.legacy` and `web.cordova` by default to reduce cold-start build/load time. Override with `METEOR_EXCLUDE_ARCHS`.
 
 ### Database
 

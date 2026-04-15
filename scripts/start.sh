@@ -37,33 +37,63 @@ EOF
 
 echo "Wrote repo-info.json: branch=${BRANCH:-unknown} commit=${COMMIT:-unknown} repo=${REPO}"
 
-# Usage: ./scripts/start.sh [--prod|--dev]
-# Default: dev (uses docker-compose.yml)
+# Usage: ./scripts/start.sh [--prod|--dev] [--build|--no-build]
+# Default: dev (uses docker-compose.yml) and does not force an image rebuild.
 MODE="dev"
-if [ "$#" -gt 0 ]; then
-	case "$1" in
+FORCE_BUILD=""
+
+for arg in "$@"; do
+	case "$arg" in
 		--prod|prod)
 			MODE="prod"
 			;;
 		--dev|dev)
 			MODE="dev"
 			;;
+		--build)
+			FORCE_BUILD="1"
+			;;
+		--no-build)
+			FORCE_BUILD="0"
+			;;
 		-h|--help)
-			echo "Usage: $0 [--prod|--dev]"
+			echo "Usage: $0 [--prod|--dev] [--build|--no-build]"
 			exit 0
 			;;
 		*)
-			echo "Unknown option: $1" >&2
-			echo "Usage: $0 [--prod|--dev]"
+			echo "Unknown option: $arg" >&2
+			echo "Usage: $0 [--prod|--dev] [--build|--no-build]"
 			exit 2
 			;;
 	esac
+done
+
+if [ "$MODE" = "prod" ]; then
+	DO_BUILD="1"
+else
+	DO_BUILD="0"
+fi
+
+if [ -n "$FORCE_BUILD" ]; then
+	DO_BUILD="$FORCE_BUILD"
 fi
 
 if [ "$MODE" = "prod" ]; then
 	echo "Starting production compose (docker-compose.prod.yml)"
-	APP_ENV=production docker compose -f docker-compose.prod.yml up -d --build
+	if [ "$DO_BUILD" = "1" ]; then
+		echo "Build enabled"
+		APP_ENV=production docker compose -f docker-compose.prod.yml up -d --build
+	else
+		echo "Build disabled"
+		APP_ENV=production docker compose -f docker-compose.prod.yml up -d
+	fi
 else
 	echo "Starting development compose (docker-compose.yml)"
-	APP_ENV=development docker compose -f docker-compose.yml up -d --build
+	if [ "$DO_BUILD" = "1" ]; then
+		echo "Build enabled"
+		APP_ENV=development docker compose -f docker-compose.yml up -d --build
+	else
+		echo "Build disabled (use --build to rebuild image)"
+		APP_ENV=development docker compose -f docker-compose.yml up -d
+	fi
 fi
